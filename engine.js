@@ -10,7 +10,7 @@ const PL = (() => {
     shockRefractory: 1.0, minShockSpeed: 3, shockHz: 12,
     lateLead: -0.5,                   // m/s² : freinage « tardif » si on ne levait pas déjà le pied
     minEventS: 0.3, minCornerSpeed: 3, stopSpeed: 0.5, movingSpeed: 1,
-    lpHz: 1.5, hysteresis: 0.7
+    lpHz: 1.5, displayHz: 4, hysteresis: 0.7
   };
   const W = { freinage: .32, virages: .26, acceleration: .24, fluidite: .18 };
 
@@ -37,6 +37,9 @@ const PL = (() => {
       this.series = []; this.nextSeriesT = 0;
       this.trail = []; this.nextTrailT = 0;
       this.hist = []; this.vz = 0; this.shock = null; this.lastShock = -9;
+      // Affichage temps réel : valeurs peu filtrées, activité des capteurs, sens gauche/droite
+      this.fd = [0, 0, 0, 0]; this.dLong = 0; this.dLat = 0; this.liveMag = 0;
+      this.latSign = 1; this.latAcc = 0; this.latN = 0; this.latCal = { sum: 0, den: 0, n: 0 }; this.prevHead = null;
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
       this.status = 'init'; // init -> calibrating -> ready
@@ -69,8 +72,16 @@ const PL = (() => {
         }
         return;
       }
+      // À l'arrêt, la gravité se met à jour vite, mais seulement si le téléphone est calme :
+      // sinon un démarrage (la vitesse GPS arrive avec 1 s de retard) serait pris pour de la gravité.
       const stopped = this.speed !== null && this.speed < CFG.stopSpeed;
-      const kg = 1 - Math.exp(-dt / (stopped ? 1 : 40));
+      const dev = Math.hypot(r[0] - this.g[0], r[1] - this.g[1], r[2] - this.g[2]);
+      let tau = 300;
+      if (stopped) {
+        if (dev <= 0.35) { this.devT = 0; tau = 1; }
+        else { this.devT = (this.devT || 0) + dt; tau = this.devT > 2 ? 0.5 : Infinity; }   // téléphone reposé dans une autre position
+      } else this.devT = 0;
+      const kg = tau === Infinity ? 0 : 1 - Math.exp(-dt / tau);
       for (let i = 0; i < 3; i++) this.g[i] += (r[i] - this.g[i]) * kg;
       const u = unit(this.g);
 
@@ -91,10 +102,18 @@ const PL = (() => {
         const fp = unit(madd(this.f, -dot(this.f, u), u));
         aL = dot(lin, fp); aT = dot(lin, cross(u, fp));
       }
+      if (this.f) { this.latAcc += aT; this.latN++; }
+      const aTs = aT * this.latSign;                 // + = le véhicule accélère vers la gauche
       const al = 1 - Math.exp(-2 * Math.PI * CFG.lpHz * dt), F = this.fl;
       F[0] += al * (aL - F[0]); F[1] += al * (F[0] - F[1]);
-      F[2] += al * (aT - F[2]); F[3] += al * (F[2] - F[3]);
+      F[2] += al * (aTs - F[2]); F[3] += al * (F[2] - F[3]);
       this.aLong = F[1]; this.aLat = F[3];
+      const ad = 1 - Math.exp(-2 * Math.PI * CFG.displayHz * dt), D = this.fd;
+      D[0] += ad * (aL - D[0]); D[1] += ad * (D[0] - D[1]);
+      D[2] += ad * (aTs - D[2]); D[3] += ad * (D[2] - D[3]);
+      this.dLong = D[1]; this.dLat = D[3];
+      const hm = Math.sqrt(Math.max(0, dot(lin, lin) - dot(lin, u) ** 2));
+      this.liveMag += (hm - this.liveMag) * (1 - Math.exp(-dt / 0.3));
 
       // 3. Temps cumulés selon la vitesse GPS.
       const v = this.speed;
@@ -119,7 +138,7 @@ const PL = (() => {
       // 5. Séries pour l'affichage et la fluidité (à-coups à 2 Hz).
       if (ts >= this.nextSeriesT) { this.series.push({ t: Math.round(ts), v: (v || 0) * 3.6 }); this.nextSeriesT = ts + 1; }
       if (ts >= this.nextTrailT) {
-        this.trail.push([this.aLat, this.aLong]); if (this.trail.length > 40) this.trail.shift();
+        this.trail.push([this.dLat, this.dLong]); if (this.trail.length > 40) this.trail.shift();
         this.hist.push([ts, this.aLong]); if (this.hist.length > 60) this.hist.shift();
         this.nextTrailT = ts + 0.1;
       }
@@ -135,7 +154,7 @@ const PL = (() => {
     }
 
     /** Vitesse GPS (m/s). Sert aussi à trouver l'axe avant du véhicule. */
-    pushFix(t, v) {
+    pushFix(t, v, heading) {
       if (this.t0 === null) this.t0 = t;
       const ts = t - this.t0;
       if (this.fix) {
@@ -147,7 +166,7 @@ const PL = (() => {
             const hm = [this.hAcc[0] / this.hN, this.hAcc[1] / this.hN], c = this.cal;
             c.sx += hm[0] * a; c.sy += hm[1] * a; c.den += Math.hypot(hm[0], hm[1]) * Math.abs(a); c.n++;
             const m = Math.hypot(c.sx, c.sy);
-            if (c.n >= 6 && c.den > 1 && m / c.den >= 0.75) {
+            if (c.n >= 4 && c.den > 1 && m / c.den >= 0.75) {
               const b = this.basis;
               this.f = unit([
                 (c.sx*b.e1[0] + c.sy*b.e2[0]) / m,
@@ -159,7 +178,25 @@ const PL = (() => {
           }
         }
       }
-      this.fix = { t: ts, v }; this.speed = v; this.hAcc = [0, 0]; this.hN = 0;
+      // Sens gauche/droite : certains navigateurs (iOS) inversent le signe des capteurs.
+      // On compare l'accélération latérale mesurée à celle déduite du changement de cap GPS.
+      if (heading != null && Number.isFinite(heading) && v > 3) {
+        const ph = this.prevHead;
+        if (ph && this.fix && Math.abs(ph.t - this.fix.t) < 1e-9) {
+          const dtf = ts - ph.t;
+          if (dtf > 0.2 && dtf < 5 && this.f && this.latN > 0) {
+            const dh = ((heading - ph.h + 540) % 360) - 180;
+            const aLeft = -(v + ph.v) / 2 * (dh * Math.PI / 180) / dtf;
+            if (Math.abs(aLeft) >= 0.6) {
+              const m = this.latAcc / this.latN, c = this.latCal;
+              c.sum += m * aLeft; c.den += Math.abs(m * aLeft); c.n++;
+              if (c.n >= 3 && Math.abs(c.sum) / c.den >= 0.6) this.latSign = c.sum > 0 ? 1 : -1;
+            }
+          }
+        }
+        this.prevHead = { t: ts, h: heading, v };
+      } else this.prevHead = null;
+      this.fix = { t: ts, v }; this.speed = v; this.hAcc = [0, 0]; this.hN = 0; this.latAcc = 0; this.latN = 0;
     }
 
     _detect(kind, x, v, ts) {
@@ -258,7 +295,7 @@ const PL = (() => {
       const k = STYLE[style] || STYLE.normal;
       this.long = LONG.map(p => scaleP(p, k[p.h])); this.lat = LAT.map(p => scaleP(p, k[p.h]));
       this.R = rot(2.53, -1.08, 0.12);          // téléphone sur support, de travers
-      this.dt = 0.02; this.t = 0; this.v = 0; this.nextFix = 1; this.stopAt = null; this.done = false;
+      this.dt = 0.02; this.t = 0; this.v = 0; this.heading = 40; this.nextFix = 1; this.stopAt = null; this.done = false;
     }
     _n(s) { const r = this.rng; return s * Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
     step() {
@@ -268,13 +305,14 @@ const PL = (() => {
       const vNew = Math.max(0, this.v + a * dt), aReal = (vNew - this.v) / dt; this.v = vNew;
       let lat = 0; for (const p of this.lat) lat += pulse(t, p);
       lat *= Math.min(1, this.v / 5);
+      this.heading -= lat / Math.max(this.v, 1) * dt * 180 / Math.PI;   // virage à gauche : le cap diminue
       const m = this.v > 0.5 ? 1 : 0.1, tw = 2 * Math.PI * t;
       const vib = j => 0.22 * m * (Math.sin(tw * 11 + j) + 0.6 * Math.sin(tw * 17 + 2 * j));
       const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08), G + vib(2.1) + this._n(0.08) + (this.v > 3 ? shockAt(t) : 0)];
       const R = this.R;
-      const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), fix: null, tf: t + dt };
+      const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), fix: null, heading: null, tf: t + dt };
       this.t += dt;
-      if (this.t >= this.nextFix) { this.nextFix += 1; out.fix = Math.max(0, this.v + this._n(0.12)); }
+      if (this.t >= this.nextFix) { this.nextFix += 1; out.fix = Math.max(0, this.v + this._n(0.12)); out.heading = ((this.heading + this._n(0.8)) % 360 + 360) % 360; }
       if (this.t > 252 && this.v < 0.02) { if (this.stopAt === null) this.stopAt = this.t; if (this.t - this.stopAt >= 5) this.done = true; }
       return out;
     }
@@ -287,13 +325,13 @@ const PL = (() => {
     if (!lines.length) return [];
     const delim = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';
     const split = l => l.split(delim).map(s => s.trim().replace(/^"|"$/g, ''));
-    let idx = { t: 0, ax: 1, ay: 2, az: 3, speed: 4 }, start = 0;
+    let idx = { t: 0, ax: 1, ay: 2, az: 3, speed: 4, heading: -1 }, start = 0;
     const head = split(lines[0]);
     if (head.some(h => /[a-z]/i.test(h))) {
       start = 1;
       const find = names => head.findIndex(h => names.includes(h.toLowerCase().replace(/[^a-z]/g, '')));
       const f = { t: find(['t','time','timestamp','seconds']), ax: find(['ax','x']), ay: find(['ay','y']),
-                  az: find(['az','z']), speed: find(['speed','v','vitesse']) };
+                  az: find(['az','z']), speed: find(['speed','v','vitesse']), heading: find(['heading','bearing','course','cap']) };
       for (const k in f) if (f[k] >= 0) idx[k] = f[k]; else if (k !== 'speed') idx[k] = idx[k];
       if (f.speed < 0) idx.speed = -1;
     }
@@ -303,7 +341,7 @@ const PL = (() => {
       const c = split(lines[i]);
       const t = num(c[idx.t]), ax = num(c[idx.ax]), ay = num(c[idx.ay]), az = num(c[idx.az]);
       if (t === null || ax === null || ay === null || az === null) continue;
-      rows.push({ t, ax, ay, az, speed: idx.speed >= 0 ? num(c[idx.speed]) : null });
+      rows.push({ t, ax, ay, az, speed: idx.speed >= 0 ? num(c[idx.speed]) : null, heading: idx.heading >= 0 ? num(c[idx.heading]) : null });
     }
     if (rows.length > 3) {
       const ds = []; for (let i = 1; i < Math.min(rows.length, 200); i++) ds.push(rows[i].t - rows[i-1].t);
@@ -315,12 +353,12 @@ const PL = (() => {
   }
   function analyzeRows(rows) {
     const e = new Engine();
-    for (const r of rows) { e.pushMotion(r.t, r.ax, r.ay, r.az); if (r.speed !== null) e.pushFix(r.t, r.speed); }
+    for (const r of rows) { e.pushMotion(r.t, r.ax, r.ay, r.az); if (r.speed !== null) e.pushFix(r.t, r.speed, r.heading); }
     e.finish(); return e;
   }
   function runSim(style, seed) {
     const e = new Engine(), s = new Sim({ style, seed });
-    while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix); }
+    while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix, o.heading); }
     e.finish(); return e;
   }
   return { Engine, Sim, CFG, parseCsv, analyzeRows, runSim, rot, dot };

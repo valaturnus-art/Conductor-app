@@ -4,6 +4,7 @@ Web app qui note la qualité de conduite d'un conducteur à partir des capteurs 
 
 - Score de 0 à 100 sur 4 axes : freinage, virages, accélération, fluidité.
 - Événements datés : freinage tardif (sans anticipation) ou brusque, accélération vive, virage serré, choc de chaussée (nid-de-poule, hors score), avec un conseil par trajet.
+- Disque en temps réel dès le début de la session : le point suit la force ressentie (vers l'avant au freinage, vers l'arrière à l'accélération, sur le côté en virage).
 - Historique local (les mesures restent sur l'appareil).
 - Sources : capteurs réels, démo simulée, import CSV (`t, ax, ay, az, speed`).
 
