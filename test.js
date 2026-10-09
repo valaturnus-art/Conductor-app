@@ -34,3 +34,25 @@ for (const sign of [1, -1]) {
   console.log(`\n== capteurs ${sign === 1 ? 'Android' : 'inversés (iOS)'}: latSign ${e.latSign}, événements ${e.events.length}, score ${e.summary().score}`);
   for (const k in at) console.log(`  ${k.padEnd(22)} avant/arrière dLong ${at[k][1].toFixed(2).padStart(6)} → point ${at[k][1] < -0.5 ? 'AVANT' : at[k][1] > 0.5 ? 'ARRIÈRE' : 'centre'} | côté dLat ${at[k][0].toFixed(2).padStart(6)} → ${at[k][0] > 0.5 ? 'DROITE' : at[k][0] < -0.5 ? 'GAUCHE' : 'centre'}`);
 }
+
+// --- support grille d'aération + jauge verticale ---
+{
+  const assert = require('assert');
+  const run = (mount, simMount, sign) => {
+    const e = new PL.Engine({ mount }), s = new PL.Sim({ style: 'normal', seed: 7, mount: simMount });
+    let first = null;
+    while (!s.done) { const o = s.step(); e.pushMotion(o.t, sign * o.ax, sign * o.ay, sign * o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix, o.heading); if (first === null && e.status === 'ready') first = o.t; }
+    e.finish(); return { e, first };
+  };
+  for (const sign of [1, -1]) {
+    const { e, first } = run('vent', 'vent', sign);
+    assert(first < 2, 'vent: prêt immédiatement');
+    const sh = e.events.filter(x => x.kind === 'shock');
+    assert.deepStrictEqual(sh.map(x => Math.round(x.t) + ':' + x.side), ['62:left', '133:right', '188:both'], 'côtés des chocs');
+    assert.strictEqual(e.events.filter(x => x.kind !== 'shock').length, 5, 'pas de faux événements dus aux chocs');
+    assert.strictEqual(e.latSign, 1);
+  }
+  const { e: f, first: ff } = run('free', 'random', 1);
+  assert(ff > 5 && f.status === 'ready', 'libre: calibration GPS');
+  console.log('\nvent/libre + chocs OK');
+}

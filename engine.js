@@ -8,6 +8,8 @@ const PL = (() => {
     corner: { mod: 2.8, sev: 4.0 },   // accélération latérale en virage
     shock:  { mod: 5, sev: 8 },       // m/s², choc vertical (nid-de-poule, dos-d'âne)
     shockRefractory: 1.0, minShockSpeed: 3, shockHz: 12,
+    rollGain: 2.5,                    // répartition gauche/droite d'un choc (roulis vu du téléphone)
+    sideRatio: 0.15,                  // sous ce rapport latéral/vertical : choc des deux côtés (dos d'âne)
     lateLead: -0.5,                   // m/s² : freinage « tardif » si on ne levait pas déjà le pied
     minEventS: 0.3, minCornerSpeed: 3, stopSpeed: 0.5, movingSpeed: 1,
     lpHz: 1.5, displayHz: 4, hysteresis: 0.7
@@ -21,7 +23,7 @@ const PL = (() => {
   const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 
   class Engine {
-    constructor() { this.reset(); }
+    constructor(opts = {}) { this.mount = opts.mount === 'free' ? 'free' : 'vent'; this.reset(); }
 
     reset() {
       this.t0 = null; this.tPrev = null; this.t = 0;
@@ -38,11 +40,21 @@ const PL = (() => {
       this.trail = []; this.nextTrailT = 0;
       this.hist = []; this.vz = 0; this.shock = null; this.lastShock = -9;
       // Affichage temps réel : valeurs peu filtrées, activité des capteurs, sens gauche/droite
+      this.rs = 1; this.ventOk = false; this.fSource = null;
+      this.vh = 0; this.vzSlow = 0; this.lz = 0; this.lzSlow = 0; this.zL = 0; this.zR = 0; this.pk = [0, 0];
       this.fd = [0, 0, 0, 0]; this.dLong = 0; this.dLat = 0; this.liveMag = 0;
       this.latSign = 1; this.latAcc = 0; this.latN = 0; this.latCal = { sum: 0, den: 0, n: 0 }; this.prevHead = null;
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
       this.status = 'init'; // init -> calibrating -> ready
+    }
+
+    /** Téléphone vertical sur la grille : l'avant du véhicule est derrière l'écran (−z), projeté à l'horizontale. */
+    _applyPrior(u) {
+      const z = [0, 0, 1], zh = madd(z, -dot(z, u), u), n = Math.hypot(zh[0], zh[1], zh[2]);
+      if (n < 0.2) return false;
+      this.f = [-zh[0] / n, -zh[1] / n, -zh[2] / n]; this.fSource = 'prior'; this.status = 'ready';
+      return true;
     }
 
     _newBasis(u) {
@@ -59,7 +71,7 @@ const PL = (() => {
       const ts = t - this.t0;
       const dt = this.tPrev === null ? 0.02 : clamp(t - this.tPrev, 0.001, 0.2);
       this.tPrev = t; this.t = ts;
-      const r = [ax, ay, az];
+      const r = [this.rs * ax, this.rs * ay, this.rs * az];
 
       // 1. Gravité : moyenne initiale, puis suivi lent (rapide à l'arrêt).
       if (!this.g) {
@@ -67,8 +79,15 @@ const PL = (() => {
         if (this.gBuf.length >= 25) {
           const s = [0, 0, 0];
           for (const v of this.gBuf) { s[0] += v[0]; s[1] += v[1]; s[2] += v[2]; }
-          this.g = [s[0]/25, s[1]/25, s[2]/25]; this.gBuf = null;
+          // Portrait, haut de l'écran vers le haut : la gravité mesurée est surtout selon y. Son signe donne la
+          // convention du navigateur (Android : +, iOS : −) : on normalise tout pour avoir « haut = +gravité ».
+          let rs = 1; this.ventOk = false;
+          const m = Math.hypot(s[0], s[1], s[2]);
+          if (this.mount === 'vent' && m > 0 && Math.abs(s[1]) / m >= 0.7) { rs = s[1] < 0 ? -1 : 1; this.ventOk = true; }
+          this.rs = rs; this.g = [rs * s[0] / 25, rs * s[1] / 25, rs * s[2] / 25]; this.gBuf = null;
           this.gCal = unit(this.g); this.status = 'calibrating';
+          this._newBasis(this.gCal);
+          if (this.ventOk) this._applyPrior(this.gCal);
         }
         return;
       }
@@ -87,14 +106,15 @@ const PL = (() => {
 
       // Téléphone déplacé : on oublie l'axe avant et on recalibre.
       if (this.f && dot(u, this.gCal) < 0.94) {
-        this.f = null; this.basis = null; this.gCal = u; this.open = {};
+        this.f = null; this.fSource = null; this.basis = null; this.gCal = u; this.open = {};
         this.status = 'calibrating'; this.recalCount++;
+        if (this.ventOk) this._applyPrior(u);
       }
-      if (!this.f && (!this.basis || dot(u, this.basis.u) < 0.996)) this._newBasis(u);
+      if (!this.basis || dot(u, this.basis.u) < 0.996) this._newBasis(u);
 
       // 2. Accélération linéaire et projection sur les axes du véhicule.
       const lin = [r[0]-this.g[0], r[1]-this.g[1], r[2]-this.g[2]];
-      if (!this.f) {
+      if (this.basis) {   // le GPS affine toujours l'axe avant, même quand une orientation a priori existe
         this.hAcc[0] += dot(lin, this.basis.e1); this.hAcc[1] += dot(lin, this.basis.e2); this.hN++;
       }
       let aL = 0, aT = 0;
@@ -123,9 +143,20 @@ const PL = (() => {
         if (kmh > this.maxV) this.maxV = kmh;
       }
 
-      // 4. Chocs de chaussée : accélération verticale, filtre léger (12 Hz).
-      this.vz += (dot(lin, u) - this.vz) * (1 - Math.exp(-2 * Math.PI * CFG.shockHz * dt));
-      if (v !== null) this._shockCheck(Math.abs(this.vz), v, ts);
+      // 4. Chocs de chaussée : vertical et latéral peu filtrés (12 Hz), sans la composante lente.
+      // Une roue gauche qui monte fait pivoter la caisse vers la droite : le haut du véhicule, donc le
+      // téléphone, part vers la droite. Le signe du latéral, comparé au vertical, donne le côté.
+      const ks = 1 - Math.exp(-2 * Math.PI * CFG.shockHz * dt);
+      this.vz += (dot(lin, u) - this.vz) * ks;
+      this.vzSlow += (this.vz - this.vzSlow) * (1 - Math.exp(-dt / 1.5));
+      this.vh = this.vz - this.vzSlow;
+      this.lz += (aTs - this.lz) * ks;
+      this.lzSlow += (this.lz - this.lzSlow) * (1 - Math.exp(-dt / 0.8));
+      const sR = -(this.lz - this.lzSlow);   // + : vers la droite
+      this.zL = 0.5 * (this.vh + CFG.rollGain * sR); this.zR = 0.5 * (this.vh - CFG.rollGain * sR);
+      const dk = Math.exp(-dt / 1.2);
+      this.pk[0] = Math.max(this.pk[0] * dk, Math.abs(this.zL)); this.pk[1] = Math.max(this.pk[1] * dk, Math.abs(this.zR));
+      if (v !== null) this._shockCheck(this.vh, sR, v, ts);
 
       // Événements de conduite.
       if (this.f && v !== null) {
@@ -162,7 +193,7 @@ const PL = (() => {
         if (dtf > 0.2 && dtf < 5) {
           this.dist += (v + this.fix.v) / 2 * dtf;
           const a = (v - this.fix.v) / dtf;
-          if (this.basis && !this.f && this.hN > 0 && Math.abs(a) >= 0.4) {
+          if (this.basis && this.hN > 0 && Math.abs(a) >= 0.4) {
             const hm = [this.hAcc[0] / this.hN, this.hAcc[1] / this.hN], c = this.cal;
             c.sx += hm[0] * a; c.sy += hm[1] * a; c.den += Math.hypot(hm[0], hm[1]) * Math.abs(a); c.n++;
             const m = Math.hypot(c.sx, c.sy);
@@ -173,7 +204,7 @@ const PL = (() => {
                 (c.sx*b.e1[1] + c.sy*b.e2[1]) / m,
                 (c.sx*b.e1[2] + c.sy*b.e2[2]) / m
               ]);
-              this.status = 'ready';
+              this.fSource = 'gps'; this.status = 'ready';
             }
           }
         }
@@ -219,18 +250,20 @@ const PL = (() => {
       const w = this.hist.filter(h => h[0] >= ts - 4 && h[0] <= ts - 1.2);
       return w.length ? w.reduce((s, h) => s + h[1], 0) / w.length : null;
     }
-    _shockCheck(x, v, ts) {
-      const th = CFG.shock, o = this.shock;
+    _shockCheck(vh, sR, v, ts) {
+      const x = Math.abs(vh), th = CFG.shock, o = this.shock, rel = Math.sign(vh) * sR;
       if (o) {
-        if (x > o.peak) o.peak = x;
+        if (x > o.peak) { o.peak = x; o.rel = rel; }
         if (ts - o.t0 >= 0.25) this._closeShock(ts);
       } else if (x >= th.mod && v >= CFG.minShockSpeed && ts - this.lastShock > CFG.shockRefractory) {
-        this.shock = { t0: ts, peak: x, v: v * 3.6 };
+        this.shock = { t0: ts, peak: x, rel, v: v * 3.6 };
       }
     }
     _closeShock(ts) {
       const o = this.shock; if (!o) return;
-      this.events.push({ kind: 'shock', t: o.t0, peak: o.peak, v: o.v, dur: 0.25, sev: o.peak >= CFG.shock.sev ? 2 : 1 });
+      const ratio = o.rel / o.peak;
+      const side = !this.f ? null : ratio > CFG.sideRatio ? 'left' : ratio < -CFG.sideRatio ? 'right' : 'both';
+      this.events.push({ kind: 'shock', t: o.t0, peak: o.peak, v: o.v, dur: 0.25, sev: o.peak >= CFG.shock.sev ? 2 : 1, side });
       this.events.sort((a, b) => a.t - b.t); this.shock = null; this.lastShock = ts;
     }
 
@@ -273,9 +306,25 @@ const PL = (() => {
                 [150,2.6,-4.8,1],[158,8,1.2,0],[196,4,-0.8,0],[200,3,-3.2,1],[210,8,1.4,2]].map(([t0,d,a,h]) => ({t0,d,a,h}));
   const LAT = [[41,4,2.0,0],[100,3.5,-3.3,1],[120,4,1.6,0],[170,3.5,3.4,1],[204,4,2.2,0]].map(([t0,d,a,h]) => ({t0,d,a,h}));
   // Facteurs par type d'impulsion : 0 = normale, 1 = brusque, 2 = prise de vitesse.
-  // Nids-de-poule : [instant s, amplitude m/s²]. Indépendants du style de conduite.
-  const SHOCKS = [[62, 14], [133, 10], [188, 16], [231, 8]];
-  const shockAt = t => SHOCKS.reduce((a, [t0, A]) => { const x = t - t0; return x >= 0 && x < 0.6 ? a + A * Math.exp(-x / 0.06) * Math.sin(2 * Math.PI * 10 * x) : a; }, 0);
+  // Chocs : [instant s, amplitude m/s², côté] (+1 roue gauche, −1 roue droite, 0 dos d'âne : deux essieux).
+  const SHOCK_ROLL = 0.4;   // rapport latéral/vertical au niveau du téléphone (hypothèse du simulateur)
+  const SHOCKS = [[62, 14, 1], [133, 10, -1], [188, 16, 0], [231, 8, 1]]
+    .flatMap(([t0, A, side]) => side === 0 ? [[t0, A, 0], [t0 + 0.3, 0.8 * A, 0]] : [[t0, A, side]]);
+  const shockAt = t => {
+    let z = 0, l = 0;
+    for (const [t0, A, side] of SHOCKS) {
+      const x = t - t0; if (x < 0 || x >= 0.6) continue;
+      const w = A * Math.exp(-x / 0.06) * Math.sin(2 * Math.PI * 10 * x);
+      z += w; l += -side * SHOCK_ROLL * w;   // roue gauche qui monte : le haut part vers la droite (latéral < 0)
+    }
+    return [z, l];
+  };
+  // Téléphone en portrait sur la grille, penché de `tilt`°, pince décalée de `yaw`° par rapport à l'axe de la voiture.
+  const ventR = (tilt = 12, yaw = 8) => {
+    const th = tilt * Math.PI / 180, ps = yaw * Math.PI / 180, c = Math.cos, s = Math.sin;
+    const M = [[0, -1, 0], [s(th), 0, c(th)], [-c(th), 0, s(th)]], Z = [[c(ps), -s(ps), 0], [s(ps), c(ps), 0], [0, 0, 1]];
+    return M.map(row => [0, 1, 2].map(j => row[0] * Z[0][j] + row[1] * Z[1][j] + row[2] * Z[2][j]));
+  };
   const STYLE = { calm: [1, 0.5, 0.75], normal: [1, 1, 1], rough: [1.1, 1.3, 1.1] };
   const scaleP = (p, k) => p.h === 1 && k < 1
     ? { t0: p.t0, d: (p.d - TR) / k + TR, a: p.a * k }   // même vitesse gagnée ou perdue, plus doucement
@@ -290,11 +339,11 @@ const PL = (() => {
   };
 
   class Sim {
-    constructor({ style = 'normal', seed = 7 } = {}) {
+    constructor({ style = 'normal', seed = 7, mount = 'vent' } = {}) {
       this.rng = mulberry32(seed);
       const k = STYLE[style] || STYLE.normal;
       this.long = LONG.map(p => scaleP(p, k[p.h])); this.lat = LAT.map(p => scaleP(p, k[p.h]));
-      this.R = rot(2.53, -1.08, 0.12);          // téléphone sur support, de travers
+      this.R = mount === 'random' ? rot(2.53, -1.08, 0.12) : ventR();
       this.dt = 0.02; this.t = 0; this.v = 0; this.heading = 40; this.nextFix = 1; this.stopAt = null; this.done = false;
     }
     _n(s) { const r = this.rng; return s * Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
@@ -308,7 +357,8 @@ const PL = (() => {
       this.heading -= lat / Math.max(this.v, 1) * dt * 180 / Math.PI;   // virage à gauche : le cap diminue
       const m = this.v > 0.5 ? 1 : 0.1, tw = 2 * Math.PI * t;
       const vib = j => 0.22 * m * (Math.sin(tw * 11 + j) + 0.6 * Math.sin(tw * 17 + 2 * j));
-      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08), G + vib(2.1) + this._n(0.08) + (this.v > 3 ? shockAt(t) : 0)];
+      const sh = this.v > 3 ? shockAt(t) : [0, 0];
+      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08) + sh[1], G + vib(2.1) + this._n(0.08) + sh[0]];
       const R = this.R;
       const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), fix: null, heading: null, tf: t + dt };
       this.t += dt;
@@ -351,16 +401,16 @@ const PL = (() => {
     }
     return rows;
   }
-  function analyzeRows(rows) {
-    const e = new Engine();
+  function analyzeRows(rows, mount) {
+    const e = new Engine({ mount });
     for (const r of rows) { e.pushMotion(r.t, r.ax, r.ay, r.az); if (r.speed !== null) e.pushFix(r.t, r.speed, r.heading); }
     e.finish(); return e;
   }
-  function runSim(style, seed) {
-    const e = new Engine(), s = new Sim({ style, seed });
+  function runSim(style, seed, mount = 'vent') {
+    const e = new Engine({ mount }), s = new Sim({ style, seed, mount: mount === 'free' ? 'random' : 'vent' });
     while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix, o.heading); }
     e.finish(); return e;
   }
-  return { Engine, Sim, CFG, parseCsv, analyzeRows, runSim, rot, dot };
+  return { Engine, Sim, CFG, parseCsv, analyzeRows, runSim, rot, ventR, dot };
 })();
 if (typeof module !== 'undefined') module.exports = PL;
