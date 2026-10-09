@@ -19,7 +19,7 @@ const n = R.normal, r = R.rough;
 assert(at(n, 'swerve').some(t => near(t, 90, 3)), 'coup de volant ~89 s');
 assert(at(n, 'fix').some(t => near(t, 140, 3)) && at(n, 'fix').some(t => near(t, 225, 3)), 'redressements ~140 et ~225 s');
 assert(!at(n, 'fix').some(t => near(t, 89, 4)), 'pas de redressement parasite dans un coup de volant');
-assert(!n.events.some(x => x.kind === 'corner' && near(x.t, 90, 2)), 'virage fondu dans le coup de volant');
+assert(n.events.filter(x => x.kind === 'corner' && near(x.t, 90, 2)).every(x => x.part), 'virage dans un coup de volant : conservé mais compté à moitié');
 assert(n.events.some(x => x.kind === 'brake' && x.late && near(x.t, 152, 3)), 'freinage tardif ~152 s');
 assert(n.events.filter(x => x.kind === 'shift').length >= 1 && r.events.filter(x => x.kind === 'shift').length >= 4, 'passages de vitesse brusques');
 assert(r.events.some(x => x.kind === 'shift' && x.sev === 2), 'passage très brusque sévère');

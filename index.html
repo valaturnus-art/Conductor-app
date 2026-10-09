@@ -39,22 +39,21 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .lbl{display:block;margin:14px 0 6px;font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .lbl:first-child{margin-top:0}
 .hint{margin:6px 0 0;color:var(--muted);font-size:13px}
-.seg{display:flex;gap:2px;padding:3px;background:var(--soft);border-radius:10px}
-.seg button{flex:1;min-width:0;padding:9px 6px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:500 14px var(--font-body);cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.18)}
 .btn{display:block;width:100%;padding:14px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:600 16px var(--font-body);text-align:center;cursor:pointer}
 .btn.big{padding:18px 16px;font-size:18px;border-radius:12px}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.ghost{background:var(--soft);color:var(--ink);padding:10px 14px;font-size:14px;width:auto;display:inline-block}
 .btn.stop{background:var(--bad);color:var(--bad-ink)}
 .btn.link{background:none;color:var(--muted);padding:8px 0;font-size:14px;font-weight:500;text-decoration:underline;text-underline-offset:3px;width:auto;display:inline-block}
-.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
-.filerow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.filerow:focus-within .btn.ghost{outline:2px solid var(--accent);outline-offset:2px}
-.filename{color:var(--muted);font:400 13px var(--font-data);overflow-wrap:anywhere;min-width:0}
 .err{margin-top:14px;padding:10px 12px;border:1px solid var(--bad);border-radius:10px;background:var(--soft);font-size:14px}
 .note{margin:12px 0 0;color:var(--muted);font-size:13px}
 .go{margin-top:16px}
+.row{display:flex;gap:10px}.row .btn.stop{flex:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
+.chips:empty{display:none}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px 4px 8px;border-radius:99px;background:var(--soft);font-size:13px}
+.chip b{font:600 13px var(--font-data);font-variant-numeric:tabular-nums}
+.banner{margin:10px 0 0;padding:9px 12px;border:1px solid var(--warn);border-radius:10px;background:var(--soft);font-size:14px}
 
 /* score */
 .b-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
@@ -187,19 +186,20 @@ const PL = (() => {
     accel:  { mod: 2.0, sev: 3.2 },
     corner: { mod: 2.5, sev: 4.0 },
     ring:   { warn: 2.5, bad: 4.0 },   // repères du disque en direct
-    shock:  { mod: 5, sev: 8 },        // choc vertical (nid-de-poule, dos-d'âne), hors score sauf dos-d'âne pris trop vite
-    bump:   { fastKmh: 30, peak: 6 },
+    shock:  { mod: 2.5, sev: 5, noiseK: 6 },   // choc vertical (nid-de-poule, dos-d'âne) ; seuil = max(mod, noiseK × bruit de fond)
+    bump:   { fastKmh: 30, peak: 4 },
     shockRefractory: 1.0, minShockSpeed: 3, shockHz: 12,
-    rollGain: 2.5, sideRatio: 0.15,
+    rollGain: 2.5, rollHz: 6, sideRatio: 0.15,
     lateLead: -0.5,                    // freinage « tardif » : on ne décélérait pas déjà 1,2 à 4 s avant
     minEventS: 0.3, minCornerSpeed: 3, stopSpeed: 0.5, movingSpeed: 1,
-    lpHz: 1.5, displayHz: 4, hysteresis: 0.7,
+    smoothHz: 3, fastHz: 4, hysteresis: 0.7,   // lissage : 3 filtres de 3 Hz (≈ 1,5 Hz) pour l'affichage ET la détection ; 4 Hz (2 filtres) pour volant et vitesses
+    gaugeDead: 0.7, gaugeDecay: 0.35,
     // Coup de volant : aller-retour latéral rapide (≥ 1,3 m/s² de chaque côté en moins de 2,2 s).
     swerve: { amp: 1.3, minSpeed: 8, maxGap: 2.2, jerkMod: 2.6, jerkSev: 6 },
     // Redressement : dérive lente (≥ 0,35 °/s) puis correction vive en sens inverse (≥ 5 °/s, < 1,6 s) : inattention.
     fix: { spike: 5, sev: 9, quiet: 2.6, drift: 0.3, agree: 0.7, minSpeed: 8, end: 2.5, maxDur: 1.6 },
     // Passage de vitesse : creux d'accélération en phase d'accélération (rupture de couple), puis reprise.
-    shift: { preMin: 0.7, open: 0.4, recover: 0.3, maxFall: 1.0, maxDip: 2.0, harsh: 1.0, sev: 1.9, slope: 5, slopeSev: 9, reb: 0.9 },
+    shift: { minDepth: 0.8, preMin: 0.7, open: 0.4, recover: 0.3, maxFall: 1.0, maxDip: 2.0, harsh: 1.0, sev: 1.9, slope: 5, slopeSev: 9, reb: 0.9 },
     minKm: 3,
     phaseMin: 0.8, phaseTime: 8,
     // Intensité : percentile 90 de l'effort quand on freine / accélère / tourne (100 sous a, 0 au-delà de b).
@@ -220,7 +220,7 @@ const PL = (() => {
   const BIN = 0.1, NB = 81;
 
   class Engine {
-    constructor(opts = {}) { this.mount = opts.mount === 'free' ? 'free' : 'vent'; this.reset(); }
+    constructor(opts = {}) { this.mount = opts.mount === 'vent' ? 'vent' : 'free'; this.reset(); }
 
     reset() {
       this.t0 = null; this.tPrev = null; this.t = 0;
@@ -230,15 +230,16 @@ const PL = (() => {
       this.basis = null; this.f = null;
       this.cal = { n: 0, sx: 0, sy: 0, den: 0 };
       this.hAcc = [0, 0]; this.hN = 0;
-      this.fl = [0, 0, 0, 0];
+      this.sm = [0, 0, 0, 0, 0, 0];
       this.aLong = 0; this.aLat = 0;
       this.open = {}; this.events = []; this.evSeq = 0; this.lastEvent = null;
       this.series = []; this.nextSeriesT = 0;
       this.trail = []; this.nextTrailT = 0; this.hist = []; this.nextTickT = 0;
       this.vz = 0; this.shock = null; this.lastShock = -9;
       this.rs = 1; this.ventOk = false; this.fSource = null;
-      this.vh = 0; this.vzSlow = 0; this.lz = 0; this.lzSlow = 0; this.zL = 0; this.zR = 0; this.pk = [0, 0];
-      this.fd = [0, 0, 0, 0]; this.dLong = 0; this.dLat = 0; this.liveMag = 0;
+      this.vh = 0; this.vzSlow = 0; this.lz = 0; this.lzSlow = 0; this.zL = 0; this.zR = 0; this.pk = [0, 0]; this.vNoise = 0.3; this.latLearned = false; this.gapS = 0; this.lastMotionT = null;
+      this.fxQ = null; this.shocks = 0;
+      this.fd = [0, 0, 0, 0]; this.dLong = 0; this.dLat = 0; this.fLong = 0; this.fLat = 0; this.liveMag = 0;
       this.latSign = 1; this.latAcc = 0; this.latN = 0; this.latCal = { sum: 0, den: 0, n: 0 }; this.prevHead = null;
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
@@ -272,11 +273,19 @@ const PL = (() => {
       this.hAcc = [0, 0]; this.hN = 0;
     }
 
+    /** Oublie l'orientation : le calage se refait à la prochaine accélération en ligne droite. */
+    recalibrate() {
+      if (!this.g) return;
+      this.f = null; this.fSource = null; this.basis = null; this.open = {}; this.sg = null; this.sgPrev = null; this.dip = null; this.fx = null;
+      this.gCal = unit(this.g); this.status = 'calibrating'; this.recalCount++;
+    }
+
     /** Accéléromètre gravité incluse (m/s²) ; gx, gy, gz : gyroscope (°/s, axes de l'appareil), facultatif. t en s. */
     pushMotion(t, ax, ay, az, gx, gy, gz) {
       if (this.t0 === null) this.t0 = t;
       const ts = t - this.t0;
       const dt = this.tPrev === null ? 0.02 : clamp(t - this.tPrev, 0.001, 0.2);
+      if (this.tPrev !== null && t - this.tPrev > 0.5) this.gapS += t - this.tPrev;   // capteurs interrompus (écran verrouillé…)
       this.tPrev = t; this.t = ts;
       const r = [this.rs * ax, this.rs * ay, this.rs * az];
 
@@ -328,14 +337,17 @@ const PL = (() => {
       }
       if (this.f) { this.latAcc += aT; this.latN++; }
       const aTs = aT * this.latSign;                 // + = le véhicule accélère vers la gauche
-      const al = 1 - Math.exp(-2 * Math.PI * CFG.lpHz * dt), F = this.fl;
-      F[0] += al * (aL - F[0]); F[1] += al * (F[0] - F[1]);
-      F[2] += al * (aTs - F[2]); F[3] += al * (F[2] - F[3]);
-      this.aLong = F[1]; this.aLat = F[3];
-      const ad = 1 - Math.exp(-2 * Math.PI * CFG.displayHz * dt), D = this.fd;
+      // Signal « voiture » : 3 filtres en cascade. C'est LE signal affiché ET celui qui déclenche les événements :
+      // ce que le conducteur voit en direct est exactement ce qui est enregistré. Les vibrations moteur disparaissent.
+      const al = 1 - Math.exp(-2 * Math.PI * CFG.smoothHz * dt), M = this.sm;
+      M[0] += al * (aL - M[0]); M[1] += al * (M[0] - M[1]); M[2] += al * (M[1] - M[2]);
+      M[3] += al * (aTs - M[3]); M[4] += al * (M[3] - M[4]); M[5] += al * (M[4] - M[5]);
+      this.aLong = this.dLong = M[2]; this.aLat = this.dLat = M[5];
+      // Signal plus vif (2 filtres, 4 Hz) pour les gestes courts : coups de volant et passages de vitesse.
+      const ad = 1 - Math.exp(-2 * Math.PI * CFG.fastHz * dt), D = this.fd;
       D[0] += ad * (aL - D[0]); D[1] += ad * (D[0] - D[1]);
       D[2] += ad * (aTs - D[2]); D[3] += ad * (D[2] - D[3]);
-      this.dLong = D[1]; this.dLat = D[3];
+      this.fLong = D[1]; this.fLat = D[3];
       const hm = Math.sqrt(Math.max(0, dot(li, li) - dot(li, u) ** 2));
       this.liveMag += (hm - this.liveMag) * (1 - Math.exp(-dt / 0.3));
 
@@ -372,12 +384,17 @@ const PL = (() => {
       this.vz += (dot(li, u) - this.vz) * ks;
       this.vzSlow += (this.vz - this.vzSlow) * (1 - Math.exp(-dt / 1.5));
       this.vh = this.vz - this.vzSlow;
-      this.lz += (aTs - this.lz) * ks;
+      this.lz += (aTs - this.lz) * (1 - Math.exp(-2 * Math.PI * CFG.rollHz * dt));
       this.lzSlow += (this.lz - this.lzSlow) * (1 - Math.exp(-dt / 0.8));
       const sR = -(this.lz - this.lzSlow);   // + : vers la droite
-      this.zL = 0.5 * (this.vh + CFG.rollGain * sR); this.zR = 0.5 * (this.vh - CFG.rollGain * sR);
-      const dk = Math.exp(-dt / 1.2);
+      // Jauge : zone morte (vibrations du moteur et du revêtement) puis retombée douce, pour lire les chocs et pas le bruit.
+      const dz = x => Math.sign(x) * Math.max(0, Math.abs(x) - CFG.gaugeDead), dc = Math.exp(-dt / CFG.gaugeDecay);
+      const zl = dz(0.5 * (this.vh + CFG.rollGain * sR)), zr = dz(0.5 * (this.vh - CFG.rollGain * sR));
+      this.zL = Math.abs(zl) >= Math.abs(this.zL) ? zl : this.zL * dc; this.zR = Math.abs(zr) >= Math.abs(this.zR) ? zr : this.zR * dc;
+      const dk = Math.exp(-dt / 2.5);
       this.pk[0] = Math.max(this.pk[0] * dk, Math.abs(this.zL)); this.pk[1] = Math.max(this.pk[1] * dk, Math.abs(this.zR));
+      // Bruit de fond du revêtement : un choc doit nettement le dépasser (route pavée = seuil plus haut).
+      if (!this.shock) this.vNoise += (Math.min(Math.abs(this.vh), 2) - this.vNoise) * (1 - Math.exp(-dt / 8));
       if (v !== null) this._shockCheck(this.vh, sR, v, ts);
 
       // 6. Événements de conduite.
@@ -386,7 +403,7 @@ const PL = (() => {
         this._detect('accel', this.aLong, v, ts);
         if (v >= CFG.minCornerSpeed) this._detect('corner', Math.abs(this.aLat), v, ts);
         else this._close('corner', ts);
-        this._swerve(this.dLat, v, ts);
+        this._swerve(this.fLat, v, ts);
         // Intensité : temps passé à chaque niveau d'effort quand on freine / accélère / tourne.
         const hp = CFG.phaseMin;
         if (v > 1.5 && -this.aLong >= hp) this._bin('brake', -this.aLong, dt);
@@ -398,7 +415,7 @@ const PL = (() => {
       if (ts >= this.nextSeriesT) { this.series.push({ t: Math.round(ts), v: (v || 0) * 3.6 }); this.nextSeriesT = ts + 1; }
       if (ts >= this.nextTrailT) {
         this.trail.push([this.dLat, this.dLong]); if (this.trail.length > 40) this.trail.shift();
-        this.hist.push([ts, this.aLong, this.dLong]); if (this.hist.length > 60) this.hist.shift();
+        this.hist.push([ts, this.aLong, this.fLong]); if (this.hist.length > 60) this.hist.shift();
         this.ybuf.push([ts, this.yF / D2R]); if (this.ybuf.length > 50) this.ybuf.shift();
         this.nextTrailT = ts + 0.1;
         if (this.f && v !== null) { this._tickShift(ts, v); this._tickFix(ts, v); }
@@ -450,7 +467,7 @@ const PL = (() => {
             if (Math.abs(aLeft) >= 0.6) {
               const m = this.latAcc / this.latN, c = this.latCal;
               c.sum += m * aLeft; c.den += Math.abs(m * aLeft); c.n++;
-              if (c.n >= 3 && Math.abs(c.sum) / c.den >= 0.6) this.latSign = c.sum > 0 ? 1 : -1;
+              if (c.n >= 3 && Math.abs(c.sum) / c.den >= 0.6) { this.latSign = c.sum > 0 ? 1 : -1; this.latLearned = true; }
             }
           }
         }
@@ -469,6 +486,7 @@ const PL = (() => {
     _bad(ts) { this.bestStreak = Math.max(this.bestStreak, ts - this.lastBadT); this.lastBadT = ts; }
     _push(ev, scoring) {
       this.events.push(ev); this.events.sort((a, b) => a.t - b.t);
+      if (ev.kind === 'shock') this.shocks++;
       this.evSeq++; this.lastEvent = ev;
       if (scoring) this._bad(this.t);
     }
@@ -486,9 +504,17 @@ const PL = (() => {
       const o = this.open[kind]; if (!o) return;
       delete this.open[kind];
       if (ts - o.t0 < CFG.minEventS) return;
-      // Un virage qui fait partie d'un coup de volant est compté une seule fois, comme coup de volant.
-      if (kind === 'corner' && this.mute && o.tPeak >= this.mute[0] && o.tPeak <= this.mute[1]) return;
       const ev = { kind, t: o.tPeak, peak: o.peak, v: o.v, dur: ts - o.t0, sev: o.peak >= CFG[kind].sev ? 2 : 1 };
+      // Un virage pris dans un coup de volant reste dans l'historique (jamais supprimé) mais ne pèse que moitié.
+      if (kind === 'corner' && this.mute && o.tPeak >= this.mute[0] && o.tPeak <= this.mute[1]) ev.part = true;
+      // Deux creux séparés de moins d'une seconde sont le même geste : on prolonge l'événement déjà annoncé.
+      const prev = this.lastOf && this.lastOf[kind];
+      if (prev && o.t0 - prev.end < 1.0) {
+        if (ev.peak > prev.peak) { prev.peak = ev.peak; prev.v = ev.v; prev.sev = Math.max(prev.sev, ev.sev); }
+        prev.end = ts; prev.dur = ts - prev.t0; return;
+      }
+      ev.t0 = o.t0; ev.end = ts;
+      (this.lastOf || (this.lastOf = {}))[kind] = ev;
       if (kind === 'brake') ev.late = o.lead === null || o.lead > CFG.lateLead;
       this._push(ev, true);
     }
@@ -513,7 +539,8 @@ const PL = (() => {
       const gap = Math.max(0.3, s.tPeak - p.tPeak), jerk = (p.peak + s.peak) / gap;
       if (jerk < C.jerkMod) return;
       const lo = p.tPeak - 1.5, hi = s.tPeak + 1.5;
-      this.events = this.events.filter(e => !((e.kind === 'corner' || e.kind === 'fix') && e.t >= lo && e.t <= hi));
+      for (const e of this.events) if (e.kind === 'corner' && e.t >= lo && e.t <= hi) e.part = true;
+      if (this.fxQ && this.fxQ.t >= lo && this.fxQ.t <= hi) this.fxQ = null;   // le « redressement » faisait partie du coup de volant
       this.mute = [lo, hi];
       this._push({ kind: 'swerve', t: (p.tPeak + s.tPeak) / 2, peak: Math.min(p.peak, s.peak), jerk, v: s.v * 3.6, dur: gap, sev: jerk >= C.jerkSev ? 2 : 1 }, true);
       this.sgPrev = null;
@@ -522,6 +549,7 @@ const PL = (() => {
     /** Redressement : la voiture dérivait doucement, puis le conducteur corrige d'un coup (inattention). */
     _tickFix(ts, v) {
       const C = CFG.fix;
+      if (this.fxQ && ts >= this.fxQ.due) { const q = this.fxQ; this.fxQ = null; this._push(q, true); }
       if (!this.gyroOn || v < C.minSpeed) { this.fx = null; return; }
       const y = this.yF / D2R, o = this.fx;
       if (o) {
@@ -529,7 +557,7 @@ const PL = (() => {
         if (same && Math.abs(y) > o.peak) { o.peak = Math.abs(y); o.tPk = ts; }
         const dur = ts - o.t0;
         if (Math.abs(y) < C.end || !same) {
-          if (dur <= C.maxDur) this._push({ kind: 'fix', t: o.tPk, peak: o.peak, drift: o.drift, v: o.v, dur, sev: o.peak >= C.sev ? 2 : 1 }, true);
+          if (dur <= C.maxDur) this.fxQ = { kind: 'fix', t: o.tPk, peak: o.peak, drift: o.drift, v: o.v, dur, sev: o.peak >= C.sev ? 2 : 1, due: ts + 3 };
           this.fx = null; this.fxLast = ts;
         } else if (dur > C.maxDur) { this.fx = null; this.fxLast = ts; }   // un vrai virage, pas un redressement
         return;
@@ -545,7 +573,7 @@ const PL = (() => {
 
     /** Passage de vitesse : creux de l'accélération en pleine accélération, puis reprise. Profondeur et à-coup = brusquerie. */
     _tickShift(ts, v) {
-      const C = CFG.shift, cur = this.dLong, h = this.hist;
+      const C = CFG.shift, cur = this.fLong, h = this.hist;
       const pend = this.shiftPend;
       if (pend) {
         pend.rebMax = Math.max(pend.rebMax, cur);
@@ -573,7 +601,7 @@ const PL = (() => {
     _endShift(o) {
       const C = CFG.shift, depth = o.pre - o.min, reb = Math.max(0, o.rebMax - o.pre);
       this.shiftN++;
-      const sev = depth >= C.sev || o.maxSlope >= C.slopeSev ? 2 : depth >= C.harsh || o.maxSlope >= C.slope || reb >= C.reb ? 1 : 0;
+      const sev = depth < C.minDepth ? 0 : depth >= C.sev || o.maxSlope >= C.slopeSev ? 2 : depth >= C.harsh || o.maxSlope >= C.slope || reb >= C.reb ? 1 : 0;
       if (sev) this._push({ kind: 'shift', t: o.tMin, peak: depth, jerk: o.maxSlope, reb, v: o.v, dur: o.rebT - o.t0, sev }, true);
     }
 
@@ -582,14 +610,14 @@ const PL = (() => {
       if (o) {
         if (x > o.peak) { o.peak = x; o.rel = rel; }
         if (ts - o.t0 >= 0.25) this._closeShock(ts);
-      } else if (x >= th.mod && v >= CFG.minShockSpeed && ts - this.lastShock > CFG.shockRefractory) {
+      } else if (x >= Math.max(th.mod, th.noiseK * this.vNoise) && v >= CFG.minShockSpeed && ts - this.lastShock > CFG.shockRefractory) {
         this.shock = { t0: ts, peak: x, rel, v: v * 3.6 };
       }
     }
     _closeShock(ts) {
       const o = this.shock; if (!o) return;
       const ratio = o.rel / o.peak;
-      const side = !this.f ? null : ratio > CFG.sideRatio ? 'left' : ratio < -CFG.sideRatio ? 'right' : 'both';
+      const side = !this.f ? null : Math.abs(ratio) <= CFG.sideRatio ? 'both' : !this.latLearned && this.mount !== 'vent' ? 'one' : ratio > 0 ? 'left' : 'right';
       // Un dos-d'âne franchi trop vite est un défaut d'anticipation du conducteur ; un nid-de-poule, non.
       const fast = side === 'both' && o.v >= CFG.bump.fastKmh && o.peak >= CFG.bump.peak;
       this._push({ kind: 'shock', t: o.t0, peak: o.peak, v: o.v, dur: 0.25, sev: o.peak >= CFG.shock.sev ? 2 : 1, side, fast }, fast);
@@ -599,6 +627,7 @@ const PL = (() => {
     finish() {
       for (const k of Object.keys(this.open)) this._close(k, this.t);
       if (this.sg) { this._endSeg(this.sg); this.sg = null; }
+      if (this.fxQ) { const q = this.fxQ; this.fxQ = null; this._push(q, true); }
       if (this.shiftPend) { const p = this.shiftPend; this.shiftPend = null; this._endShift(p); }
       this._closeShock(this.t);
       return this.summary();
@@ -606,7 +635,7 @@ const PL = (() => {
 
     summary() {
       const km = this.dist / 1000, base = Math.max(km, CFG.minKm);
-      const wt = e => e.kind === 'shock' ? 1 : (e.sev === 2 ? 2 : 1) * (e.late ? 1.4 : 1);
+      const wt = e => e.kind === 'shock' ? 1 : (e.sev === 2 ? 2 : 1) * (e.late ? 1.4 : 1) * (e.part ? 0.5 : 1);
       const wsum = f => this.events.reduce((s, e) => f(e) ? s + wt(e) : s, 0);
       const expo = (w, k) => 100 * Math.exp(-(w / base) / k);
       const inten = (k) => { const p = this._p90(k); return p === null ? null : 100 * lin(p, CFG.inten[k][0], CFG.inten[k][1]); };
@@ -636,7 +665,7 @@ const PL = (() => {
           swerve: cnt(e => e.kind === 'swerve'), fix: cnt(e => e.kind === 'fix'), shift: nShift, shiftHarsh: cnt(e => e.kind === 'shift'),
           shock: cnt(e => e.kind === 'shock'), fast: cnt(e => e.fast)
         },
-        jerkRms: rms, steerRms, gyro: this.gyroOn,
+        jerkRms: rms, steerRms, gyro: this.gyroOn, coverage: this.t > 5 ? clamp(1 - this.gapS / this.t, 0, 1) : 1,
         streakBest: Math.max(this.bestStreak, this.moveStart === null ? 0 : this.t - this.lastBadT),
         p90: { brake: this._p90('brake'), accel: this._p90('accel'), corner: this._p90('corner') }
       };
@@ -659,7 +688,7 @@ const PL = (() => {
   // Facteurs par type d'impulsion : 0 = normale, 1 = brusque, 2 = prise de vitesse.
   // Chocs : [instant s, amplitude m/s², côté] (+1 roue gauche, −1 roue droite, 0 dos d'âne : deux essieux).
   const SHOCK_ROLL = 0.4;
-  const SHOCKS = [[62, 14, 1], [133, 10, -1], [188, 16, 0], [231, 8, 1]]
+  const SHOCKS = [[62, 8, 1], [133, 6, -1], [188, 9, 0], [231, 2.5, 1]]
     .flatMap(([t0, A, side]) => side === 0 ? [[t0, A, 0], [t0 + 0.3, 0.8 * A, 0]] : [[t0, A, side]]);
   const shockAt = t => {
     let z = 0, l = 0;
@@ -713,7 +742,7 @@ const SHIFT_K = [0.8, 1.3, 0.8, 1.0, 1.3, 0.8, 0.8, 1.0];   // les passages ne s
     const M = [[0, -1, 0], [s(th), 0, c(th)], [-c(th), 0, s(th)]], Z = [[c(ps), -s(ps), 0], [s(ps), c(ps), 0], [0, 0, 1]];
     return M.map(row => [0, 1, 2].map(j => row[0] * Z[0][j] + row[1] * Z[1][j] + row[2] * Z[2][j]));
   };
-  const STYLE = { calm: [1, 0.5, 0.75, 1], normal: [1, 1, 1, 1], rough: [1.1, 1.3, 1.1, 0] };   // 3 = ralentir avant le dos d'âne (sauf conducteur nerveux)
+  const STYLE = { calm: [1, 0.45, 0.75, 1], normal: [1, 1, 1, 1], rough: [1.1, 1.3, 1.1, 0] };   // 3 = ralentir avant le dos d'âne (sauf conducteur nerveux)
   const WANDER = { calm: 0.35, normal: 0.6, rough: 1.0 };
   const scaleP = (p, k) => p.h === 1 && k < 1
     ? { t0: p.t0, d: (p.d - TR) / k + TR, a: p.a * k }
@@ -728,7 +757,8 @@ const SHIFT_K = [0.8, 1.3, 0.8, 1.0, 1.3, 0.8, 0.8, 1.0];   // les passages ne s
   };
 
   class Sim {
-    constructor({ style = 'normal', seed = 7, mount = 'vent', gearbox = 'manual' } = {}) {
+    constructor({ style = 'normal', seed = 7, mount = 'vent', gearbox = 'manual', hum = 0 } = {}) {
+      this.hum = hum;   // vibrations moteur/route repliées dans les capteurs (écart type en m/s², sur chaque axe)
       this.rng = mulberry32(seed); this.style = STYLE[style] ? style : 'normal'; this.gearbox = gearbox;
       const k = STYLE[this.style];
       this.long = LONG.map(p => scaleP(p, k[p.h])); this.lat = LAT.map(p => scaleP(p, k[p.h]));
@@ -755,10 +785,11 @@ const SHIFT_K = [0.8, 1.3, 0.8, 1.0, 1.3, 0.8, 0.8, 1.0];   // les passages ne s
       const m = this.v > 0.5 ? 1 : 0.1, tw = 2 * Math.PI * t;
       const vib = j => 0.22 * m * (Math.sin(tw * 11 + j) + 0.6 * Math.sin(tw * 17 + 2 * j));
       const sh = this.v > 3 ? shockAt(t) : [0, 0];
-      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08) + sh[1], G + vib(2.1) + this._n(0.08) + sh[0]];
+      const hm = this.hum ? () => this._n(this.hum) : () => 0;
+      const rv = [aReal + vib(0) + this._n(0.08) + hm(), lat + vib(1.3) + this._n(0.08) + sh[1] + hm(), G + vib(2.1) + this._n(0.08) + sh[0] + hm()];
       const R = this.R;
       const wv = [0, 0, yaw];
-      const gy = i => (dot(R[i], wv) + this.bias[i] + this._n(0.0025)) / D2R;   // °/s, axes de l'appareil
+      const gy = i => (dot(R[i], wv) + this.bias[i] + this._n(0.0025 + 0.004 * this.hum)) / D2R;   // °/s, axes de l'appareil
       const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), gx: gy(0), gy: gy(1), gz: gy(2), fix: null, heading: null, tf: t + dt };
       this.t += dt;
       if (this.t >= this.nextFix) { this.nextFix += 1; out.fix = Math.max(0, this.v + this._n(0.12)); out.heading = ((this.heading + this._n(0.8)) % 360 + 360) % 360; }
@@ -808,7 +839,7 @@ const SHIFT_K = [0.8, 1.3, 0.8, 1.0, 1.3, 0.8, 0.8, 1.0];   // les passages ne s
     e.finish(); return e;
   }
   function runSim(style, seed, mount = 'vent', opts = {}) {
-    const e = new Engine({ mount }), s = new Sim({ style, seed, mount: mount === 'free' ? 'random' : 'vent', gearbox: opts.gearbox });
+    const e = new Engine({ mount }), s = new Sim({ style, seed, mount: mount === 'free' ? 'random' : 'vent', gearbox: opts.gearbox, hum: opts.hum });
     const gyro = opts.gyro !== false;
     while (!s.done) { const o = s.step(); if (gyro) e.pushMotion(o.t, o.ax, o.ay, o.az, o.gx, o.gy, o.gz); else e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix, o.heading); }
     e.finish(); return e;
@@ -836,7 +867,7 @@ const KIND = {
   shift:  { name: 'Passage de vitesse brusque', cls: 'shift' },
   shock:  { name: 'Choc de chaussée',          cls: 'shock' }
 };
-const SIDE = { left: 'Nid-de-poule à gauche', right: 'Nid-de-poule à droite', both: 'Dos d’âne' };
+const SIDE = { left: 'Nid-de-poule à gauche', right: 'Nid-de-poule à droite', both: 'Dos d’âne', one: 'Nid-de-poule' };
 const evName = e => e.kind === 'brake' && e.late ? 'Freinage tardif'
   : e.kind === 'shock' ? (e.fast ? 'Dos d’âne trop vite' : SIDE[e.side] || KIND.shock.name) : KIND[e.kind].name;
 const scoring = e => e.kind !== 'shock' || e.fast;
@@ -845,6 +876,9 @@ const tone = s => s >= 70 ? 'good' : s >= 50 ? 'warn' : 'bad';
 const grade = s => s >= 85 ? 'Exemplaire' : s >= 70 ? 'Fluide' : s >= 50 ? 'Correct' : s >= 30 ? 'Brusque' : 'Agressif';
 const dateLabel = ts => new Date(ts).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const plural = (n, w) => `${n} ${w}${n > 1 ? 's' : ''}`;
+const CHIPS = [['brake', 'Freinage'], ['accel', 'Accélération'], ['corner', 'Virage'], ['swerve', 'Volant'], ['fix', 'Redressement'], ['shift', 'Vitesse'], ['shock', 'Choc']];
+// Même fonction en direct et dans l'historique, calculée sur la liste d'événements : les deux ne peuvent pas diverger.
+const chipsHTML = evs => { const c = {}; for (const e of evs) c[e.kind] = (c[e.kind] || 0) + 1; return CHIPS.filter(([k]) => c[k]).map(([k, l]) => `<span class="chip"><i class="mk ${k}"></i>${l} <b>${c[k]}</b></span>`).join(''); };
 
 // Texte court par axe : ce qui s'est passé, puis le conseil le plus utile.
 function axisInfo(k, s) {
@@ -870,21 +904,26 @@ let mem = [];
 const loadTrips = () => { try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : mem; } catch (e) { return mem; } };
 const saveTrips = a => { mem = a; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} };
 
+const DKEY = 'pied-leger:draft:v1';
 /* ---------- État ---------- */
-// Sur un téléphone, hors aperçu intégré : capteurs par défaut. Sinon démo.
-const canSensors = (() => { try { return window.isSecureContext && window.self === window.top && typeof DeviceMotionEvent !== 'undefined' && !!navigator.geolocation && /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent); } catch (e) { return false; } })();
-const S = { tab: 'drive', mode: canSensors ? 'sensors' : 'demo', mount: 'vent', style: 'normal', speedX: 10, run: null, file: null, error: '', opened: null, confirm: '', allEv: false };
+const S = { tab: 'drive', run: null, error: '', opened: null, confirm: '' };
 let trips = loadTrips();
 const makeTrip = (engine, meta) => ({
-  id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(), mode: meta.mode, label: meta.label || '',
+  id: meta.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: meta.ts || Date.now(), cal: engine.status === 'ready',
   sum: engine.summary(), events: engine.events,
   series: engine.series.map(p => ({ t: p.t, v: Math.round(p.v * 10) / 10 }))
 });
-const example = (() => {
-  const e = PL.runSim('normal', 7);
-  const t = makeTrip(e, { mode: 'demo', label: 'Exemple simulé' }); t.example = true; return t;
+// Sauvegarde de secours toutes les 5 s : si la page est tuée en route, le trajet est récupéré à la réouverture.
+function saveDraft() { const r = S.run; if (!r) return; try { localStorage.setItem(DKEY, JSON.stringify(makeTrip(r.engine, { id: r.id, ts: r.ts }))); } catch (e) {} }
+const clearDraft = () => { try { localStorage.removeItem(DKEY); } catch (e) {} };
+(function recoverDraft() {
+  try {
+    const raw = localStorage.getItem(DKEY); if (!raw) return; localStorage.removeItem(DKEY);
+    const t = JSON.parse(raw);
+    if (t && t.sum && t.cal && t.sum.durationS >= 20 && t.sum.km >= 0.1 && !trips.some(x => x.id === t.id)) { t.recovered = true; trips = [t, ...trips].slice(0, 30); saveTrips(trips); }
+  } catch (e) {}
 })();
-let shown = trips[0] || example;
+let shown = trips[0] || null;
 
 /* ---------- Gabarits ---------- */
 const seg = (name, opts, cur) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" id="${name}-${v}" data-set="${name}" data-val="${v}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
@@ -934,15 +973,17 @@ function bilanHTML(trip) {
   const weak = AXES.map(([k, l]) => [k, l, s.axes[k]]).filter(a => a[2] < 85).sort((a, b) => a[2] - b[2]).slice(0, 2);
   const focus = weak.length ? weak.map(([k, l, v]) => `<div class="fo"><span class="n">${v}</span><div><b>${l}</b><span>${esc(axisInfo(k, s).advice)}</span></div></div>`).join('')
     : `<div class="fo good"><div><b>Rien à corriger</b><span>Conduite fluide sur tous les axes.</span></div></div>`;
-  const shown6 = S.allEv ? trip.events : trip.events.slice(0, 6);
-  const evs = trip.events.length ? `<ul class="evs">${shown6.map(evRow).join('')}</ul>${trip.events.length > 6 ? `<button class="btn link more" data-act="more">${S.allEv ? 'Réduire' : `Voir les ${trip.events.length}`}</button>` : ''}` : '<p class="empty">Aucun événement.</p>';
+  const evs = trip.events.length ? `<ul class="evs">${trip.events.map(evRow).join('')}</ul>` : '<p class="empty">Aucun événement.</p>';
+  const cov = s.coverage === undefined ? 1 : s.coverage;
   return `<article class="card" aria-label="Bilan du trajet">
     <div class="b-head">${ring(s.score)}<div class="b-meta">
-      <p class="eyebrow">${esc(trip.example ? trip.label : dateLabel(trip.ts) + (trip.label ? ' · ' + trip.label : ''))}</p>
+      <p class="eyebrow">${esc(dateLabel(trip.ts) + (trip.recovered ? ' · récupéré après interruption' : ''))}</p>
       <h2>${grade(s.score)}</h2>
       ${dl === null ? '' : `<span class="delta ${dl > 0 ? 'up' : dl < 0 ? 'dn' : 'eq'}">${dl > 0 ? '▲ +' : dl < 0 ? '▼ ' : '= '}${dl} vs précédent</span>`}
       <dl class="stats"><div><dt>Distance</dt><dd>${fmt(s.km, 1)} km</dd></div><div><dt>Durée</dt><dd>${clock(s.durationS)}</dd></div><div><dt>Moy.</dt><dd>${fmt(s.avgKmh)} km/h</dd></div><div><dt>Série max</dt><dd>${clock(s.streakBest || 0)}</dd></div></dl>
     </div></div>
+    ${cov < 0.9 ? `<p class="banner">Capteurs coupés pendant ${fmt((1 - cov) * 100)} % du trajet (écran verrouillé ?) : bilan incomplet.</p>` : ''}
+    <div class="chips">${chipsHTML(trip.events)}</div>
     <div class="sec"><h3>À travailler</h3><div class="focus">${focus}</div></div>
     <div class="sec"><h3>Les 5 axes</h3>${AXES.map(([k, l]) => axisRow(l, s.axes[k], axisInfo(k, s).detail)).join('')}</div>
     <div class="sec"><h3>Vitesse (km/h) et événements</h3>${chartSVG(trip, contentWidth())}
@@ -951,40 +992,31 @@ function bilanHTML(trip) {
   </article>`;
 }
 
-function controlsHTML() {
-  const m = S.mode;
-  let body = '';
-  if (m === 'demo') body = `<label class="lbl">Conducteur simulé</label>${seg('style', [['calm', 'Posé'], ['normal', 'Normal'], ['rough', 'Nerveux']], S.style)}
-    <label class="lbl">Vitesse</label>${seg('speedX', [[1, '×1'], [10, '×10'], [30, '×30']], S.speedX)}`;
-  else if (m === 'sensors') body = `<label class="lbl">Fixation</label>${seg('mount', [['vent', 'Grille verticale'], ['free', 'Libre']], S.mount)}
-    <p class="hint">${S.mount === 'vent' ? 'Portrait, sur la grille d’aération, écran vers toi.' : 'Au départ, accélère doucement en ligne droite pour orienter les capteurs.'}</p>`;
-  else body = `<label class="lbl" for="file">Fichier de mesures</label>
-    <div class="filerow"><label class="btn ghost" for="file">Choisir un CSV</label><input class="sr" id="file" type="file" accept=".csv,text/csv,text/plain"><span class="filename">${S.file ? esc(S.file.name) : 'Aucun fichier'}</span></div>
-    <p class="hint">t, ax, ay, az, speed (+ gx, gy, gz en °/s si dispo).</p>
-    <label class="lbl">Fixation</label>${seg('mount', [['vent', 'Grille verticale'], ['free', 'Libre']], S.mount)}`;
+function startHTML() {
   return `<div class="card">
-    ${seg('mode', [['sensors', 'Capteurs'], ['demo', 'Démo'], ['import', 'Import']], m)}
-    <div style="margin-top:6px">${body}</div>
+    <button class="btn big" data-act="go">Démarrer le trajet</button>
+    <p class="hint">Pose le téléphone, écran vers toi, dans n’importe quelle position. Au départ, accélère doucement en ligne droite : le calage est automatique.</p>
     ${S.error ? `<div class="err" role="alert">${esc(S.error)}</div>` : ''}
-    <div class="go"><button class="btn big" id="go" data-act="go" ${m === 'import' && !S.file ? 'disabled' : ''}>${m === 'import' ? 'Analyser' : 'Démarrer le trajet'}</button></div>
   </div>`;
 }
 
 function liveHTML() {
   return `<div class="card live" aria-live="off">
     <div class="l-top"><div class="status" id="l-status"><i></i><span>Mesure de la gravité…</span></div><span class="trip-line" id="l-line">0,0 km · 00:00</span></div>
+    <div class="banner" id="l-banner" role="alert" hidden></div>
     <div class="l-hero">${ring(100, 'l-score', 'sm')}<div class="speed"><span id="l-speed">0</span><small>km/h</small></div><div class="streak"><b id="l-streak">0:00</b><small>sans à-coup</small></div></div>
     <canvas class="gg" id="gg" aria-label="Instruments : à gauche, secousses verticales des roues gauches et droites ; à droite, disque des forces ressenties (avant au freinage, arrière à l’accélération, côté en virage) ; en bas, barre de braquage du volant"></canvas>
     <div class="toast ok" id="l-toast" role="status"><span class="mk" id="l-tmk"></span><div><b id="l-tt">Conduite fluide</b><small id="l-ts">Rien à signaler</small></div><span class="pts" id="l-tp"></span></div>
+    <div class="chips" id="l-chips"></div>
     <div class="sec" style="margin-top:12px;padding-top:8px">${AXES.map(([k, l]) => `<div class="axis" id="ax-${k}"><span>${l}</span><span class="bar"><i class="g-good" style="width:100%"></i></span><span class="v">100</span></div>`).join('')}</div>
-    <div class="go"><button class="btn stop" data-act="stop">Terminer le trajet</button></div>
+    <div class="go row"><button class="btn ghost" data-act="recal">Recaler</button><button class="btn stop" data-act="stop">Terminer le trajet</button></div>
   </div>`;
 }
 
 function renderDrive() {
   const el = $('#view-drive');
-  if (S.run) { el.innerHTML = liveHTML(); S.run.seq = -1; S.run.toast = null; updateLive(); return; }
-  el.innerHTML = controlsHTML() + bilanHTML(shown);
+  if (S.run) { el.innerHTML = liveHTML(); S.run.seq = -1; S.run.toast = null; S.run.chipN = -1; S.run.toastKey = null; updateLive(); return; }
+  el.innerHTML = startHTML() + (shown ? bilanHTML(shown) : '');
 }
 
 function renderHistory() {
@@ -996,7 +1028,7 @@ function renderHistory() {
       <button class="btn ghost" data-act="del" data-id="${t.id}" style="align-self:flex-start">${S.confirm === 'del' + t.id ? 'Confirmer la suppression' : 'Supprimer ce trajet'}</button>`;
     return;
   }
-  if (!trips.length) { el.innerHTML = `<div class="card"><h2>Aucun trajet</h2><p class="empty" style="margin-top:8px">Le bilan de chaque trajet s’enregistre ici.</p></div>`; return; }
+  if (!trips.length) { el.innerHTML = `<div class="card"><h2>Aucun trajet</h2><p class="empty" style="margin-top:8px">Le bilan de chaque trajet s’enregistre ici, événement par événement, comme affiché en direct.</p></div>`; return; }
   const W = contentWidth(), last = trips.slice(0, 12).reverse();
   let spark = '';
   if (last.length > 1) {
@@ -1008,7 +1040,7 @@ function renderHistory() {
   }
   el.innerHTML = spark + `<div class="card"><ul class="trips">${trips.map(t => `<li><button class="trip" data-act="open" data-id="${t.id}">
     <span class="badge bd-${tone(t.sum.score)}">${t.sum.score}</span>
-    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${plural(t.events.filter(e => e.kind !== 'shock' || e.fast).length, 'événement')}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
+    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${plural(t.events.length, 'événement')}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
     <button class="btn ghost" data-act="clear" style="align-self:flex-start">${S.confirm === 'clear' ? 'Confirmer l’effacement' : 'Effacer l’historique'}</button>`;
 }
 
@@ -1044,7 +1076,7 @@ function drawCockpit(canvas, e, ready) {
   const tr = e.trail; ctx.strokeStyle = col('--accent'); ctx.lineCap = 'round'; ctx.setLineDash([]);
   for (let i = 1; i < tr.length; i++) { const a = pos(tr[i - 1]), b = pos(tr[i]); ctx.globalAlpha = i / tr.length * 0.55; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
   ctx.globalAlpha = 1;
-  if (!ready && e.mount === 'free') {
+  if (!ready) {
     ring(Math.min(MAX, e.liveMag) * sc, col('--accent'), 2, [3, 4]);
     ctx.fillStyle = col('--muted'); ctx.font = '12px ' + col('--font-body'); ctx.fillText('Accélère doucement', cx, cy + R * 0.55);
   }
@@ -1053,15 +1085,15 @@ function drawCockpit(canvas, e, ready) {
   ctx.beginPath(); ctx.arc(p[0], p[1], 11, 0, TAU); ctx.fillStyle = col('--surface'); ctx.fill();
   ctx.beginPath(); ctx.arc(p[0], p[1], 8, 0, TAU); ctx.fillStyle = hot ? col('--bad') : col('--accent'); ctx.fill();
 
-  // Jauge verticale : roues gauches (G) et droites (D), échelle ±10 m/s², haut = poussée vers le haut.
+  // Jauge verticale : roues gauches (G) et droites (D), échelle ±8 m/s², haut = poussée vers le haut.
   const gx0 = 4, gx1 = cx - R - 16, gw = gx1 - gx0;
   if (gw >= 40) {
-    const VMAX = 10, gh = area / 2, ys = gh / VMAX, cw = Math.min(34, (gw - 14) / 2), gap = Math.min(14, gw - 2 * cw);
+    const VMAX = 8, thr = Math.max(CF.shock.mod, CF.shock.noiseK * e.vNoise), gh = area / 2, ys = gh / VMAX, cw = Math.min(34, (gw - 14) / 2), gap = Math.min(14, gw - 2 * cw);
     const xs = [gx0 + (gw - 2 * cw - gap) / 2, gx0 + (gw - 2 * cw - gap) / 2 + cw + gap];
     ctx.fillStyle = col('--muted'); ctx.font = '600 11px ' + col('--font-body');
     ctx.fillText('VERTICAL', gx0 + gw / 2, 14);
     for (let i = 0; i < 2; i++) {
-      const x = xs[i], v = Math.max(-VMAX, Math.min(VMAX, i ? e.zR : e.zL)), hotG = Math.abs(v) >= CF.shock.mod;
+      const x = xs[i], v = Math.max(-VMAX, Math.min(VMAX, i ? e.zR : e.zL)), hotG = Math.abs(v) >= thr;
       ctx.fillStyle = col('--soft'); ctx.fillRect(x, cy - gh, cw, 2 * gh);
       ctx.fillStyle = hotG ? col('--bad') : col('--accent'); ctx.globalAlpha = hotG ? 1 : 0.85;
       ctx.fillRect(x, v >= 0 ? cy - v * ys : cy, cw, Math.abs(v) * ys); ctx.globalAlpha = 1;
@@ -1070,7 +1102,7 @@ function drawCockpit(canvas, e, ready) {
       ctx.fillStyle = col('--muted'); ctx.fillText(i ? 'D' : 'G', x + cw / 2, cy + gh + 14);
     }
     ctx.setLineDash([4, 3]); ctx.strokeStyle = col('--warn'); ctx.lineWidth = 1.5; ctx.beginPath();
-    for (const d of [CF.shock.mod, -CF.shock.mod]) { ctx.moveTo(gx0, cy - d * ys); ctx.lineTo(gx1, cy - d * ys); }
+    for (const d of thr < VMAX ? [thr, -thr] : []) { ctx.moveTo(gx0, cy - d * ys); ctx.lineTo(gx1, cy - d * ys); }
     ctx.stroke(); ctx.setLineDash([]);
     ctx.strokeStyle = col('--ink'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx0, cy); ctx.lineTo(gx1, cy); ctx.stroke();
   }
@@ -1101,8 +1133,10 @@ function updateLive() {
   $('#l-streak').textContent = clock(e.streak).replace(/^0/, '');
   const st = $('#l-status');
   st.className = 'status' + (ready ? ' ok' : '');
-  st.lastElementChild.textContent = e.recalCount && !ready ? 'Téléphone déplacé : accélère en ligne droite'
-    : e.status === 'init' ? 'Mesure de la gravité…' : ready ? (r.gpsWarn ? 'Prêt · GPS faible' : 'Prêt') : 'Accélère doucement en ligne droite';
+  st.lastElementChild.textContent = e.status === 'init' ? 'Mesure…' : ready ? (r.gpsWarn ? 'Calé · GPS faible' : 'Calé') : e.recalCount ? 'Recalage : accélère en ligne droite' : 'Calage : accélère en ligne droite';
+  const pause = performance.now() - r.lastMotion > 2500, bn = $('#l-banner');
+  bn.hidden = !pause; if (pause) bn.textContent = 'Capteurs en pause : garde l’écran allumé et l’appli au premier plan.';
+  if (r.chipN !== e.events.length) { r.chipN = e.events.length; $('#l-chips').innerHTML = chipsHTML(e.events); }
   for (const [k] of AXES) { const row = $('#ax-' + k), v = s.axes[k]; row.querySelector('i').style.width = v + '%'; row.querySelector('i').className = 'g-' + tone(v); row.querySelector('.v').textContent = v; }
 
   // Bandeau : dernier événement pendant 6 s, avec les points perdus ; sinon « conduite fluide ».
@@ -1122,11 +1156,15 @@ function updateLive() {
     $('#l-ts').textContent = T ? evSub(T.ev) : s.counts.brake + s.counts.accel + s.counts.corner + s.counts.swerve + s.counts.fix + s.counts.shiftHarsh ? `Record ${clock(s.streakBest)}` : 'Rien à signaler';
     $('#l-tp').textContent = T && T.d < 0 ? T.d : '';
   }
-  drawCockpit($('#gg'), e, ready);
+}
+function paint() {
+  const r = S.run; if (!r) return;
+  const c = $('#gg'); if (c) drawCockpit(c, r.engine, r.engine.status === 'ready');
+  r.raf = requestAnimationFrame(paint);
 }
 
 /* ---------- Sources ---------- */
-const BLOCKED = 'Capteurs indisponibles ici (permission refusée ou aperçu bloqué). Autorise le mouvement et la position, ou ouvre la version hébergée en HTTPS sur ton téléphone. Démo et import marchent partout.';
+const BLOCKED = 'Capteurs indisponibles ici (permission refusée, ou aperçu intégré bloqué). Autorise le mouvement et la position, ou ouvre la version hébergée en HTTPS sur ton téléphone.';
 let wake = null;
 const lock = () => { try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { wake = l; }).catch(() => {}); } catch (e) {} };
 const unlock = () => { try { if (wake) wake.release(); } catch (e) {} wake = null; };
@@ -1138,25 +1176,8 @@ function stopSources() {
   if (r.raf) cancelAnimationFrame(r.raf);
   if (r.onMotion) window.removeEventListener('devicemotion', r.onMotion);
   if (r.watch != null && navigator.geolocation) navigator.geolocation.clearWatch(r.watch);
-  clearTimeout(r.watchdog); clearInterval(r.loop);
-}
-
-function startDemo() {
-  const engine = new PL.Engine({ mount: 'vent' }), sim = new PL.Sim({ style: S.style, mount: 'vent' });
-  const r = S.run = { mode: 'demo', engine, sim, last: performance.now(), x: S.speedX, seq: -1, score: 100 };
-  render(); lock();
-  const frame = now => {
-    if (S.run !== r) return;
-    let budget = Math.min(0.1, (now - r.last) / 1000) * r.x; r.last = now;
-    while (budget > 0 && !sim.done) {
-      const o = sim.step(); engine.pushMotion(o.t, o.ax, o.ay, o.az, o.gx, o.gy, o.gz);
-      if (o.fix !== null) engine.pushFix(o.tf, o.fix, o.heading);
-      budget -= sim.dt;
-    }
-    updateLive();
-    if (sim.done) finishRun(); else r.raf = requestAnimationFrame(frame);
-  };
-  r.raf = requestAnimationFrame(frame);
+  if (r.onVis) { document.removeEventListener('visibilitychange', r.onVis); window.removeEventListener('pagehide', r.onHide); }
+  clearTimeout(r.watchdog); clearInterval(r.loop); clearInterval(r.saver);
 }
 
 async function startSensors() {
@@ -1164,14 +1185,14 @@ async function startSensors() {
   try {
     if (typeof DeviceMotionEvent.requestPermission === 'function' && await DeviceMotionEvent.requestPermission() !== 'granted') return fail(BLOCKED);
   } catch (e) { return fail(BLOCKED); }
-  const engine = new PL.Engine({ mount: S.mount }), now = () => performance.now() / 1000;
-  const r = S.run = { mode: 'sensors', engine, got: false, lastPos: null, gpsWarn: false, seq: -1, score: 100 };
+  const engine = new PL.Engine({ mount: 'free' }), now = () => performance.now() / 1000;
+  const r = S.run = { engine, got: false, lastPos: null, gpsWarn: false, seq: -1, score: 100, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(), lastMotion: performance.now() };
   render(); lock();
   r.onMotion = ev => {
     const a = ev.accelerationIncludingGravity;
     if (!a || a.x == null || a.y == null || a.z == null) return;
     const g = ev.rotationRate;   // °/s : alpha = axe z, beta = axe x, gamma = axe y de l'appareil
-    r.got = true; engine.pushMotion(now(), a.x, a.y, a.z, g ? g.beta : null, g ? g.gamma : null, g ? g.alpha : null);
+    r.got = true; r.lastMotion = performance.now(); engine.pushMotion(now(), a.x, a.y, a.z, g ? g.beta : null, g ? g.gamma : null, g ? g.alpha : null);
   };
   window.addEventListener('devicemotion', r.onMotion);
   r.watch = navigator.geolocation.watchPosition(pos => {
@@ -1182,54 +1203,41 @@ async function startSensors() {
   }, err => { if (err.code === 1) fail(BLOCKED); else r.gpsWarn = true; },
   { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
   r.watchdog = setTimeout(() => { if (!r.got) fail(BLOCKED); }, 3000);
-  r.loop = setInterval(updateLive, 100);
+  r.loop = setInterval(updateLive, 200);
+  r.saver = setInterval(saveDraft, 5000);
+  r.onVis = () => { if (document.hidden) saveDraft(); else lock(); }; r.onHide = saveDraft;
+  document.addEventListener('visibilitychange', r.onVis); window.addEventListener('pagehide', r.onHide);
+  r.raf = requestAnimationFrame(paint);
 }
 
-async function runImport() {
-  if (!S.file) return;
-  let text; try { text = await S.file.text(); } catch (e) { return fail('Impossible de lire ce fichier.'); }
-  const rows = PL.parseCsv(text);
-  if (rows.length < 100) return fail('Fichier illisible : il faut au moins 100 lignes t, ax, ay, az, speed.');
-  if (!rows.some(r => r.speed !== null)) return fail('Pas de colonne speed : la calibration a besoin de la vitesse GPS.');
-  conclude(PL.analyzeRows(rows, S.mount), 'Import · ' + S.file.name);
-}
-
-function conclude(engine, label) {
-  engine.finish();
-  if (engine.dist < 100 || engine.t < 20) { S.run = null; S.error = 'Trajet trop court pour être noté : il faut au moins 100 m et 20 s.'; return render(); }
-  if (engine.status !== 'ready') { S.run = null; S.error = 'Calibration impossible : aucune accélération franche en ligne droite n’a été mesurée. Redémarre à l’arrêt et accélère doucement.'; return render(); }
-  const t = makeTrip(engine, { mode: S.mode, label }); trips = [t, ...trips].slice(0, 30); saveTrips(trips);
-  S.run = null; S.error = ''; S.allEv = false; shown = t; S.tab = 'drive'; render();
-  const h = document.querySelector('#view-drive article'); if (h && h.scrollIntoView) h.scrollIntoView({ block: 'start' });
-}
 function finishRun() {
-  const r = S.run; if (!r) return; stopSources();
-  conclude(r.engine, r.mode === 'demo' ? 'Démo · ' + { calm: 'posé', normal: 'normal', rough: 'nerveux' }[S.style] : 'Capteurs');
+  const r = S.run; if (!r) return; const engine = r.engine; stopSources();
+  engine.finish();
+  if (engine.dist < 100 || engine.t < 20) { S.run = null; clearDraft(); S.error = 'Trajet trop court (moins de 100 m ou 20 s) : non enregistré.'; return render(); }
+  if (engine.status !== 'ready') { S.run = null; clearDraft(); S.error = 'Calage impossible : aucune accélération franche en ligne droite. Redémarre et accélère doucement.'; return render(); }
+  const t = makeTrip(engine, { id: r.id, ts: r.ts }); trips = [t, ...trips].slice(0, 30); saveTrips(trips); clearDraft();
+  S.run = null; S.error = ''; shown = t; S.tab = 'drive'; render();
+  const h = document.querySelector('#view-drive article'); if (h && h.scrollIntoView) h.scrollIntoView({ block: 'start' });
 }
 
 /* ---------- Événements ---------- */
 $('#app').addEventListener('click', ev => {
   const tab = ev.target.closest('[data-tab]');
   if (tab) { S.tab = tab.dataset.tab; S.confirm = ''; return render(); }
-  const st = ev.target.closest('[data-set]');
-  if (st) { const k = st.dataset.set, v = st.dataset.val; S[k] = k === 'speedX' ? Number(v) : v; S.error = ''; return render(); }
   const b = ev.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, id = b.dataset.id;
-  if (act === 'go') { S.error = ''; if (S.mode === 'demo') startDemo(); else if (S.mode === 'sensors') startSensors(); else runImport(); }
+  if (act === 'go') { S.error = ''; startSensors(); }
   else if (act === 'stop') finishRun();
-  else if (act === 'more') { S.allEv = !S.allEv; render(); }
-  else if (act === 'open') { S.opened = id; S.confirm = ''; S.allEv = false; renderHistory(); }
+  else if (act === 'recal') { if (S.run) { S.run.engine.recalibrate(); updateLive(); } }
+  else if (act === 'open') { S.opened = id; S.confirm = ''; renderHistory(); }
   else if (act === 'back') { S.opened = null; S.confirm = ''; renderHistory(); }
   else if (act === 'del') {
     if (S.confirm !== 'del' + id) { S.confirm = 'del' + id; return renderHistory(); }
-    trips = trips.filter(t => t.id !== id); saveTrips(trips); S.opened = null; S.confirm = ''; shown = trips[0] || example; renderHistory();
+    trips = trips.filter(t => t.id !== id); saveTrips(trips); S.opened = null; S.confirm = ''; shown = trips[0] || null; renderHistory();
   } else if (act === 'clear') {
     if (S.confirm !== 'clear') { S.confirm = 'clear'; return renderHistory(); }
-    trips = []; saveTrips(trips); S.confirm = ''; shown = example; renderHistory();
+    trips = []; saveTrips(trips); S.confirm = ''; shown = null; renderHistory();
   }
-});
-$('#app').addEventListener('change', ev => {
-  if (ev.target.id === 'file') { S.file = ev.target.files[0] || null; S.error = ''; renderDrive(); }
 });
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!S.run) render(); }, 200); });
 render();
