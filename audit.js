@@ -7,7 +7,9 @@ for (const style of ['calm', 'normal', 'rough']) for (const seed of [1, 7, 12]) 
   const e = new PL.Engine({ mount }), s = new PL.Sim({ style, seed, mount: sm, hum });
   const live = [], toast = []; let seq = 0;
   while (!s.done) {
-    const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az, o.gx, o.gy, o.gz); if (o.fix !== null) e.pushFix(o.tf, o.fix, o.heading);
+    const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az, o.gx, o.gy, o.gz);
+    if (o.fix !== null) { if (hum) e.pushLimit(o.t < 120 ? 50 : 70); e.pushFix(o.tf, o.fix, o.heading); }
+    if (seed === 7 && Math.abs(o.t - 100) < 0.01) e.touch();   // écran touché en roulant
     if (e.evSeq !== seq) { seq = e.evSeq; live.push(key(e.lastEvent)); toast.push(e.lastEvent); }
   }
   e.finish(); if (e.evSeq !== seq) { live.push(key(e.lastEvent)); }
@@ -20,7 +22,8 @@ for (const style of ['calm', 'normal', 'rough']) for (const seed of [1, 7, 12]) 
   const back = JSON.parse(JSON.stringify(e.events)); assert.deepStrictEqual(back.map(key), fin);
   const sum = e.summary(), c = k => e.events.filter(x => x.kind === k).length;
   assert.strictEqual(sum.counts.brake, c('brake')); assert.strictEqual(sum.counts.corner, c('corner')); assert.strictEqual(sum.counts.accel, c('accel'));
-  assert.strictEqual(sum.counts.swerve, c('swerve')); assert.strictEqual(sum.counts.fix, c('fix')); assert.strictEqual(sum.counts.shock, c('shock'));
+  assert.strictEqual(sum.counts.swerve, c('swerve')); assert.strictEqual(sum.counts.fix, c('fix')); assert.strictEqual(sum.counts.shock, c('shock')); assert.strictEqual(sum.counts.speed, c('speed')); assert.strictEqual(sum.counts.phone, c('phone'));
+  if (seed === 7) assert.strictEqual(c('phone'), 1, 'écran touché en roulant'); if (hum) assert(c('speed') >= 1, 'excès de vitesse');
   assert(sum.coverage > 0.99);
   n++;
 }

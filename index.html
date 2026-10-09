@@ -1,59 +1,125 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0C1318"><title>Pied Léger</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0C1318"><title>Pied Léger</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Une colonne mobile (560 px max) : onglets Conduite / Historique. Direct = cockpit, bilan = une fiche. */
+/* Une colonne mobile (560 px max), barre d'onglets en bas : Conduire / Progrès / Amis / Trajets. En roulant, le cockpit seul. */
 :root{
   --bg:#EDF0F3; --surface:#FFFFFF; --ink:#13202B; --muted:#566676; --line:#D3DAE1; --soft:#E4E9EE;
-  --accent:#0A6C88; --accent-ink:#FFFFFF;
+  --accent:#0A6C88; --accent-ink:#FFFFFF; --accent-soft:#D5E8EE;
   --good:#1C8A4B; --warn:#A96A12; --bad:#C23B32; --bad-ink:#FFFFFF;
-  --k-brake:#C23B32; --k-accel:#B7791F; --k-corner:#4F5BD5; --k-swerve:#0E8F7E; --k-fix:#C2417B; --k-shift:#7A55E0; --k-shock:#5E6B78;
+  --xp:#B9851A;
+  --k-brake:#C23B32; --k-accel:#B7791F; --k-corner:#4F5BD5; --k-swerve:#0E8F7E; --k-fix:#C2417B; --k-shift:#7A55E0; --k-shock:#5E6B78; --k-speed:#D1202F; --k-phone:#2D3B47;
+  --lg-bronze:#A4672F; --lg-silver:#7D8B98; --lg-gold:#B98A12; --lg-platinum:#3E8C9E; --lg-diamond:#5B5FD6;
+  --sign-bg:#FFFFFF; --sign-ring:#D1202F; --sign-ink:#111111;
   --font-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
   --font-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
   --font-data:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --nav-h:64px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0C1318; --surface:#141D25; --ink:#E5ECF1; --muted:#8C9CAA; --line:#26333E; --soft:#1B2731;
-  --accent:#43C1DD; --accent-ink:#06222B;
-  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08;
-  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; color-scheme:dark}}
+  --accent:#43C1DD; --accent-ink:#06222B; --accent-soft:#16323C;
+  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08; --xp:#E8B847;
+  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; --k-speed:#FF6B6B; --k-phone:#C9D4DD;
+  --lg-bronze:#D08A4C; --lg-silver:#AEBBC7; --lg-gold:#E8B847; --lg-platinum:#5FC3D6; --lg-diamond:#9EA2FF;
+  color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0C1318; --surface:#141D25; --ink:#E5ECF1; --muted:#8C9CAA; --line:#26333E; --soft:#1B2731;
-  --accent:#43C1DD; --accent-ink:#06222B;
-  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08;
-  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; color-scheme:dark}
+  --accent:#43C1DD; --accent-ink:#06222B; --accent-soft:#16323C;
+  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08; --xp:#E8B847;
+  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; --k-speed:#FF6B6B; --k-phone:#C9D4DD;
+  --lg-bronze:#D08A4C; --lg-silver:#AEBBC7; --lg-gold:#E8B847; --lg-platinum:#5FC3D6; --lg-diamond:#9EA2FF;
+  color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--font-body);-webkit-text-size-adjust:100%}
-button{font-family:inherit}
+button,input{font-family:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{max-width:560px;margin-inline:auto;padding-inline:16px;padding-block:18px 56px;display:flex;flex-direction:column;gap:14px}
-.top h1{margin:0;font:700 28px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
-.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line)}
-.tabs button{background:none;border:0;padding:10px 0;margin-bottom:-1px;font:500 15px var(--font-body);color:var(--muted);border-bottom:2px solid transparent;cursor:pointer}
-.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.app{max-width:560px;margin-inline:auto;padding-inline:16px;padding-block:14px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+.app.driving{padding-bottom:28px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top h1{margin:0;font:700 26px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.me-chip{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);cursor:pointer;font:500 14px var(--font-body);min-width:0}
+.me-chip .av{width:30px;height:30px;font-size:18px}
+.me-chip small{font:500 12px var(--font-data);color:var(--muted)}
+.av{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--soft);font-size:22px;line-height:1;flex:none}
+.av.big{width:56px;height:56px;font-size:32px}
+
+/* barre d'onglets */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-in{max-width:560px;margin-inline:auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
+.nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--muted);font:500 12px var(--font-body);cursor:pointer;position:relative}
+.nav button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button[aria-selected="true"]{color:var(--accent)}
+.nav .dot{position:absolute;top:8px;left:calc(50% + 8px);min-width:16px;height:16px;padding-inline:4px;border-radius:99px;background:var(--bad);color:var(--bad-ink);font:600 10px/16px var(--font-body)}
+
 .stack{display:flex;flex-direction:column;gap:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
 h2{margin:0;font:600 26px/1.1 var(--font-display);letter-spacing:.01em;text-wrap:balance}
 h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.lbl{display:block;margin:14px 0 6px;font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.lbl:first-child{margin-top:0}
-.hint{margin:6px 0 0;color:var(--muted);font-size:13px}
-.btn{display:block;width:100%;padding:14px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:600 16px var(--font-body);text-align:center;cursor:pointer}
+.h3row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.hint{margin:8px 0 0;color:var(--muted);font-size:13px}
+.err{margin-top:12px;padding:10px 12px;border:1px solid var(--bad);border-radius:10px;background:var(--soft);font-size:14px}
+.note{margin:10px 0 0;color:var(--muted);font-size:13px}
+.empty{margin:0;color:var(--muted)}
+.btn{display:block;width:100%;padding:14px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:600 16px var(--font-body);text-align:center;cursor:pointer;text-decoration:none}
 .btn.big{padding:18px 16px;font-size:18px;border-radius:12px}
-.btn:disabled{opacity:.45;cursor:not-allowed}
 .btn.ghost{background:var(--soft);color:var(--ink);padding:10px 14px;font-size:14px;width:auto;display:inline-block}
 .btn.stop{background:var(--bad);color:var(--bad-ink)}
 .btn.link{background:none;color:var(--muted);padding:8px 0;font-size:14px;font-weight:500;text-decoration:underline;text-underline-offset:3px;width:auto;display:inline-block}
-.err{margin-top:14px;padding:10px 12px;border:1px solid var(--bad);border-radius:10px;background:var(--soft);font-size:14px}
-.note{margin:12px 0 0;color:var(--muted);font-size:13px}
-.go{margin-top:16px}
-.row{display:flex;gap:10px}.row .btn.stop{flex:1}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
-.chips:empty{display:none}
-.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px 4px 8px;border-radius:99px;background:var(--soft);font-size:13px}
-.chip b{font:600 13px var(--font-data);font-variant-numeric:tabular-nums}
-.banner{margin:10px 0 0;padding:9px 12px;border:1px solid var(--warn);border-radius:10px;background:var(--soft);font-size:14px}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:8px;width:auto;display:inline-block}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row .grow{flex:1 1 0;min-width:0}
+.row .btn.ghost,.sheet .btn.ghost{padding:14px 16px;font-size:16px}
+.go{margin-top:14px}
+.toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tg{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--muted);font:500 13px var(--font-body);cursor:pointer}
+.tg i{width:28px;height:16px;border-radius:99px;background:var(--line);position:relative;flex:none}
+.tg i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.tg[aria-pressed="true"]{color:var(--ink);border-color:var(--accent)}
+.tg[aria-pressed="true"] i{background:var(--accent)}
+.tg[aria-pressed="true"] i::after{transform:translateX(12px)}
+
+/* profil / niveau */
+.hello{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.hello b{display:block;font:600 22px/1.15 var(--font-display)}
+.hello small{color:var(--muted);font-size:13px}
+.xpbar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:8px}
+.xpbar i{display:block;height:100%;background:var(--xp);border-radius:99px;transition:width .6s ease-out}
+.xpline{display:flex;justify-content:space-between;gap:8px;margin-top:4px;font:400 12px var(--font-data);color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.kpi{padding:10px;border-radius:10px;background:var(--soft);min-width:0;border:0;color:inherit;text-align:left;font:inherit}
+button.kpi{cursor:pointer}
+.kpi small{display:block;font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi b{display:block;margin-top:2px;font:700 22px/1.1 var(--font-display);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;border:1.5px solid currentColor;font:600 12px var(--font-body);letter-spacing:.04em;white-space:nowrap}
+.lg-bronze{color:var(--lg-bronze)} .lg-silver{color:var(--lg-silver)} .lg-gold{color:var(--lg-gold)} .lg-platinum{color:var(--lg-platinum)} .lg-diamond{color:var(--lg-diamond)} .lg-none{color:var(--muted)}
+
+/* défis */
+.chal{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.chal li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.chal li:first-child{border-top:0}
+.ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center}
+.ck svg{width:13px;height:13px;stroke:var(--surface);stroke-width:3;fill:none;opacity:0}
+.done .ck{background:var(--good);border-color:var(--good)}
+.done .ck svg{opacity:1}
+.done span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.xpv{font:600 13px var(--font-data);color:var(--xp);white-space:nowrap}
+.prog{height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--accent)}
+.wk{margin-top:12px;padding:12px;border-radius:10px;background:var(--soft)}
+.wk b{font-weight:600}
+.wk small{display:block;color:var(--muted);font:400 12px var(--font-data);margin-top:4px}
+.wk .prog{background:var(--surface)}
+
+/* coach */
+.coach{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center}
+.coach .n{display:grid;place-items:center;height:52px;border-radius:10px;background:var(--soft);font:700 26px var(--font-display);font-variant-numeric:tabular-nums}
+.coach b{display:block;font-weight:600}
+.coach span{color:var(--muted);font-size:14px}
+.trend{font:500 12px var(--font-data);margin-left:6px}
+.up{color:var(--good)} .dn{color:var(--bad)} .eq{color:var(--muted)}
 
 /* score */
 .b-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
@@ -61,13 +127,13 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .ring svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
 .ring .tr{stroke:var(--soft)}
 .ring .pg{transition:stroke-dashoffset .25s}
-.rc-good{stroke:var(--good)} .rc-warn{stroke:var(--warn)} .rc-bad{stroke:var(--bad)}
+.rc-good{stroke:var(--good)} .rc-warn{stroke:var(--warn)} .rc-bad{stroke:var(--bad)} .rc-xp{stroke:var(--xp)}
 .ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 calc(var(--s) * .45)/1 var(--font-display);font-variant-numeric:tabular-nums}
 .ring.sm{--s:92px}
+.ring.xs{--s:72px}
 .b-meta{flex:1;min-width:170px}
 .eyebrow{margin:0 0 4px;color:var(--muted);font:400 12px var(--font-data)}
-.delta{display:inline-block;margin-top:6px;font:500 13px var(--font-data)}
-.delta.up{color:var(--good)} .delta.dn{color:var(--bad)} .delta.eq{color:var(--muted)}
+.delta{display:inline-block;margin-top:6px;margin-right:8px;font:500 13px var(--font-data)}
 .stats{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 0}
 .stats dt{font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .stats dd{margin:0;font:500 14px var(--font-data);font-variant-numeric:tabular-nums}
@@ -78,6 +144,8 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .fo b{display:block;font-weight:600}
 .fo span{color:var(--muted);font-size:14px}
 .fo.good{grid-template-columns:minmax(0,1fr)}
+.pen{margin:12px 0 0;padding:9px 12px;border-radius:10px;background:var(--soft);border-left:4px solid var(--bad);font-size:14px}
+.xpchip{display:inline-block;margin-top:6px;padding:2px 9px;border-radius:99px;background:var(--soft);color:var(--xp);font:600 13px var(--font-data)}
 
 /* axes */
 .axis{display:grid;grid-template-columns:minmax(92px,112px) 1fr 34px;grid-template-areas:"l b v" ". d d";align-items:center;column-gap:10px;padding:5px 0}
@@ -87,7 +155,7 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .axis .v{grid-area:v;text-align:right;font:500 14px var(--font-data);font-variant-numeric:tabular-nums}
 .axis small{grid-area:d;color:var(--muted);font-size:12px;margin-top:2px}
 .live .axis{grid-template-areas:"l b v"}
-.g-good{background:var(--good)} .g-warn{background:var(--warn)} .g-bad{background:var(--bad)}
+.g-good{background:var(--good)} .g-warn{background:var(--warn)} .g-bad{background:var(--bad)} .g-none{background:transparent}
 
 /* événements */
 .evs{list-style:none;margin:0;padding:0}
@@ -106,12 +174,16 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .mk.fix{background:var(--k-fix);clip-path:polygon(35% 0,65% 0,65% 35%,100% 35%,100% 65%,65% 65%,65% 100%,35% 100%,35% 65%,0 65%,0 35%,35% 35%)}
 .mk.shift{background:var(--k-shift);border-radius:3px;transform:scale(.8)}
 .mk.shock{border:2px solid var(--k-shock);border-radius:2px;width:11px;height:11px}
-.empty{margin:0;color:var(--muted)}
-.more{margin-top:6px}
+.mk.speed{border:3px solid var(--k-speed);border-radius:50%;background:var(--sign-bg)}
+.mk.phone{background:var(--k-phone);border-radius:2px;width:8px;height:13px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
+.chips:empty{display:none}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px 4px 8px;border-radius:99px;background:var(--soft);font-size:13px}
+.chip b{font:600 13px var(--font-data);font-variant-numeric:tabular-nums}
 .legend{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:12px}
 .legend span{display:inline-flex;gap:6px;align-items:center}
 
-/* graphiques */
+/* graphiques et carte */
 .chart{display:block;width:100%;height:auto;overflow:visible}
 .chart text{font:400 11px var(--font-data);fill:var(--muted)}
 .chart .gl{stroke:var(--line);stroke-width:1}
@@ -119,8 +191,21 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .chart .ar{fill:var(--accent);opacity:.12}
 .chart .m{stroke:var(--surface);stroke-width:1.5}
 .chart .m-brake{fill:var(--k-brake)} .chart .m-accel{fill:var(--k-accel)} .chart .m-corner{fill:var(--k-corner)}
-.chart .m-swerve{fill:var(--k-swerve)} .chart .m-fix{fill:var(--k-fix)} .chart .m-shift{fill:var(--k-shift)}
+.chart .m-swerve{fill:var(--k-swerve)} .chart .m-fix{fill:var(--k-fix)} .chart .m-shift{fill:var(--k-shift)} .chart .m-phone{fill:var(--k-phone)}
 .chart .m-shock{fill:var(--surface);stroke:var(--k-shock);stroke-width:2}
+.chart .m-speed{fill:var(--sign-bg);stroke:var(--k-speed);stroke-width:2.5}
+.chart .route{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.chart .route-bg{fill:none;stroke:var(--surface);stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
+.chart .st{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.chart .en{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+.chart .lim{fill:none;stroke:var(--k-speed);stroke-width:1.5;stroke-dasharray:4 3}
+.mapbox{border-radius:10px;background:var(--soft);padding:8px}
+.eco{display:grid;gap:6px}
+.eco-bar{position:relative;height:10px;border-radius:99px;background:var(--soft);margin-top:6px}
+.eco-bar span{position:absolute;top:0;bottom:0;border-radius:99px}
+.eco-bar i{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.eco-sc{position:relative;height:16px;font:400 11px var(--font-data);color:var(--muted)}
+.eco-sc span{position:absolute;top:0;white-space:nowrap}
 
 /* direct : cockpit */
 .live{padding:14px}
@@ -129,11 +214,15 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .status i{width:8px;height:8px;border-radius:50%;background:var(--warn)}
 .status.ok i{background:var(--good)}
 .trip-line{font:400 13px var(--font-data);color:var(--muted)}
-.l-hero{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;margin-top:12px}
-.speed{font:700 56px/1 var(--font-display);font-variant-numeric:tabular-nums;text-align:center}
-.speed small{font:500 14px var(--font-data);color:var(--muted);margin-left:4px}
+.l-hero{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:12px}
+.spd{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0}
+.speed{font:700 54px/1 var(--font-display);font-variant-numeric:tabular-nums;text-align:center}
+.speed small{display:block;font:500 13px var(--font-data);color:var(--muted)}
+.speed.over{color:var(--bad)}
+.sign{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--sign-bg);border:6px solid var(--sign-ring);color:var(--sign-ink);font:700 18px/1 var(--font-display);font-variant-numeric:tabular-nums;flex:none}
+.sign.unk{border-color:var(--line);color:var(--muted);background:var(--soft);font-size:14px}
 .streak{text-align:right}
-.streak b{display:block;font:700 30px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--good)}
+.streak b{display:block;font:700 28px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--good)}
 .streak small{display:block;margin-top:2px;color:var(--muted);font-size:12px}
 .gg{display:block;width:100%;max-width:460px;aspect-ratio:10/9;margin:10px auto 6px}
 .toast{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:60px;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--good);border-radius:10px;background:var(--soft)}
@@ -143,39 +232,104 @@ h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-tran
 .toast .pts{font:700 26px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--bad)}
 .toast.pop{animation:pop .35s ease-out}
 @keyframes pop{from{transform:scale(1.03)}to{transform:none}}
+.banner{margin:10px 0 0;padding:9px 12px;border:1px solid var(--warn);border-radius:10px;background:var(--soft);font-size:14px}
 
-/* historique */
-.trips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.trips li{border-top:1px solid var(--line)}
-.trips li:first-child{border-top:0}
-.trip{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:12px 0;background:none;border:0;color:inherit;text-align:left;cursor:pointer}
+/* fin de trajet */
+.cele{text-align:center}
+.cele .ring{margin-inline:auto}
+.cele h2{margin-top:10px}
+.xp-big{margin-top:6px;font:700 34px/1 var(--font-display);color:var(--xp);font-variant-numeric:tabular-nums}
+.gains{list-style:none;margin:14px 0 0;padding:0;text-align:left}
+.gains li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.gains li:first-child{border-top:0}
+.lvup{margin-top:12px;padding:10px;border-radius:10px;background:var(--soft);font-weight:600}
+.medals{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.cele .medals .bdg{animation:medal .5s cubic-bezier(.3,1.6,.5,1) both}
+.cele .medals .bdg:nth-child(2){animation-delay:.12s} .cele .medals .bdg:nth-child(3){animation-delay:.24s} .cele .medals .bdg:nth-child(4){animation-delay:.36s}
+@keyframes medal{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+
+/* badges */
+.badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 8px}
+.bdg{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:none;border:0;padding:0;color:inherit;cursor:pointer;min-width:0}
+.medal{display:grid;place-items:center;width:58px;height:64px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--xp);font-size:27px;line-height:1}
+.medal span{display:grid;place-items:center;width:51px;height:57px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--surface)}
+.bdg small{font:500 11px/1.2 var(--font-body);color:var(--ink)}
+.bdg.off .medal{background:var(--line)}
+.bdg.off .medal span{filter:grayscale(1);opacity:.35}
+.bdg.off small{color:var(--muted)}
+
+/* listes : trajets, amis, fil */
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.list>li{border-top:1px solid var(--line)}
+.list>li:first-child{border-top:0}
+.item{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:11px 0;background:none;border:0;color:inherit;text-align:left;font:inherit}
+button.item{cursor:pointer}
+.item b{display:block;font-weight:600;overflow-wrap:anywhere}
+.item small{color:var(--muted);font:400 12px var(--font-data)}
 .badge{display:grid;place-items:center;height:46px;border:2px solid;border-radius:10px;font:700 22px var(--font-display);font-variant-numeric:tabular-nums}
-.bd-good{color:var(--good)} .bd-warn{color:var(--warn)} .bd-bad{color:var(--bad)}
-.trip b{display:block;font-weight:600}
-.trip small{color:var(--muted);font:400 12px var(--font-data)}
+.bd-good{color:var(--good)} .bd-warn{color:var(--warn)} .bd-bad{color:var(--bad)} .bd-none{color:var(--muted)}
 .chev{color:var(--muted);font-size:20px}
+.rank{display:grid;grid-template-columns:22px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0}
+.rank .pos{font:700 18px var(--font-display);color:var(--muted);text-align:center}
+.rank.me{background:var(--accent-soft);margin-inline:-10px;padding-inline:10px;border-radius:10px;width:calc(100% + 20px)}
+.rank .sc{text-align:right;font:700 24px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.rank .sc small{display:block;font:400 11px var(--font-data);color:var(--muted)}
+.rank b{display:block;font-weight:600;overflow-wrap:anywhere}
+.rank small{color:var(--muted);font:400 12px var(--font-data)}
+.feed .item{grid-template-columns:40px minmax(0,1fr) auto}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font:600 11px var(--font-body);letter-spacing:.05em;text-transform:uppercase;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill.ok{color:var(--good)} .pill.ko{color:var(--bad)} .pill.on{color:var(--accent)}
 .back{align-self:flex-start;padding:4px 0}
 .spark{display:block;width:100%;height:auto;overflow:visible}
 .spark .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
 .spark .dt{fill:var(--accent)}
 .spark text{font:400 11px var(--font-data);fill:var(--muted)}
 .spark .gl{stroke:var(--line)}
+.f-bronze{fill:var(--lg-bronze)} .f-silver{fill:var(--lg-silver)} .f-gold{fill:var(--lg-gold)} .f-platinum{fill:var(--lg-platinum)} .f-diamond{fill:var(--lg-diamond)} .f-none{fill:var(--line)}
+.recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.how{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:4px}
 
-@media (prefers-reduced-motion: reduce){.ring .pg,.axis .bar i{transition:none}.toast.pop{animation:none}}
+/* feuille modale */
+.sheet-wrap{position:fixed;inset:0;z-index:40;background:rgba(5,12,18,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--surface);border-radius:16px 16px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+.sheet h2{font-size:24px;padding-right:44px}
+.sheet .x{position:absolute;right:12px;top:10px}
+.sheet-in{position:relative;display:flex;flex-direction:column;gap:12px}
+.avs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.avs button{aspect-ratio:1;border-radius:12px;border:2px solid transparent;background:var(--soft);font-size:26px;cursor:pointer;padding:0}
+.avs button[aria-pressed="true"]{border-color:var(--accent)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.field input{padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:16px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opts button{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 15px var(--font-body);cursor:pointer}
+.opts button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.preview{display:block;width:100%;max-width:280px;margin-inline:auto;border-radius:12px;border:1px solid var(--line)}
+.snack{position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;max-width:calc(100% - 32px)}
+.linkbox{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:400 12px var(--font-data);overflow-wrap:anywhere;user-select:all;max-height:84px;overflow:auto}
+
+@media (prefers-reduced-motion: reduce){.ring .pg,.axis .bar i,.xpbar i{transition:none}.toast.pop,.cele .medals .bdg,.sheet{animation:none}}
 </style>
 
 <main class="app" id="app">
-  <header class="top"><h1>Pied Léger</h1></header>
-  <nav class="tabs" role="tablist" aria-label="Sections">
-    <button role="tab" id="tab-drive" data-tab="drive" aria-selected="true">Conduite</button>
-    <button role="tab" id="tab-history" data-tab="history" aria-selected="false">Historique</button>
-  </nav>
-  <section id="view-drive" class="stack" aria-labelledby="tab-drive"></section>
-  <section id="view-history" class="stack" aria-labelledby="tab-history" hidden></section>
+  <header class="top" id="top"></header>
+  <section id="view-drive" class="stack" aria-label="Conduire"></section>
+  <section id="view-progress" class="stack" aria-label="Progrès" hidden></section>
+  <section id="view-friends" class="stack" aria-label="Amis" hidden></section>
+  <section id="view-trips" class="stack" aria-label="Trajets" hidden></section>
 </main>
+<nav class="nav" id="nav" aria-label="Sections"><div class="nav-in" role="tablist">
+  <button role="tab" data-tab="drive" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M3.5 10.5c5-1.8 12-1.8 17 0M12 14.2V21M9.9 13l-5.6 4.6M14.1 13l5.6 4.6"/></svg>Conduire</button>
+  <button role="tab" data-tab="progress" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9.5 17h5"/></svg>Progrès</button>
+  <button role="tab" data-tab="friends" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c.6-3.6 3-5.6 6.2-5.6s5.6 2 6.2 5.6"/><circle cx="17.2" cy="9" r="2.6"/><path d="M16.6 14.3c2.5.2 4.2 1.9 4.6 4.7"/></svg>Amis<span class="dot" id="nav-dot" hidden></span></button>
+  <button role="tab" data-tab="trips" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.8"/></svg>Trajets</button>
+</div></nav>
+<div id="sheet"></div>
+<div class="snack" id="snack" role="status" hidden></div>
 
 <script>
-/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). v2 : exigeant, gyroscope, volant, passages de vitesse. */
+/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
 const PL = (() => {
   'use strict';
   const G = 9.81, D2R = Math.PI / 180;
@@ -201,13 +355,18 @@ const PL = (() => {
     // Passage de vitesse : creux d'accélération en phase d'accélération (rupture de couple), puis reprise.
     shift: { minDepth: 0.8, preMin: 0.7, open: 0.4, recover: 0.3, maxFall: 1.0, maxDip: 2.0, harsh: 1.0, sev: 1.9, slope: 5, slopeSev: 9, reb: 0.9 },
     minKm: 3,
+    // Excès de vitesse (limite fournie par l'appli, OpenStreetMap) : tolérance des radars (5 km/h sous 100, 5 % au-delà),
+    // au moins 5 s ; sévère dès +20 km/h (seuil de la classe supérieure d'amende).
+    speed: { tol: 5, tolPct: 0.05, minS: 5, sev: 20, k: 1.2, share: [0.02, 0.2] },
+    // Téléphone manipulé en roulant (> 15 km/h) : écran touché ou téléphone déplacé ; une fois par 20 s ; −8 points chacun, 30 max.
+    phone: { minSpeed: 4.2, gap: 20, pen: 8, maxPen: 30 },
     phaseMin: 0.8, phaseTime: 8,
     // Intensité : percentile 90 de l'effort quand on freine / accélère / tourne (100 sous a, 0 au-delà de b).
     inten: { brake: [1.6, 4.0], accel: [1.2, 2.8], corner: [1.5, 3.6] },
     jerk: [0.4, 1.5], steer: [0.5, 1.8]
   };
   // Pondération des axes ; le score final mélange la moyenne et le plus faible axe (un point noir pèse).
-  const W = { freinage: .24, acceleration: .16, virages: .20, trajectoire: .20, fluidite: .20 };
+  const W = { freinage: .24, acceleration: .16, virages: .20, trajectoire: .20, fluidite: .20, vitesse: .22 };
   const AXIS_K = { freinage: 1.7, acceleration: 1.7, virages: 1.7, trajectoire: 1.3 };
 
   const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
@@ -243,6 +402,8 @@ const PL = (() => {
       this.latSign = 1; this.latAcc = 0; this.latN = 0; this.latCal = { sum: 0, den: 0, n: 0 }; this.prevHead = null;
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
+      this.limit = null; this.limDist = 0; this.overDist = 0; this.spd = null; this.phoneT = -1e9;
+      this.eco = { bins: new Float64Array(241), posT: 0, vaSum: 0, vSum: 0, vT: 0, brakeE: 0 };
       // Gyroscope : cap de la voiture (lacet), volant, redressements
       this.gyroOn = false; this.bias = 0; this.ySign = 1; this.ySum = 0; this.yF = 0; this.yawSlow = 0; this.yaw = 0; this.yawD = 0; this.yS1 = 0; this.yS2 = 0; this.yawShow = 0;
       this.ybuf = []; this.fx = null; this.fxLast = -9;
@@ -324,6 +485,7 @@ const PL = (() => {
         this.f = null; this.fSource = null; this.basis = null; this.gCal = u; this.open = {}; this.sg = null; this.sgPrev = null; this.dip = null; this.fx = null;
         this.status = 'calibrating'; this.recalCount++;
         if (this.ventOk) this._applyPrior(u);
+        this._phone(ts, 'move');
       }
       if (!this.basis || dot(u, this.basis.u) < 0.996) this._newBasis(u);
 
@@ -441,6 +603,7 @@ const PL = (() => {
         const dtf = ts - this.fix.t;
         if (dtf > 0.2 && dtf < 5) {
           this.dist += (v + this.fix.v) / 2 * dtf;
+          this._fixExtras(ts, v, dtf);
           const a = (v - this.fix.v) / dtf;
           if (this.basis && this.hN > 0 && Math.abs(a) >= 0.4) {
             const hm = [this.hAcc[0] / this.hN, this.hAcc[1] / this.hN], c = this.cal;
@@ -476,6 +639,55 @@ const PL = (() => {
         this.prevHead = { t: ts, h: heading, v };
       } else this.prevHead = null;
       this.fix = { t: ts, v }; this.speed = v; this.hAcc = [0, 0]; this.hN = 0; this.latAcc = 0; this.latN = 0;
+    }
+
+    /** Limitation de vitesse de la route en cours (km/h), ou null si inconnue. */
+    pushLimit(kmh) { this.limit = fin(kmh) && kmh > 0 ? kmh : null; if (!this.limit) this._closeSpeed(); }
+    /** Écran touché par le conducteur : compte comme manipulation si la voiture roule. */
+    touch() { return this._phone(this.t, 'touch'); }
+    _phone(ts, src) {
+      const c = CFG.phone, v = this.speed;
+      if (v === null || v < c.minSpeed) return false;
+      const fresh = ts - this.phoneT >= c.gap; this.phoneT = ts;
+      if (!fresh) return false;
+      this._push({ kind: 'phone', t: ts, v: v * 3.6, src, sev: 2, peak: 0 }, true);
+      return true;
+    }
+    _fixExtras(ts, v, dtf) {
+      const vm = (v + this.fix.v) / 2, E = this.eco;
+      // vitesse GPS lissée (τ 1 s) avant dérivation, comme le lissage de la méthode RDE
+      const vs = E.vs === undefined ? v : E.vs + (v - E.vs) * (1 - Math.exp(-dtf / 1)), a = E.vs === undefined ? 0 : (vs - E.vs) / dtf; E.vs = vs;
+      // Éco-dynamisme, méthode RDE (règlement UE 2017/1151) : v·a+ (a > 0,1 m/s²), 95e centile et RPA.
+      if (vm > 1) {
+        E.vSum += vm * dtf; E.vT += dtf;
+        if (a > 0.1) { const va = vm * a; E.bins[Math.min(240, Math.floor(va / 0.25))] += dtf; E.posT += dtf; E.vaSum += va * dtf; }
+      }
+      if (a < 0) E.brakeE += (this.fix.v * this.fix.v - v * v) / 2;
+      if (this.limit) {
+        this.limDist += vm * dtf;
+        const kmh = v * 3.6, c = CFG.speed, tol = Math.max(c.tol, this.limit * c.tolPct), ex = kmh - this.limit;
+        if (ex > tol) {
+          this.overDist += vm * dtf;
+          let o = this.spd;
+          if (!o) o = this.spd = { kind: 'speed', t: ts, end: ts, peak: ex, v: kmh, lim: this.limit, sev: 1, pushed: false };
+          o.end = ts; if (ex > o.peak) { o.peak = ex; o.v = kmh; o.lim = this.limit; }
+          o.sev = o.peak >= c.sev ? 2 : 1;
+          // Annoncé dès qu'il dure 5 s : l'objet de la liste est mis à jour ensuite (même événement en direct et au bilan).
+          if (!o.pushed && o.end - o.t >= c.minS) { o.pushed = true; this._push(o, true); }
+        } else if (ex < tol - 2) this._closeSpeed();
+      } else this._closeSpeed();
+    }
+    _closeSpeed() { const o = this.spd; if (!o) return; this.spd = null; if (o.pushed) { delete o.pushed; this._bad(this.t); } }
+    _ecoSummary() {
+      const E = this.eco; if (E.vT < 30 || E.posT < 10 || this.dist < 500) return null;
+      const vAvg = E.vSum / E.vT * 3.6;
+      let c = 0, va95 = 0; for (let i = 0; i < 241; i++) { c += E.bins[i]; if (c >= 0.95 * E.posT) { va95 = (i + 0.5) * 0.25; break; } }
+      const vaMax = vAvg <= 74.6 ? 0.136 * vAvg + 14.44 : 0.0742 * vAvg + 18.966;
+      const rpa = E.vaSum / this.dist, rpaMin = vAvg <= 94.05 ? -0.0016 * vAvg + 0.1755 : 0.025;
+      const ratio = va95 / vaMax;
+      return { va95: Math.round(va95 * 10) / 10, vaMax: Math.round(vaMax * 10) / 10, rpa: Math.round(rpa * 1000) / 1000, rpaMin: Math.round(rpaMin * 1000) / 1000,
+        vAvg: Math.round(vAvg), ratio: Math.round(ratio * 100) / 100, score: Math.round(100 * lin(ratio, 0.5, 1.1)),
+        brakeWhKm: Math.round(E.brakeE / 3600 / Math.max(this.dist / 1000, 0.1) * 1300 * 10) / 10 };
     }
 
     _bin(k, x, dt) { this.bins[k][Math.min(NB - 1, Math.floor(x / BIN))] += dt; this.phaseT[k] += dt; }
@@ -631,7 +843,7 @@ const PL = (() => {
       if (this.sg) { this._endSeg(this.sg); this.sg = null; }
       if (this.fxQ) { const q = this.fxQ; this.fxQ = null; this._push(q, true); }
       if (this.shiftPend) { const p = this.shiftPend; this.shiftPend = null; this._endShift(p); }
-      this._closeShock(this.t);
+      this._closeShock(this.t); this._closeSpeed();
       return this.summary();
     }
 
@@ -654,10 +866,19 @@ const PL = (() => {
         acceleration: mix(expo(wsum(e => e.kind === 'accel'), AXIS_K.acceleration), inten('accel')),
         virages: mix(expo(wsum(e => e.kind === 'corner'), AXIS_K.virages), inten('corner')),
         trajectoire: mix(expo(wsum(e => e.kind === 'swerve' || e.kind === 'fix'), AXIS_K.trajectoire), Rv),
-        fluidite: Math.round(Sh === null ? J : 0.65 * J + 0.35 * Sh)
+        fluidite: Math.round(Sh === null ? J : 0.65 * J + 0.35 * Sh),
+        vitesse: null
       };
-      let wm = 0, mn = 100; for (const k in W) { wm += axes[k] * W[k]; mn = Math.min(mn, axes[k]); }
-      const score = Math.round(0.7 * wm + 0.3 * mn);
+      // Vitesse : seulement si la limitation est connue sur au moins 0,5 km et 30 % du trajet.
+      const limKm = this.limDist / 1000, overShare = this.limDist > 0 ? this.overDist / this.limDist : 0;
+      if (limKm >= 0.5 && this.limDist >= 0.3 * this.dist) {
+        const sw = wsum(e => e.kind === 'speed'), c = CFG.speed;
+        axes.vitesse = mix(100 * Math.exp(-(sw / Math.max(limKm, CFG.minKm)) / c.k), 100 * lin(overShare, c.share[0], c.share[1]));
+      }
+      let wm = 0, ws = 0, mn = 100; for (const k in W) { if (axes[k] === null) continue; wm += axes[k] * W[k]; ws += W[k]; mn = Math.min(mn, axes[k]); }
+      wm /= ws;
+      const nPhone = cnt(e => e.kind === 'phone'), phonePen = Math.min(CFG.phone.maxPen, CFG.phone.pen * nPhone);
+      const score = Math.max(0, Math.round(0.7 * wm + 0.3 * mn) - phonePen);
       const moving = this.movingS;
       return {
         score, axes, km, durationS: this.t, movingS: moving,
@@ -665,8 +886,9 @@ const PL = (() => {
         counts: {
           brake: cnt(e => e.kind === 'brake'), late: cnt(e => e.late), accel: cnt(e => e.kind === 'accel'), corner: cnt(e => e.kind === 'corner'),
           swerve: cnt(e => e.kind === 'swerve'), fix: cnt(e => e.kind === 'fix'), shift: nShift, shiftHarsh: cnt(e => e.kind === 'shift'),
-          shock: cnt(e => e.kind === 'shock'), fast: cnt(e => e.fast)
+          shock: cnt(e => e.kind === 'shock'), fast: cnt(e => e.fast), speed: cnt(e => e.kind === 'speed'), phone: nPhone
         },
+        phonePen, speedShare: Math.round(overShare * 1000) / 1000, limKm: Math.round(limKm * 10) / 10, eco: this._ecoSummary(),
         jerkRms: rms, steerRms, gyro: this.gyroOn, coverage: this.t > 5 ? clamp(1 - this.gapS / this.t, 0, 1) : 1,
         streakBest: Math.max(this.bestStreak, this.moveStart === null ? 0 : this.t - this.lastBadT),
         p90: { brake: this._p90('brake'), accel: this._p90('accel'), corner: this._p90('corner') }
@@ -852,93 +1074,402 @@ if (typeof module !== 'undefined') module.exports = PL;
 
 </script>
 <script>
+/* Pied Léger — jeu et social sans serveur (pur, sans DOM) : XP, niveaux, badges, défis, ligues, amis par liens. */
+const PG = (() => {
+  'use strict';
+  const DAY = 86400000;
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  const p2 = n => String(n).padStart(2, '0');
+
+  /* ---------- Calendrier (heure locale) ---------- */
+  const dayKey = ts => { const d = new Date(ts); return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`; };
+  function weekKey(ts) {   // semaine ISO : AAAA-Wnn
+    const d = new Date(ts); d.setHours(12, 0, 0, 0);
+    const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd + 3);
+    const y = d.getFullYear(), j4 = new Date(y, 0, 4, 12); const w = 1 + Math.round(((d - j4) / DAY - 3 + ((j4.getDay() + 6) % 7)) / 7);
+    return `${y}-W${p2(w)}`;
+  }
+  const weekEnd = ts => { const d = new Date(ts); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() + 6 - wd); d.setHours(23, 59, 59, 999); return d.getTime(); };
+
+  /* ---------- Niveaux ---------- */
+  // XP cumulée pour atteindre le niveau L : 60 × (L−1)^1,6. Un bon trajet rapporte 40 à 80 XP.
+  const need = L => Math.round(60 * Math.pow(Math.max(0, L - 1), 1.6));
+  const TITLES = [[1, 'Apprenti'], [3, 'Conducteur attentif'], [6, 'Pied léger'], [10, 'Velours'], [15, 'Maître de la fluidité'], [20, 'Légende']];
+  function levelOf(xp) {
+    let L = 1; while (need(L + 1) <= xp) L++;
+    const a = need(L), b = need(L + 1);
+    return { level: L, title: TITLES.filter(t => t[0] <= L).pop()[1], cur: xp - a, span: b - a, pct: (xp - a) / (b - a), next: b };
+  }
+
+  /* ---------- Ligues (score pondéré par les km de la semaine) ---------- */
+  const LEAGUES = [[90, 'Diamant', 'diamond'], [80, 'Platine', 'platinum'], [70, 'Or', 'gold'], [60, 'Argent', 'silver'], [0, 'Bronze', 'bronze']];
+  const league = s => { if (s === null || s === undefined) return null; const l = LEAGUES.find(x => s >= x[0]); return { name: l[1], id: l[2], min: l[0] }; };
+  function weekStats(trips, wk) {
+    const ts = trips.filter(t => weekKey(t.ts) === wk && t.sum);
+    let km = 0, w = 0; for (const t of ts) { const k = Math.max(t.sum.km, 0.5); km += t.sum.km; w += k * t.sum.score; }
+    const wsum = ts.reduce((s, t) => s + Math.max(t.sum.km, 0.5), 0);
+    const score = ts.length ? Math.round(w / wsum) : null;
+    return { wk, n: ts.length, km: Math.round(km * 10) / 10, score, league: league(score) };
+  }
+
+  /* ---------- Série : trajets consécutifs ≥ 70 (on récompense la qualité, pas le fait de rouler plus) ---------- */
+  function streak(trips) {   // trips : du plus récent au plus ancien
+    let cur = 0; for (const t of trips) { if (t.sum.score >= 70) cur++; else break; }
+    return cur;
+  }
+
+  /* ---------- Badges ---------- */
+  const noKind = (t, ...k) => !t.events.some(e => k.includes(e.kind));
+  const BADGES = [
+    { id: 'contact', icon: '🔑', name: 'Contact', desc: 'Premier trajet noté', test: () => true },
+    { id: 'velours', icon: '🪶', name: 'Velours', desc: 'Un trajet ≥ 85', test: t => t.sum.score >= 85 && t.sum.km >= 2 },
+    { id: 'diamant', icon: '💎', name: 'Diamant', desc: 'Un trajet ≥ 95 sur 5 km', test: t => t.sum.score >= 95 && t.sum.km >= 5 },
+    { id: 'soie', icon: '🧈', name: 'Freins de soie', desc: '10 km sans freinage brusque', test: t => t.sum.km >= 10 && noKind(t, 'brake') && !t.events.some(e => e.fast) },
+    { id: 'flow', icon: '🌊', name: 'Flow', desc: '10 min d’affilée sans à-coup', test: t => (t.sum.streakBest || 0) >= 600 },
+    { id: 'cordeau', icon: '🧭', name: 'Au cordeau', desc: '15 km sans virage serré', test: t => t.sum.km >= 15 && noKind(t, 'corner') },
+    { id: 'mainferme', icon: '✋', name: 'Main ferme', desc: '10 km sans coup de volant ni redressement', test: t => t.sum.km >= 10 && noKind(t, 'swerve', 'fix') },
+    { id: 'boite', icon: '⚙️', name: 'Boîte de velours', desc: '8 passages de vitesse, aucun brusque', test: t => (t.sum.counts.shift || 0) >= 8 && !t.sum.counts.shiftHarsh },
+    { id: 'clous', icon: '🚦', name: 'Dans les clous', desc: '10 km de limitations connues, aucun excès', test: t => (t.sum.limKm || 0) >= 10 && !t.sum.counts.speed },
+    { id: 'eco', icon: '🍃', name: 'Sobre', desc: 'Éco-dynamisme ≥ 80 sur 5 km', test: t => t.sum.eco && t.sum.eco.score >= 80 && t.sum.km >= 5 },
+    { id: 'nuit', icon: '🌙', name: 'Nuit sereine', desc: 'Trajet de nuit ≥ 80 (22 h – 6 h)', test: t => { const h = new Date(t.ts).getHours(); return (h >= 22 || h < 6) && t.sum.score >= 80 && t.sum.km >= 3; } },
+    { id: 'progres', icon: '📈', name: 'Déclic', desc: '+15 points sur ta moyenne des 5 derniers', test: (t, prev) => prev.length >= 3 && t.sum.score - avg(prev.slice(0, 5).map(x => x.sum.score)) >= 15 },
+    { id: 'serie5', icon: '🔥', name: 'Série de 5', desc: '5 trajets ≥ 70 d’affilée', test: (t, prev, G) => G.streak >= 5 },
+    { id: 'serie15', icon: '☄️', name: 'Série de 15', desc: '15 trajets ≥ 70 d’affilée', test: (t, prev, G) => G.streak >= 15 },
+    { id: 'zen', icon: '📵', name: 'Zéro écran', desc: '10 trajets d’affilée sans toucher au téléphone', test: (t, prev, G) => G.noPhoneRun >= 10 },
+    { id: 'dosdane', icon: '🐢', name: 'Dos d’âne en douceur', desc: '10 dos d’âne passés lentement', test: (t, prev, G) => G.softBumps >= 10 },
+    { id: 'cent', icon: '💯', name: 'Centurion', desc: '100 km notés', test: (t, prev, G) => G.totalKm >= 100 },
+    { id: 'marathon', icon: '🛣️', name: 'Grand voyageur', desc: '1 000 km notés', test: (t, prev, G) => G.totalKm >= 1000 },
+    { id: 'bande', icon: '🤝', name: 'La bande', desc: '3 amis ajoutés', social: true, test: (t, prev, G) => G.friends >= 3 },
+    { id: 'defi', icon: '🏆', name: 'Défi relevé', desc: 'Battre le défi d’un ami', social: true, test: (t, prev, G) => G.defisWon >= 1 }
+  ];
+  const avg = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0;
+  const badge = id => BADGES.find(b => b.id === id);
+
+  /* ---------- Défis du jour : 3 tirés au sort chaque jour (graine = date) ---------- */
+  const CH = [
+    { id: 'score80', text: 'Un trajet ≥ 80', xp: 40, test: t => t.sum.score >= 80 && t.sum.km >= 2 },
+    { id: 'nobrake', text: 'Aucun freinage brusque (3 km min.)', xp: 40, test: t => t.sum.km >= 3 && !t.sum.counts.brake && !t.sum.counts.fast },
+    { id: 'flow5', text: '5 min d’affilée sans à-coup', xp: 30, test: t => (t.sum.streakBest || 0) >= 300 },
+    { id: 'corner85', text: 'Virages ≥ 85 (3 km min.)', xp: 30, test: t => t.sum.km >= 3 && t.sum.axes.virages >= 85 },
+    { id: 'smooth80', text: 'Fluidité ≥ 80 (3 km min.)', xp: 30, test: t => t.sum.km >= 3 && t.sum.axes.fluidite >= 80 },
+    { id: 'steady', text: 'Aucun coup de volant ni redressement (3 km min.)', xp: 30, test: t => t.sum.km >= 3 && !t.sum.counts.swerve && !t.sum.counts.fix },
+    { id: 'limits', text: 'Aucun excès de vitesse (3 km de limitations connues)', xp: 40, test: t => (t.sum.limKm || 0) >= 3 && !t.sum.counts.speed },
+    { id: 'nophone', text: 'Pas touche au téléphone en roulant (3 km min.)', xp: 30, test: t => t.sum.km >= 3 && !t.sum.counts.phone },
+    { id: 'eco70', text: 'Éco-dynamisme ≥ 70 (3 km min.)', xp: 30, test: t => t.sum.km >= 3 && t.sum.eco && t.sum.eco.score >= 70 },
+    { id: 'accel85', text: 'Accélération ≥ 85 (3 km min.)', xp: 30, test: t => t.sum.km >= 3 && t.sum.axes.acceleration >= 85 }
+  ];
+  const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+  function dailyChallenges(day) {
+    const pool = CH.slice(), out = []; let h = hash('pl:' + day);
+    while (out.length < 3) { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; out.push(pool.splice(h % pool.length, 1)[0]); }
+    return out;
+  }
+  // Défi de la semaine : faire mieux que la semaine passée (comme les défis à seuil qui ont réduit les excès dans l'étude NTUA 2025).
+  function weeklyGoal(trips, now) {
+    const prev = weekStats(trips, weekKey(now - 7 * DAY));
+    const target = clamp(prev.score === null ? 75 : prev.score + 3, 70, 95);
+    return { wk: weekKey(now), target, minKm: 30, minTrips: 3, xp: 150 };
+  }
+
+  /* ---------- Coaching : l'axe le plus faible des derniers trajets, sa tendance, un conseil ---------- */
+  const TIPS = {
+    freinage: ['Freinage', 'Lève le pied dès que tu vois le feu ou la file : freine plus tôt, moins fort.'],
+    acceleration: ['Accélération', 'Enfonce l’accélérateur en 2 secondes, pas d’un coup.'],
+    virages: ['Virages', 'Ralentis avant le virage, ré-accélère à la sortie.'],
+    trajectoire: ['Volant', 'Regarde loin devant : moins de corrections, pas de coup de volant.'],
+    fluidite: ['Fluidité', 'Embrayage en douceur, et laisse plus de distance devant toi.'],
+    vitesse: ['Vitesse', 'Cale ton allure sur la limitation, surtout en sortie de zone 50.']
+  };
+  function focus(trips) {   // du plus récent au plus ancien
+    const last = trips.slice(0, 5), prev = trips.slice(5, 10);
+    if (!last.length) return null;
+    const mean = (ts, k) => { const v = ts.map(t => t.sum.axes[k]).filter(x => x !== null && x !== undefined); return v.length ? avg(v) : null; };
+    let best = null;
+    for (const k of Object.keys(TIPS)) {
+      const m = mean(last, k); if (m === null) continue;
+      if (!best || m < best.value) best = { axis: k, value: Math.round(m) };
+    }
+    if (!best) return null;
+    const p = mean(prev, best.axis);
+    return { ...best, label: TIPS[best.axis][0], tip: TIPS[best.axis][1], trend: p === null ? null : Math.round(best.value - p), ok: best.value >= 85 };
+  }
+
+  /* ---------- Points noirs : lieux où tu reproduis le même défaut d'un trajet à l'autre ---------- */
+  const SCORING = ['brake', 'accel', 'corner', 'swerve', 'fix', 'speed', 'phone'];
+  const R = 6371000, toRad = Math.PI / 180;
+  const dist = (a, b) => { const x = (b[1] - a[1]) * toRad * Math.cos((a[0] + b[0]) / 2 * toRad), y = (b[0] - a[0]) * toRad; return Math.hypot(x, y) * R; };
+  function hotspots(trips, radius = 70) {
+    const pts = [];
+    for (const t of trips) for (const e of t.events || []) if (e.ll && (SCORING.includes(e.kind) || e.fast)) pts.push({ ll: e.ll, kind: e.fast ? 'brake' : e.kind, trip: t.id });
+    const cl = [];
+    for (const p of pts) {
+      let c = cl.find(c => dist(c.ll, p.ll) <= radius);
+      if (!c) { c = { ll: p.ll.slice(), n: 0, trips: new Set(), kinds: {} }; cl.push(c); }
+      c.ll = [(c.ll[0] * c.n + p.ll[0]) / (c.n + 1), (c.ll[1] * c.n + p.ll[1]) / (c.n + 1)];
+      c.n++; c.trips.add(p.trip); c.kinds[p.kind] = (c.kinds[p.kind] || 0) + 1;
+    }
+    return cl.filter(c => c.trips.size >= 2).map(c => ({ ll: [+c.ll[0].toFixed(5), +c.ll[1].toFixed(5)], n: c.n, trips: c.trips.size,
+      kind: Object.entries(c.kinds).sort((a, b) => b[1] - a[1])[0][0], kinds: c.kinds })).sort((a, b) => b.n - a.n);
+  }
+
+  /* ---------- Trajets récurrents : même départ et même arrivée (300 m) ---------- */
+  function sameRoute(trips, trip, r = 300) {
+    if (!trip.from || !trip.to) return [];
+    return trips.filter(t => t.id !== trip.id && t.from && t.to && dist(t.from, trip.from) <= r && dist(t.to, trip.to) <= r);
+  }
+
+  /* ---------- Récompenses d'un trajet terminé ---------- */
+  // Le XP vient de la qualité : un trajet sous 40 ne rapporte rien, la distance ne compte que jusqu'à 20 km.
+  const tripXP = t => Math.round(Math.max(0, t.sum.score - 40) * (0.5 + Math.min(t.sum.km, 20) / 20));
+  function newState() {
+    return { v: 1, xp: 0, badges: {}, daily: {}, weekly: {}, totalKm: 0, nTrips: 0, softBumps: 0, noPhoneRun: 0, defisWon: 0, feed: [], friends: {}, defis: [], seen: {} };
+  }
+  /** Met l'état à jour avec un trajet terminé (trips = historique AVANT ce trajet, du plus récent au plus ancien). */
+  function award(S, trips, t, now = t.ts) {
+    const out = { items: [], badges: [], challenges: [], weekly: false, defis: [], xp0: S.xp };
+    S.totalKm += t.sum.km; S.nTrips++;
+    S.softBumps += t.events.filter(e => e.kind === 'shock' && e.side === 'both' && !e.fast).length;
+    S.noPhoneRun = t.sum.counts.phone ? 0 : S.noPhoneRun + 1;
+    const base = tripXP(t); if (base) out.items.push({ label: `Trajet noté ${t.sum.score}`, xp: base });
+    // défis du jour
+    const day = dayKey(t.ts), done = S.daily[day] || (S.daily[day] = []);
+    for (const c of dailyChallenges(day)) if (!done.includes(c.id) && c.test(t)) { done.push(c.id); out.challenges.push(c.id); out.items.push({ label: 'Défi : ' + c.text, xp: c.xp }); }
+    for (const k of Object.keys(S.daily)) if (k < dayKey(now - 14 * DAY)) delete S.daily[k];
+    // défi de la semaine
+    const all = [t, ...trips], wg = weeklyGoal(all, t.ts), ws = weekStats(all, wg.wk);
+    if (!S.weekly[wg.wk] && ws.n >= wg.minTrips && ws.km >= wg.minKm && ws.score >= wg.target) { S.weekly[wg.wk] = true; out.weekly = true; out.items.push({ label: `Défi de la semaine : ${wg.target}+ sur ${wg.minKm} km`, xp: wg.xp }); }
+    // défis d'amis acceptés
+    for (const d of S.defis) {
+      if (d.status !== 'open' || d.mine) continue;
+      if (t.ts > d.until) { d.status = 'expired'; continue; }
+      if (t.sum.km >= d.km && t.sum.score > d.target) { d.status = 'won'; d.won = { score: t.sum.score, km: t.sum.km, ts: t.ts }; S.defisWon++; out.defis.push(d); out.items.push({ label: `Défi de ${d.from.n} battu`, xp: 100 }); }
+    }
+    // badges
+    const G = { streak: streak(all), noPhoneRun: S.noPhoneRun, softBumps: S.softBumps, totalKm: S.totalKm, friends: Object.keys(S.friends).length, defisWon: S.defisWon };
+    for (const b of BADGES) if (!S.badges[b.id] && b.test(t, trips, G)) { S.badges[b.id] = t.ts; out.badges.push(b.id); out.items.push({ label: 'Badge ' + b.name, xp: 50 }); }
+    out.xp = out.items.reduce((s, i) => s + i.xp, 0);
+    const L0 = levelOf(S.xp).level; S.xp += out.xp; const L1 = levelOf(S.xp).level;
+    if (L1 > L0) out.levelUp = { from: L0, to: L1 };
+    t.xp = out.xp; t.badges = out.badges;
+    pushFeed(S, { type: 'trip', ts: t.ts, id: t.id, score: t.sum.score, km: t.sum.km, xp: out.xp, badges: out.badges, levelUp: out.levelUp ? out.levelUp.to : 0 });
+    return out;
+  }
+  /** Badges sociaux (débloqués hors trajet, ex. au 3e ami). */
+  function socialBadges(S, ts) {
+    const G = { friends: Object.keys(S.friends).length, defisWon: S.defisWon }, got = [];
+    for (const b of BADGES) if (b.social && !S.badges[b.id] && b.test(null, [], G)) { S.badges[b.id] = ts; S.xp += 50; got.push(b.id); }
+    return got;
+  }
+  const pushFeed = (S, item) => { S.feed.unshift(item); if (S.feed.length > 120) S.feed.length = 120; };
+
+  /* ---------- Liens de partage : carte, défi, bravo (aucun serveur, aucune position) ---------- */
+  const b64e = s => { const b = typeof Buffer !== 'undefined' ? Buffer.from(s, 'utf8').toString('base64') : btoa(unescape(encodeURIComponent(s))); return b.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+  const b64d = s => { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return typeof Buffer !== 'undefined' ? Buffer.from(s, 'base64').toString('utf8') : decodeURIComponent(escape(atob(s))); };
+  const AVATARS = ['🦊', '🐼', '🦉', '🐢', '🐺', '🦁', '🐸', '🐙', '🦄', '🐝', '🐧', '🐯'];
+  const str = (x, n) => typeof x === 'string' ? x.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n) : '';
+  const num = (x, lo, hi) => Number.isFinite(+x) ? clamp(+x, lo, hi) : null;
+  const who = p => ({ id: str(p && p.id, 16), n: str(p && p.n, 24) || 'Anonyme', a: AVATARS.includes(p && p.a) ? p.a : '🚗' });
+  function encode(kind, obj) { return kind + '=' + b64e(JSON.stringify({ v: 1, ...obj })); }
+  /** Lit un lien reçu. Tout est revalidé : un lien peut être modifié par n'importe qui. */
+  function decode(hash) {
+    const m = /^#?([cdk])=([A-Za-z0-9_-]{8,3000})$/.exec(hash || ''); if (!m) return null;
+    let o; try { o = JSON.parse(b64d(m[2])); } catch (e) { return null; }
+    if (!o || o.v !== 1 || typeof o !== 'object') return null;
+    if (m[1] === 'c') {
+      const p = who(o); if (!p.id) return null;
+      return { k: 'c', ...p, lv: num(o.lv, 1, 99) || 1, s: num(o.s, 0, 100), km: num(o.km, 0, 5000), ts: num(o.ts, 0, 9e15) || 0, w: str(o.w, 8),
+        ws: num(o.ws, 0, 100), wk: num(o.wk, 0, 1e5), wn: num(o.wn, 0, 999), st: num(o.st, 0, 9999) || 0, b: num(o.b, 0, 99) || 0,
+        top: Array.isArray(o.top) ? o.top.filter(id => badge(id)).slice(0, 3) : [], r: str(o.r, 16) || null };
+    }
+    if (m[1] === 'd') {
+      const from = who(o.from); if (!from.id || !str(o.id, 16)) return null;
+      return { k: 'd', id: str(o.id, 16), from, target: num(o.g && o.g.s, 50, 99) || 80, km: num(o.g && o.g.km, 1, 200) || 5, until: num(o.u, 0, 9e15) || 0 };
+    }
+    const from = who(o.from); if (!from.id) return null;
+    return { k: 'k', from, to: str(o.to, 16), e: ['👏', '🔥', '💪', '🎉', '😎'].includes(o.e) ? o.e : '👏', re: num(o.re, 0, 9e15) || 0, s: num(o.s, 0, 100) };
+  }
+  /** Carte de profil partageable (aucune position, aucun détail de trajet). */
+  function card(profile, S, trips, now, reply) {
+    const last = trips[0], wk = weekKey(now), ws = weekStats(trips, wk);
+    const top = Object.entries(S.badges).sort((a, b) => b[1] - a[1]).map(x => x[0]).filter(id => badge(id)).slice(0, 3);
+    return { id: profile.id, n: profile.n, a: profile.a, lv: levelOf(S.xp).level, s: last ? last.sum.score : null, km: last ? Math.round(last.sum.km * 10) / 10 : null,
+      ts: last ? last.ts : now, w: wk, ws: ws.score, wk: ws.km, wn: ws.n, st: streak(trips), b: Object.keys(S.badges).length, top, ...(reply ? { r: reply } : {}) };
+  }
+  /** Intègre un lien reçu dans l'état local. Renvoie ce qu'il faut annoncer. */
+  function receive(S, msg, me, now) {
+    if (!msg) return null;
+    if (msg.k === 'c') {
+      if (msg.id === me.id) return { self: true };
+      const old = S.friends[msg.id], isNew = !old;
+      if (old && old.ts > msg.ts) return { friend: old, isNew: false, stale: true };
+      S.friends[msg.id] = { ...msg, got: now };
+      const key = 'c' + msg.id + ':' + msg.ts;
+      if (!S.seen[key]) { S.seen[key] = now; pushFeed(S, { type: 'friend', ts: now, id: msg.id, n: msg.n, a: msg.a, score: msg.s, ws: msg.ws, isNew, r: msg.r }); }
+      let defi = null;
+      if (msg.r) { defi = S.defis.find(d => d.id === msg.r && d.mine); if (defi && defi.status === 'open') { defi.status = 'answered'; defi.answer = { n: msg.n, a: msg.a, s: msg.s }; } }
+      return { friend: S.friends[msg.id], isNew, defi, badges: socialBadges(S, now) };
+    }
+    if (msg.k === 'd') {
+      if (msg.from.id === me.id) return { self: true };
+      let d = S.defis.find(x => x.id === msg.id);
+      if (!d) { d = { id: msg.id, from: msg.from, target: msg.target, km: msg.km, until: msg.until, status: msg.until < now ? 'expired' : 'open', got: now }; S.defis.unshift(d); pushFeed(S, { type: 'defi', ts: now, id: d.id, n: d.from.n, a: d.from.a, target: d.target, km: d.km }); }
+      if (!S.friends[msg.from.id]) S.friends[msg.from.id] = { ...msg.from, k: 'c', lv: 1, s: null, ts: 0, w: '', ws: null, b: 0, top: [], st: 0, got: now };
+      return { defi: d, badges: socialBadges(S, now) };
+    }
+    if (msg.to && msg.to !== me.id) return { notMe: true, kudos: msg };
+    const key = 'k' + msg.from.id + ':' + msg.re + msg.e;
+    if (!S.seen[key]) { S.seen[key] = now; pushFeed(S, { type: 'kudos', ts: now, n: msg.from.n, a: msg.from.a, e: msg.e, s: msg.s }); }
+    return { kudos: msg };
+  }
+  function newDefi(profile, target, km, now) {
+    const id = Math.random().toString(36).slice(2, 10);
+    return { local: { id, mine: true, from: { id: profile.id, n: profile.n, a: profile.a }, target, km, until: weekEnd(now + 3 * DAY), status: 'open', got: now },
+      link: { id, from: { id: profile.id, n: profile.n, a: profile.a }, g: { s: target, km }, u: weekEnd(now + 3 * DAY) } };
+  }
+  /** Classement de la semaine : moi + amis (score de semaine partagé), du meilleur au moins bon. */
+  function board(me, S, trips, now) {
+    const wk = weekKey(now), mine = weekStats(trips, wk);
+    const rows = [{ id: me.id, n: me.n, a: me.a, ws: mine.score, wk: mine.km, lv: levelOf(S.xp).level, me: true }];
+    for (const f of Object.values(S.friends)) rows.push({ id: f.id, n: f.n, a: f.a, ws: f.w === wk ? f.ws : null, wk: f.w === wk ? f.wk : null, lv: f.lv, stale: f.w !== wk });
+    rows.sort((a, b) => (b.ws === null ? -1 : b.ws) - (a.ws === null ? -1 : a.ws) || (b.wk || 0) - (a.wk || 0));
+    return rows;
+  }
+
+  return { dayKey, weekKey, weekEnd, need, levelOf, LEAGUES, league, weekStats, streak, BADGES, badge, CH, dailyChallenges, weeklyGoal, focus, TIPS, hotspots, dist, sameRoute,
+    tripXP, newState, award, socialBadges, AVATARS, encode, decode, card, receive, newDefi, board, b64e, b64d };
+})();
+if (typeof module !== 'undefined') module.exports = PG;
+
+</script>
+<script>
 (() => {
 'use strict';
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt = (n, d = 0) => n.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
-const clock = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60, p = n => String(n).padStart(2, '0'); return (h ? h + ':' + p(m) : p(m)) + ':' + p(x); };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (n, d = 0) => (Number.isFinite(n) ? n : 0).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const clock = s => { s = Math.max(0, Math.round(s || 0)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60, p = n => String(n).padStart(2, '0'); return (h ? h + ':' + p(m) : p(m)) + ':' + p(x); };
+const plural = (n, w) => `${n} ${w}${n > 1 ? 's' : ''}`;
+const DAY = 864e5;
+const dateLabel = ts => new Date(ts).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const dayShort = ts => new Date(ts).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+const ago = ts => { const s = (Date.now() - ts) / 1000; if (s < 60) return 'à l’instant'; if (s < 3600) return `il y a ${Math.round(s / 60)} min`; if (s < DAY / 1000) return `il y a ${Math.round(s / 3600)} h`; const d = Math.round(s / 86400); return d === 1 ? 'hier' : `il y a ${d} j`; };
+const APP_URL = /github\.io$/.test(location.hostname) ? location.origin + location.pathname : 'https://valaturnus-art.github.io/Conductor-app/';
 
 /* ---------- Vocabulaire ---------- */
 const KIND = {
-  brake:  { name: 'Freinage brusque',          cls: 'brake' },
-  accel:  { name: 'Accélération vive',         cls: 'accel' },
-  corner: { name: 'Virage serré',              cls: 'corner' },
-  swerve: { name: 'Coup de volant',            cls: 'swerve' },
-  fix:    { name: 'Redressement brusque',      cls: 'fix' },
-  shift:  { name: 'Passage de vitesse brusque', cls: 'shift' },
-  shock:  { name: 'Choc de chaussée',          cls: 'shock' }
+  brake: 'Freinage brusque', accel: 'Accélération vive', corner: 'Virage serré', swerve: 'Coup de volant', fix: 'Redressement brusque',
+  shift: 'Passage de vitesse brusque', shock: 'Choc de chaussée', speed: 'Excès de vitesse', phone: 'Téléphone manipulé'
 };
 const SIDE = { left: 'Nid-de-poule à gauche', right: 'Nid-de-poule à droite', both: 'Dos d’âne', one: 'Nid-de-poule' };
 const evName = e => e.kind === 'brake' && e.late ? 'Freinage tardif'
-  : e.kind === 'shock' ? (e.fast ? 'Dos d’âne trop vite' : SIDE[e.side] || KIND.shock.name) : KIND[e.kind].name;
+  : e.kind === 'shock' ? (e.fast ? 'Dos d’âne trop vite' : SIDE[e.side] || KIND.shock) : KIND[e.kind] || e.kind;
 const scoring = e => e.kind !== 'shock' || e.fast;
-const AXES = [['freinage', 'Freinage'], ['acceleration', 'Accélération'], ['virages', 'Virages'], ['trajectoire', 'Volant'], ['fluidite', 'Fluidité']];
+const AXES = [['freinage', 'Freinage'], ['acceleration', 'Accélération'], ['virages', 'Virages'], ['trajectoire', 'Volant'], ['fluidite', 'Fluidité'], ['vitesse', 'Vitesse']];
 const tone = s => s >= 70 ? 'good' : s >= 50 ? 'warn' : 'bad';
 const grade = s => s >= 85 ? 'Exemplaire' : s >= 70 ? 'Fluide' : s >= 50 ? 'Correct' : s >= 30 ? 'Brusque' : 'Agressif';
-const dateLabel = ts => new Date(ts).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-const plural = (n, w) => `${n} ${w}${n > 1 ? 's' : ''}`;
-const CHIPS = [['brake', 'Freinage'], ['accel', 'Accélération'], ['corner', 'Virage'], ['swerve', 'Volant'], ['fix', 'Redressement'], ['shift', 'Vitesse'], ['shock', 'Choc']];
+const has = v => v !== null && v !== undefined;
+const CHIPS = [['brake', 'Freinage'], ['accel', 'Accélération'], ['corner', 'Virage'], ['swerve', 'Volant'], ['fix', 'Redressement'], ['shift', 'Vitesse'], ['speed', 'Excès'], ['phone', 'Téléphone'], ['shock', 'Choc']];
 // Même fonction en direct et dans l'historique, calculée sur la liste d'événements : les deux ne peuvent pas diverger.
 const chipsHTML = evs => { const c = {}; for (const e of evs) c[e.kind] = (c[e.kind] || 0) + 1; return CHIPS.filter(([k]) => c[k]).map(([k, l]) => `<span class="chip"><i class="mk ${k}"></i>${l} <b>${c[k]}</b></span>`).join(''); };
+const HOT = { brake: 'freinages brusques', accel: 'accélérations vives', corner: 'virages serrés', swerve: 'coups de volant', fix: 'redressements', speed: 'excès de vitesse', phone: 'téléphone en main' };
 
-// Texte court par axe : ce qui s'est passé, puis le conseil le plus utile.
 function axisInfo(k, s) {
-  const c = s.counts, j = [];
+  const c = s.counts || {}, j = [];
   if (k === 'freinage') {
-    if (c.brake) j.push(plural(c.brake, 'brusque')); if (c.late) j.push(plural(c.late, 'tardif')); if (c.fast) j.push(plural(c.fast, 'dos d’âne trop vite').replace('dos d’âne trop vites', 'dos d’âne trop vite'));
+    if (c.brake) j.push(plural(c.brake, 'brusque')); if (c.late) j.push(plural(c.late, 'tardif')); if (c.fast) j.push(`${c.fast} dos d’âne trop vite`);
     return { detail: j.join(' · '), advice: c.late ? 'Lève le pied dès que tu vois l’obstacle : freine plus tôt, moins fort.' : c.fast ? 'Ralentis avant les dos d’âne.' : 'Freine plus tôt et plus progressivement.' };
   }
-  if (k === 'acceleration') return { detail: c.accel ? plural(c.accel, 'vive') : '', advice: 'Appuie sur l’accélérateur progressivement.' };
-  if (k === 'virages') return { detail: c.corner ? plural(c.corner, 'serré') : '', advice: 'Ralentis avant le virage, pas dedans.' };
+  if (k === 'acceleration') return { detail: c.accel ? plural(c.accel, 'vive') : '', advice: 'Enfonce l’accélérateur en 2 secondes, pas d’un coup.' };
+  if (k === 'virages') return { detail: c.corner ? plural(c.corner, 'serré') : '', advice: 'Ralentis avant le virage, ré-accélère à la sortie.' };
   if (k === 'trajectoire') {
     if (c.swerve) j.push(plural(c.swerve, 'coup') + ' de volant'); if (c.fix) j.push(plural(c.fix, 'redressement'));
     if (!s.gyro) j.push('gyroscope absent');
-    return { detail: j.join(' · '), advice: c.fix ? 'Garde les yeux sur la route : tu as dû corriger après une dérive.' : c.swerve ? 'Anticipe les changements de voie : évite les coups de volant.' : 'Garde un volant stable, sans micro-gestes.' };
+    return { detail: j.join(' · '), advice: c.fix ? 'Garde les yeux sur la route : tu as dû corriger après une dérive.' : 'Regarde loin devant : moins de corrections, pas de coup de volant.' };
+  }
+  if (k === 'vitesse') {
+    if (!has(s.axes.vitesse)) return { detail: 'limitations inconnues sur ce trajet', advice: '' };
+    return { detail: c.speed ? `${c.speed} excès · ${fmt((s.speedShare || 0) * 100)} % de la distance au-dessus` : `${fmt(s.limKm, 1)} km contrôlés, aucun excès`, advice: 'Cale ton allure sur la limitation, surtout en sortie de zone 50.' };
   }
   if (c.shift) j.push(plural(c.shift, 'passage') + (c.shiftHarsh ? ` dont ${c.shiftHarsh} brusque${c.shiftHarsh > 1 ? 's' : ''}` : ''));
-  return { detail: j.join(' · '), advice: c.shiftHarsh ? 'Relâche l’embrayage en douceur à chaque passage de vitesse.' : 'Lisse tes freinages et tes accélérations : moins d’à-coups.' };
+  return { detail: j.join(' · '), advice: c.shiftHarsh ? 'Relâche l’embrayage en douceur à chaque passage de vitesse.' : 'Laisse plus de distance devant toi : moins d’à-coups.' };
 }
 
-/* ---------- Stockage local (facultatif) ---------- */
-const KEY = 'pied-leger:trips:v3';
-let mem = [];
-const loadTrips = () => { try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : mem; } catch (e) { return mem; } };
-const saveTrips = a => { mem = a; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} };
+/* ---------- Stockage local ---------- */
+const K = { trips: 'pied-leger:trips:v3', draft: 'pied-leger:draft:v1', game: 'pied-leger:game:v1', prof: 'pied-leger:profile:v1', set: 'pied-leger:settings:v1' };
+const mem = {};
+const load = (k, d) => { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : (k in mem ? mem[k] : d); } catch (e) { return k in mem ? mem[k] : d; } };
+const save = (k, v) => { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const newId = () => Math.random().toString(36).slice(2, 10);
 
-const DKEY = 'pied-leger:draft:v1';
-/* ---------- État ---------- */
-const S = { tab: 'drive', run: null, error: '', opened: null, confirm: '' };
-let trips = loadTrips();
-const makeTrip = (engine, meta) => ({
-  id: meta.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: meta.ts || Date.now(), cal: engine.status === 'ready',
-  sum: engine.summary(), events: engine.events,
-  series: engine.series.map(p => ({ t: p.t, v: Math.round(p.v * 10) / 10 }))
-});
+let trips = load(K.trips, []).filter(t => t && t.sum && t.events);
+let G = Object.assign(PG.newState(), load(K.game, {}));
+let P = load(K.prof, null) || { id: newId(), n: '', a: PG.AVATARS[0], set: false };
+const SET = Object.assign({ voice: true, limits: true }, load(K.set, {}));
+const saveAll = () => { save(K.trips, trips); save(K.game, G); };
+const me = () => ({ id: P.id, n: P.n || 'Moi', a: P.a });
+save(K.prof, P);
+
+// Trajets enregistrés avant le jeu : on rejoue leurs récompenses une fois.
+if (!G.boot) {
+  const hist = [];
+  for (const t of trips.slice().reverse()) { PG.award(G, hist.slice(), t, t.ts); hist.unshift(t); }
+  G.boot = Date.now(); saveAll();
+}
+
+/* ---------- État de l'interface ---------- */
+const S = { tab: 'drive', run: null, error: '', opened: null, confirm: '', sheet: null, cele: null, defi: { target: 80, km: 5 } };
+
+/* ---------- Trajet enregistré ---------- */
+function llAt(path, t) {
+  if (!path || !path.length) return null;
+  let lo = 0, hi = path.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (path[m][0] < t) lo = m; else hi = m; }
+  const p = Math.abs(path[lo][0] - t) <= Math.abs(path[hi][0] - t) ? path[lo] : path[hi];
+  return Math.abs(p[0] - t) <= 20 ? [+p[1].toFixed(5), +p[2].toFixed(5)] : null;
+}
+function makeTrip(engine, r) {
+  const path = r.path || [];
+  const events = engine.events.map(e => { const o = { ...e }; delete o.pushed; const ll = llAt(path, e.t); if (ll) o.ll = ll; return o; });
+  let series = engine.series.map(p => ({ t: p.t, v: Math.round(p.v * 10) / 10 }));
+  if (series.length > 900) { const k = Math.ceil(series.length / 900); series = series.filter((_, i) => i % k === 0); }
+  let pth = path.map(p => [Math.round(p[0]), +p[1].toFixed(5), +p[2].toFixed(5)]);
+  if (pth.length > 500) { const k = Math.ceil(pth.length / 500); pth = pth.filter((_, i) => i % k === 0 || i === pth.length - 1); }
+  return { id: r.id, ts: r.ts, cal: engine.status === 'ready', sum: engine.summary(), events, series, path: pth, lims: (r.lims || []).slice(0, 400),
+    from: pth.length ? [pth[0][1], pth[0][2]] : null, to: pth.length ? [pth[pth.length - 1][1], pth[pth.length - 1][2]] : null };
+}
 // Sauvegarde de secours toutes les 5 s : si la page est tuée en route, le trajet est récupéré à la réouverture.
-function saveDraft() { const r = S.run; if (!r) return; try { localStorage.setItem(DKEY, JSON.stringify(makeTrip(r.engine, { id: r.id, ts: r.ts }))); } catch (e) {} }
-const clearDraft = () => { try { localStorage.removeItem(DKEY); } catch (e) {} };
+function saveDraft() { const r = S.run; if (!r) return; try { localStorage.setItem(K.draft, JSON.stringify(makeTrip(r.engine, r))); } catch (e) {} }
+const clearDraft = () => { try { localStorage.removeItem(K.draft); } catch (e) {} };
 (function recoverDraft() {
   try {
-    const raw = localStorage.getItem(DKEY); if (!raw) return; localStorage.removeItem(DKEY);
+    const raw = localStorage.getItem(K.draft); if (!raw) return; localStorage.removeItem(K.draft);
     const t = JSON.parse(raw);
-    if (t && t.sum && t.cal && t.sum.durationS >= 20 && t.sum.km >= 0.1 && !trips.some(x => x.id === t.id)) { t.recovered = true; trips = [t, ...trips].slice(0, 30); saveTrips(trips); }
+    if (t && t.sum && t.cal && t.sum.durationS >= 20 && t.sum.km >= 0.1 && !trips.some(x => x.id === t.id)) {
+      t.recovered = true; PG.award(G, trips, t, Date.now()); trips = [t, ...trips].slice(0, 60); saveAll();
+    }
   } catch (e) {}
 })();
-let shown = trips[0] || null;
 
-/* ---------- Gabarits ---------- */
-const seg = (name, opts, cur) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" id="${name}-${v}" data-set="${name}" data-val="${v}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
-const ring = (score, id, cls = '') => { const C = 2 * Math.PI * 56; return `<div class="ring ${cls}"><svg viewBox="0 0 132 132" aria-hidden="true"><circle class="tr" cx="66" cy="66" r="56" fill="none" stroke-width="10"/><circle class="pg rc-${tone(score)}" ${id ? `id="${id}-ring"` : ''} cx="66" cy="66" r="56" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - score / 100)).toFixed(1)}"/></svg><b ${id ? `id="${id}"` : ''} aria-label="Score ${score} sur 100">${score}</b></div>`; };
-const axisRow = (label, v, small) => `<div class="axis"><span>${label}</span><span class="bar"><i class="g-${tone(v)}" style="width:${v}%"></i></span><span class="v">${v}</span>${small ? `<small>${esc(small)}</small>` : ''}</div>`;
+/* ---------- Petits gabarits ---------- */
+const CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>';
+const ring = (score, id, cls = '', tn) => { const C = 2 * Math.PI * 56, v = has(score) ? score : 0; return `<div class="ring ${cls}"><svg viewBox="0 0 132 132" aria-hidden="true"><circle class="tr" cx="66" cy="66" r="56" fill="none" stroke-width="10"/><circle class="pg rc-${tn || tone(v)}" ${id ? `id="${id}-ring"` : ''} cx="66" cy="66" r="56" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - v / 100)).toFixed(1)}"/></svg><b ${id ? `id="${id}"` : ''} aria-label="Score ${v} sur 100">${has(score) ? score : '—'}</b></div>`; };
+const axisRow = (label, v, small, id) => `<div class="axis" ${id ? `id="${id}"` : ''}><span>${label}</span><span class="bar"><i class="g-${has(v) ? tone(v) : 'none'}" style="width:${has(v) ? v : 0}%"></i></span><span class="v">${has(v) ? v : '—'}</span>${small ? `<small>${esc(small)}</small>` : ''}</div>`;
 const evSub = e => e.kind === 'shock' ? `${fmt(e.peak, 1)} m/s² vertical · ${fmt(e.v)} km/h`
   : e.kind === 'fix' ? `${fmt(e.peak)} °/s après une dérive · ${fmt(e.v)} km/h`
   : e.kind === 'shift' ? `creux de ${fmt(e.peak, 1)} m/s²${e.reb >= 0.9 ? ' · à-coup à la reprise' : ''}`
   : e.kind === 'swerve' ? `${fmt(e.peak, 1)} m/s² aller-retour · ${fmt(e.v)} km/h`
+  : e.kind === 'speed' ? `+${fmt(e.peak)} km/h · limite ${e.lim}${e.end > e.t ? ' · ' + fmt(e.end - e.t) + ' s' : ''}`
+  : e.kind === 'phone' ? `${e.src === 'touch' ? 'écran touché' : 'téléphone déplacé'} à ${fmt(e.v)} km/h · −8`
   : `${fmt(e.peak, 1)} m/s² · ${fmt(e.v)} km/h${e.late ? ' · sans anticipation' : ''}`;
 const sevChip = e => scoring(e) ? `<span class="sev sev${e.sev}">${e.sev === 2 ? 'sévère' : 'modéré'}</span>` : `<span class="sev sev0">hors score</span>`;
-const evRow = e => `<li class="ev"><span class="mk ${KIND[e.kind].cls}" aria-hidden="true"></span><div><b>${evName(e)}</b><small>${evSub(e)}</small></div>${sevChip(e)}<time>${clock(e.t)}</time></li>`;
+const evRow = e => `<li class="ev"><span class="mk ${e.kind}" aria-hidden="true"></span><div><b>${evName(e)}</b><small>${evSub(e)}</small></div>${sevChip(e)}<time>${clock(e.t)}</time></li>`;
+const lgChip = (lg, score) => lg ? `<span class="lg lg-${lg.id}">${lg.name}${has(score) ? ' · ' + score : ''}</span>` : `<span class="lg lg-none">Sans ligue</span>`;
+const medal = (id, off, small) => { const b = PG.badge(id); return b ? `<button class="bdg${off ? ' off' : ''}" data-act="badge" data-id="${id}" aria-label="${esc(b.name)} : ${esc(b.desc)}${off ? ' (à débloquer)' : ''}"><span class="medal"><span>${b.icon}</span></span>${small === false ? '' : `<small>${esc(b.name)}</small>`}</button>` : ''; };
+const avatar = (a, cls = '') => `<span class="av ${cls}" aria-hidden="true">${esc(a || '🚗')}</span>`;
+const tgl = (key, label) => `<button class="tg" data-act="tg" data-key="${key}" aria-pressed="${!!SET[key]}"><i></i>${label}</button>`;
+const contentWidth = () => Math.max(260, Math.min($('#app').clientWidth || 360, 560) - 64);
 
+/* ---------- Graphiques ---------- */
 function markerSVG(e, cx, cy) {
   const r = e.sev === 2 ? 6.5 : 5, k = e.kind;
   if (k === 'brake') return `<circle class="m m-brake" cx="${cx}" cy="${cy}" r="${r}"/>`;
@@ -947,15 +1478,20 @@ function markerSVG(e, cx, cy) {
   if (k === 'swerve') { const q = r + 1, p = [[-.5, -1], [.5, -1], [1, 0], [.5, 1], [-.5, 1], [-1, 0]].map(([a, b]) => `${(cx + a * q).toFixed(1)},${(cy + b * q).toFixed(1)}`).join(' '); return `<polygon class="m m-swerve" points="${p}"/>`; }
   if (k === 'fix') { const a = r + 1, w = a * .38; return `<path class="m m-fix" d="M${cx - w} ${cy - a}h${2 * w}v${a - w}h${a - w}v${2 * w}h${-(a - w)}v${a - w}h${-2 * w}v${-(a - w)}h${-(a - w)}v${-2 * w}h${a - w}z"/>`; }
   if (k === 'shift') return `<rect class="m m-shift" x="${cx - r + 1}" y="${cy - r + 1}" width="${2 * r - 2}" height="${2 * r - 2}" rx="2"/>`;
+  if (k === 'speed') return `<circle class="m-speed" cx="${cx}" cy="${cy}" r="${r}"/>`;
+  if (k === 'phone') return `<rect class="m m-phone" x="${cx - 3.5}" y="${cy - 6}" width="7" height="12" rx="1.5"/>`;
   return `<circle class="m m-shock" cx="${cx}" cy="${cy}" r="${r - 1.5}"/>`;
 }
+const LEGEND = [['brake', 'Freinage'], ['accel', 'Accélération'], ['corner', 'Virage'], ['swerve', 'Coup de volant'], ['fix', 'Redressement'], ['shift', 'Vitesse'], ['speed', 'Excès'], ['phone', 'Téléphone'], ['shock', 'Choc']];
+const legendHTML = evs => { const ks = new Set(evs.map(e => e.kind)); const l = LEGEND.filter(([k]) => ks.has(k)); return l.length ? `<div class="legend">${l.map(([c, t]) => `<span><i class="mk ${c}"></i>${t}</span>`).join('')}</div>` : ''; };
+
 function chartSVG(trip, W) {
-  const H = 180, m = { l: 36, r: 8, t: 10, b: 22 }, pts = trip.series;
+  const H = 180, m = { l: 36, r: 8, t: 10, b: 22 }, pts = trip.series || [], lims = trip.lims || [];
   const dur = Math.max(30, pts.length ? pts[pts.length - 1].t : 30);
-  let vmax = 40; for (const p of pts) if (p.v > vmax) vmax = p.v;
+  let vmax = 40; for (const p of pts) if (p.v > vmax) vmax = p.v; for (const l of lims) if (l[1] && l[1] > vmax) vmax = l[1];
   const yMax = Math.ceil(vmax / 20) * 20;
-  const x = t => m.l + (W - m.l - m.r) * t / dur, y = v => m.t + (H - m.t - m.b) * (1 - v / yMax);
-  let out = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vitesse au cours du trajet, avec les événements de conduite">`;
+  const x = t => m.l + (W - m.l - m.r) * Math.min(t, dur) / dur, y = v => m.t + (H - m.t - m.b) * (1 - v / yMax);
+  let out = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vitesse au cours du trajet, limitations et événements">`;
   for (let v = 0; v <= yMax; v += 20) out += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
   const step = [15, 30, 60, 120, 300, 600, 900, 1800].find(s => dur / s <= 6) || 3600;
   for (let t = 0; t <= dur; t += step) out += `<text x="${x(t)}" y="${H - 5}" text-anchor="${t === 0 ? 'start' : 'middle'}">${clock(t)}</text>`;
@@ -963,71 +1499,237 @@ function chartSVG(trip, W) {
     const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + y(p.v).toFixed(1)).join('');
     out += `<path class="ar" d="${d}L${x(pts[pts.length - 1].t).toFixed(1)} ${y(0)}L${x(pts[0].t).toFixed(1)} ${y(0)}Z"/><path class="ln" d="${d}"/>`;
   }
-  for (const e of trip.events) out += markerSVG(e, +x(e.t).toFixed(1), +y(e.v).toFixed(1));
+  // limitation connue : marches en pointillés
+  let d = '';
+  for (let i = 0; i < lims.length; i++) { const [t0, l] = lims[i], t1 = i + 1 < lims.length ? lims[i + 1][0] : dur; if (l) d += `M${x(t0).toFixed(1)} ${y(l).toFixed(1)}H${x(t1).toFixed(1)}`; }
+  if (d) out += `<path class="lim" d="${d}"/>`;
+  for (const e of trip.events) out += markerSVG(e, +x(e.t).toFixed(1), +y(Math.min(e.v || 0, yMax)).toFixed(1));
   return out + '</svg>';
 }
-const contentWidth = () => Math.max(260, Math.min($('#app').clientWidth || 360, 560) - 64);
-const LEGEND = [['brake', 'Freinage'], ['accel', 'Accélération'], ['corner', 'Virage'], ['swerve', 'Coup de volant'], ['fix', 'Redressement'], ['shift', 'Vitesse'], ['shock', 'Choc']];
 
+// Carte du trajet sans fond de carte : le tracé GPS et l'endroit de chaque événement, avec une échelle.
+function mapSVG(trip, W) {
+  const p = trip.path || []; if (p.length < 2) return '';
+  let a = 90, b = -90, c = 180, d = -180;
+  for (const q of p) { a = Math.min(a, q[1]); b = Math.max(b, q[1]); c = Math.min(c, q[2]); d = Math.max(d, q[2]); }
+  const kx = Math.cos((a + b) / 2 * Math.PI / 180), w = Math.max((d - c) * kx, 1e-5), h = Math.max(b - a, 1e-5), pad = 16;
+  const H = Math.round(Math.max(150, Math.min(300, (W - 2 * pad) * h / w + 2 * pad)));
+  const sc = Math.min((W - 2 * pad) / w, (H - 2 * pad) / h), ox = (W - w * sc) / 2, oy = (H - h * sc) / 2;
+  const X = lon => +(ox + (lon - c) * kx * sc).toFixed(1), Y = lat => +(oy + (b - lat) * sc).toFixed(1);
+  const line = p.map((q, i) => (i ? 'L' : 'M') + X(q[2]) + ' ' + Y(q[1])).join('');
+  let out = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Tracé du trajet et lieux des événements"><path class="route-bg" d="${line}"/><path class="route" d="${line}"/>`;
+  const s = p[0], e = p[p.length - 1];
+  out += `<circle class="st" cx="${X(s[2])}" cy="${Y(s[1])}" r="6"/><rect class="en" x="${X(e[2]) - 5}" y="${Y(e[1]) - 5}" width="10" height="10" rx="2"/>`;
+  for (const ev of trip.events) if (ev.ll) out += markerSVG(ev, X(ev.ll[1]), Y(ev.ll[0]));
+  // échelle : 1 degré de latitude ≈ 111,32 km
+  const pxPerM = sc / 111320, nice = [50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000].filter(m => m * pxPerM <= W / 4).pop() || 50;
+  const L = nice * pxPerM;
+  out += `<path class="gl" d="M10 ${H - 10}h${L.toFixed(1)}M10 ${H - 14}v8M${(10 + L).toFixed(1)} ${H - 14}v8" stroke-width="1.5"/><text x="${(14 + L).toFixed(1)}" y="${H - 6}">${nice >= 1000 ? nice / 1000 + ' km' : nice + ' m'}</text>`;
+  return out + '</svg>';
+}
+
+function ecoHTML(eco) {
+  if (!eco) return '';
+  const r = eco.ratio, label = r < 0.75 ? 'Sobre' : r < 1 ? 'Dynamique' : 'Trop vif', pos = Math.min(r, 1.4) / 1.4 * 100;
+  const z = (a, b2, col) => `<span style="left:${a / 1.4 * 100}%;width:${(b2 - a) / 1.4 * 100}%;background:var(${col})"></span>`;
+  return `<div class="sec"><div class="h3row"><h3>Éco-dynamisme</h3><span class="pill ${r < 0.75 ? 'ok' : r < 1 ? 'on' : 'ko'}">${label}</span></div>
+    <div class="eco"><div class="eco-bar" role="img" aria-label="${fmt(r * 100)} % de la limite de la norme RDE">${z(0, 0.75, '--good')}${z(0.75, 1, '--warn')}${z(1, 1.4, '--bad')}<i style="left:${pos}%"></i></div>
+    <div class="eco-sc"><span style="left:0">0</span><span style="left:${100 / 1.4}%;transform:translateX(-50%)">limite RDE</span><span style="right:0">+40 %</span></div>
+    <p class="note" style="margin-top:2px">Tes accélérations les plus vives (95ᵉ centile de vitesse × accélération : ${fmt(eco.va95, 1)} m²/s³) atteignent ${fmt(r * 100)} % de la limite fixée par la norme européenne RDE pour ${fmt(eco.vAvg)} km/h de moyenne (${fmt(eco.vaMax, 1)} m²/s³). En dessous de 75 %, tu consommes moins.</p></div></div>`;
+}
+
+/* ---------- Bilan d'un trajet ---------- */
 function bilanHTML(trip) {
-  const s = trip.sum, i = trips.findIndex(t => t.id === trip.id), prev = i >= 0 ? trips[i + 1] : null;
-  const dl = prev ? s.score - prev.sum.score : null;
-  const weak = AXES.map(([k, l]) => [k, l, s.axes[k]]).filter(a => a[2] < 85).sort((a, b) => a[2] - b[2]).slice(0, 2);
+  const s = trip.sum, c = s.counts || {}, i = trips.findIndex(t => t.id === trip.id), prev = i >= 0 ? trips[i + 1] : null;
+  const dl = prev ? s.score - prev.sum.score : null, W = contentWidth();
+  const weak = AXES.map(([k, l]) => [k, l, s.axes[k]]).filter(a => has(a[2]) && a[2] < 85).sort((a, b) => a[2] - b[2]).slice(0, 2);
   const focus = weak.length ? weak.map(([k, l, v]) => `<div class="fo"><span class="n">${v}</span><div><b>${l}</b><span>${esc(axisInfo(k, s).advice)}</span></div></div>`).join('')
     : `<div class="fo good"><div><b>Rien à corriger</b><span>Conduite fluide sur tous les axes.</span></div></div>`;
+  const same = PG.sameRoute(trips, trip), sameAvg = same.length ? Math.round(same.reduce((a, t) => a + t.sum.score, 0) / same.length) : null;
   const evs = trip.events.length ? `<ul class="evs">${trip.events.map(evRow).join('')}</ul>` : '<p class="empty">Aucun événement.</p>';
-  const cov = s.coverage === undefined ? 1 : s.coverage;
+  const cov = has(s.coverage) ? s.coverage : 1;
   return `<article class="card" aria-label="Bilan du trajet">
     <div class="b-head">${ring(s.score)}<div class="b-meta">
       <p class="eyebrow">${esc(dateLabel(trip.ts) + (trip.recovered ? ' · récupéré après interruption' : ''))}</p>
       <h2>${grade(s.score)}</h2>
-      ${dl === null ? '' : `<span class="delta ${dl > 0 ? 'up' : dl < 0 ? 'dn' : 'eq'}">${dl > 0 ? '▲ +' : dl < 0 ? '▼ ' : '= '}${dl} vs précédent</span>`}
+      ${dl === null ? '' : `<span class="delta ${dl > 0 ? 'up' : dl < 0 ? 'dn' : 'eq'}">${dl > 0 ? '▲ +' : dl < 0 ? '▼ ' : '= '}${dl} vs précédent</span>`}${trip.xp ? `<span class="xpchip">+${trip.xp} XP</span>` : ''}
       <dl class="stats"><div><dt>Distance</dt><dd>${fmt(s.km, 1)} km</dd></div><div><dt>Durée</dt><dd>${clock(s.durationS)}</dd></div><div><dt>Moy.</dt><dd>${fmt(s.avgKmh)} km/h</dd></div><div><dt>Série max</dt><dd>${clock(s.streakBest || 0)}</dd></div></dl>
     </div></div>
+    ${s.phonePen ? `<p class="pen">Téléphone manipulé ${c.phone} fois en roulant : −${s.phonePen} points sur le score.</p>` : ''}
     ${cov < 0.9 ? `<p class="banner">Capteurs coupés pendant ${fmt((1 - cov) * 100)} % du trajet (écran verrouillé ?) : bilan incomplet.</p>` : ''}
+    ${same.length ? `<p class="note">Trajet habituel, déjà fait ${same.length} fois · ta moyenne ici : <b>${sameAvg}</b> ${s.score > sameAvg ? '<span class="up">▲</span>' : s.score < sameAvg ? '<span class="dn">▼</span>' : ''}</p>` : ''}
     <div class="chips">${chipsHTML(trip.events)}</div>
     <div class="sec"><h3>À travailler</h3><div class="focus">${focus}</div></div>
-    <div class="sec"><h3>Les 5 axes</h3>${AXES.map(([k, l]) => axisRow(l, s.axes[k], axisInfo(k, s).detail)).join('')}</div>
-    <div class="sec"><h3>Vitesse (km/h) et événements</h3>${chartSVG(trip, contentWidth())}
-      <div class="legend">${LEGEND.map(([c, l]) => `<span><i class="mk ${c}"></i>${l}</span>`).join('')}</div></div>
+    <div class="sec"><h3>Les 6 axes</h3>${AXES.map(([k, l]) => axisRow(l, s.axes[k], axisInfo(k, s).detail)).join('')}</div>
+    ${trip.path && trip.path.length > 1 ? `<div class="sec"><h3>Où ça s’est passé</h3><div class="mapbox">${mapSVG(trip, W - 16)}</div>${legendHTML(trip.events.filter(e => e.ll))}</div>` : ''}
+    <div class="sec"><h3>Vitesse (km/h)${(trip.lims || []).some(l => l[1]) ? ', limitation' : ''} et événements</h3>${chartSVG(trip, W)}${legendHTML(trip.events)}</div>
+    ${ecoHTML(s.eco)}
     <div class="sec"><h3>Événements (${trip.events.length})</h3>${evs}</div>
   </article>`;
 }
 
-function startHTML() {
+/* ---------- En-tête ---------- */
+function renderTop() {
+  const lv = PG.levelOf(G.xp);
+  $('#top').innerHTML = `<h1>Pied Léger</h1>${S.run ? '' : `<button class="me-chip" data-act="profile" aria-label="Profil : ${esc(me().n)}, niveau ${lv.level}">${avatar(P.a)}<span>${esc(P.n || 'Profil')}</span><small>Niv. ${lv.level}</small></button>`}`;
+}
+
+/* ---------- Conduire ---------- */
+function homeHTML() {
+  const now = Date.now(), lv = PG.levelOf(G.xp), wk = PG.weekStats(trips, PG.weekKey(now)), st = PG.streak(trips), nb = Object.keys(G.badges).length;
+  const day = PG.dayKey(now), done = G.daily[day] || [], ch = PG.dailyChallenges(day), wg = PG.weeklyGoal(trips, now), wdone = !!G.weekly[wg.wk];
+  const fo = PG.focus(trips), last = trips[0];
+  const open = G.defis.filter(d => !d.mine && d.status === 'open' && d.until > now);
   return `<div class="card">
-    <button class="btn big" data-act="go">Démarrer le trajet</button>
-    <p class="hint">Pose le téléphone, écran vers toi, dans n’importe quelle position. Au départ, accélère doucement en ligne droite : le calage est automatique.</p>
-    ${S.error ? `<div class="err" role="alert">${esc(S.error)}</div>` : ''}
-  </div>`;
+      <div class="hello">${avatar(P.a, 'big')}<div><b>${P.n ? 'Salut ' + esc(P.n) : 'Bienvenue'}</b><small>Niveau ${lv.level} · ${lv.title}</small>
+        <div class="xpbar" role="img" aria-label="${lv.cur} XP sur ${lv.span} pour le niveau suivant"><i style="width:${Math.round(lv.pct * 100)}%"></i></div>
+        <div class="xpline"><span>${fmt(lv.cur)} / ${fmt(lv.span)} XP</span><span>niveau ${lv.level + 1}</span></div></div></div>
+      <div class="kpis">
+        <button class="kpi" data-act="tab" data-tab="friends"><small>Semaine</small><b>${has(wk.score) ? wk.score : '—'}</b>${lgChip(wk.league)}</button>
+        <button class="kpi" data-act="tab" data-tab="progress"><small>Série ≥ 70</small><b>${st}</b><span class="hint" style="margin:0">trajet${st > 1 ? 's' : ''}</span></button>
+        <button class="kpi" data-act="tab" data-tab="progress"><small>Badges</small><b>${nb}<span style="color:var(--muted);font-size:15px"> / ${PG.BADGES.length}</span></b></button>
+      </div>
+    </div>
+    <div class="card">
+      <button class="btn big" data-act="go">Démarrer le trajet</button>
+      <div class="toggles">${tgl('voice', 'Coach vocal')}${tgl('limits', 'Limitations de vitesse')}</div>
+      <p class="hint">Téléphone sur un support, écran vers toi. Accélère doucement en ligne droite au départ : le calage est automatique. Toucher l’écran en roulant coûte 8 points.</p>
+      ${S.error ? `<div class="err" role="alert">${esc(S.error)}</div>` : ''}
+    </div>
+    ${open.length ? `<div class="card"><h3>Défis d’amis</h3><ul class="list">${open.map(d => `<li><div class="item">${avatar(d.from.a)}<div><b>${esc(d.from.n)} te défie</b><small>plus de ${d.target} sur un trajet de ${d.km} km · avant ${dayShort(d.until)}</small></div><span class="xpv">+100 XP</span></div></li>`).join('')}</ul></div>` : ''}
+    <div class="card"><div class="h3row"><h3>Défis du jour</h3><span class="eyebrow">${done.length}/3</span></div>
+      <ul class="chal">${ch.map(c => `<li class="${done.includes(c.id) ? 'done' : ''}"><span class="ck">${CHECK}</span><span>${esc(c.text)}</span><span class="xpv">+${c.xp} XP</span></li>`).join('')}</ul>
+      <div class="wk"><div class="h3row" style="align-items:center"><b>${wdone ? '✓ ' : ''}Semaine : ${wg.target}+ sur ${wg.minKm} km</b><span class="xpv">+${wg.xp} XP</span></div>
+        <div class="prog"><i style="width:${Math.min(100, Math.round(wk.km / wg.minKm * 100))}%"></i></div>
+        <small>${fmt(wk.km, 1)} / ${wg.minKm} km · ${plural(wk.n, 'trajet')} (3 min.) · score ${has(wk.score) ? wk.score : '—'} · objectif = semaine passée + 3</small></div>
+    </div>
+    ${fo ? `<div class="card"><h3>${fo.ok ? 'Ton point fort à garder' : 'Ton point à travailler'}</h3><div class="coach"><span class="n">${fo.value}</span><div><b>${fo.label}${has(fo.trend) ? `<span class="trend ${fo.trend > 0 ? 'up' : fo.trend < 0 ? 'dn' : 'eq'}">${fo.trend > 0 ? '▲ +' : fo.trend < 0 ? '▼ ' : '= '}${fo.trend}</span>` : ''}</b><span>${esc(fo.tip)}</span></div></div><p class="note">Moyenne de tes 5 derniers trajets, comparée aux 5 d’avant.</p></div>` : ''}
+    ${last ? `<div class="card"><h3>Dernier trajet</h3><button class="item" data-act="open" data-id="${last.id}"><span class="badge bd-${tone(last.sum.score)}">${last.sum.score}</span><span><b>${esc(dateLabel(last.ts))}</b><small>${fmt(last.sum.km, 1)} km · ${clock(last.sum.durationS)}${last.xp ? ' · +' + last.xp + ' XP' : ''}</small></span><span class="chev" aria-hidden="true">›</span></button></div>` : ''}`;
+}
+
+function celeHTML() {
+  const c = S.cele, t = c && trips.find(x => x.id === c.id); if (!t) return '';
+  const a = c.award, s = t.sum;
+  return `<div class="card cele" aria-label="Trajet terminé">
+    <p class="eyebrow">Trajet terminé · ${fmt(s.km, 1)} km</p>
+    ${ring(s.score)}
+    <h2>${grade(s.score)}</h2>
+    <div class="xp-big">+${a.xp} XP</div>
+    ${a.levelUp ? `<div class="lvup">Niveau ${a.levelUp.to} atteint · ${esc(PG.levelOf(G.xp).title)}</div>` : ''}
+    ${a.badges.length ? `<div class="medals">${a.badges.map(id => medal(id)).join('')}</div>` : ''}
+    ${a.items.length ? `<ul class="gains">${a.items.map(i => `<li><span>${esc(i.label)}</span><span class="xpv">+${i.xp}</span></li>`).join('')}</ul>` : `<p class="note">Pas d’XP sous 40 : vise un trajet plus doux.</p>`}
+    <div class="row go"><button class="btn grow" data-act="share-trip" data-id="${t.id}">Partager</button><button class="btn ghost grow" data-act="defi-new" data-score="${s.score}">Défier un ami</button></div>
+    <button class="btn link" data-act="cele-close">Fermer</button>
+  </div>${bilanHTML(t)}`;
 }
 
 function liveHTML() {
   return `<div class="card live" aria-live="off">
-    <div class="l-top"><div class="status" id="l-status"><i></i><span>Mesure de la gravité…</span></div><span class="trip-line" id="l-line">0,0 km · 00:00</span></div>
+    <div class="l-top"><div class="status" id="l-status"><i></i><span>Mesure…</span></div><span class="trip-line" id="l-line">0,0 km · 00:00</span></div>
     <div class="banner" id="l-banner" role="alert" hidden></div>
-    <div class="l-hero">${ring(100, 'l-score', 'sm')}<div class="speed"><span id="l-speed">0</span><small>km/h</small></div><div class="streak"><b id="l-streak">0:00</b><small>sans à-coup</small></div></div>
+    <div class="banner" id="l-fatigue" role="alert" hidden></div>
+    <div class="l-hero">${ring(100, 'l-score', 'sm')}<div class="spd"><span class="sign unk" id="l-sign" ${SET.limits ? '' : 'hidden'} aria-label="Limitation de vitesse">?</span><div class="speed" id="l-speedw"><span id="l-speed">0</span><small>km/h</small></div></div><div class="streak"><b id="l-streak">0:00</b><small>sans à-coup</small></div></div>
     <canvas class="gg" id="gg" aria-label="Instruments : à gauche, secousses verticales des roues gauches et droites ; à droite, disque des forces ressenties (avant au freinage, arrière à l’accélération, côté en virage) ; en bas, barre de direction : de quel côté la voiture tourne, colorée quand un coup de volant ou un redressement est compté"></canvas>
-    <div class="toast ok" id="l-toast" role="status"><span class="mk" id="l-tmk"></span><div><b id="l-tt">Conduite fluide</b><small id="l-ts">Rien à signaler</small></div><span class="pts" id="l-tp"></span></div>
+    <div class="toast" id="l-toast" role="status"><span class="mk" id="l-tmk"></span><div><b id="l-tt">Conduite fluide</b><small id="l-ts">Rien à signaler</small></div><span class="pts" id="l-tp"></span></div>
     <div class="chips" id="l-chips"></div>
-    <div class="sec" style="margin-top:12px;padding-top:8px">${AXES.map(([k, l]) => `<div class="axis" id="ax-${k}"><span>${l}</span><span class="bar"><i class="g-good" style="width:100%"></i></span><span class="v">100</span></div>`).join('')}</div>
-    <div class="go row"><button class="btn ghost" data-act="recal">Recaler</button><button class="btn stop" data-act="stop">Terminer le trajet</button></div>
+    <div class="sec" style="margin-top:12px;padding-top:8px">${AXES.map(([k, l]) => axisRow(l, k === 'vitesse' ? null : 100, '', 'ax-' + k)).join('')}</div>
+    <div class="go row"><button class="btn ghost" data-act="recal">Recaler</button><button class="btn stop grow" data-act="stop">Terminer le trajet</button></div>
   </div>`;
 }
 
 function renderDrive() {
   const el = $('#view-drive');
   if (S.run) { el.innerHTML = liveHTML(); S.run.seq = -1; S.run.toast = null; S.run.chipN = -1; S.run.toastKey = null; updateLive(); return; }
-  el.innerHTML = startHTML() + (shown ? bilanHTML(shown) : '');
+  el.innerHTML = (S.cele ? celeHTML() : '') + homeHTML();
 }
 
-function renderHistory() {
-  const el = $('#view-history');
+/* ---------- Progrès ---------- */
+function renderProgress() {
+  const now = Date.now(), lv = PG.levelOf(G.xp), W = contentWidth();
+  // 8 dernières semaines
+  const weeks = []; for (let i = 7; i >= 0; i--) weeks.push(PG.weekStats(trips, PG.weekKey(now - i * 7 * DAY)));
+  const H = 130, m = { l: 26, b: 20, t: 8 }, bw = (W - m.l) / 8, y = v => m.t + (H - m.t - m.b) * (1 - v / 100);
+  let wsvg = `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Score des 8 dernières semaines">`;
+  for (const v of [0, 50, 100]) wsvg += `<line class="gl" x1="${m.l}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  weeks.forEach((w, i) => {
+    const x0 = m.l + i * bw + bw * 0.18, ww = bw * 0.64;
+    if (has(w.score)) wsvg += `<rect class="f-${w.league.id}" x="${x0.toFixed(1)}" y="${y(w.score).toFixed(1)}" width="${ww.toFixed(1)}" height="${(y(0) - y(w.score)).toFixed(1)}" rx="3"/><text x="${(x0 + ww / 2).toFixed(1)}" y="${(y(w.score) - 4).toFixed(1)}" text-anchor="middle">${w.score}</text>`;
+    else wsvg += `<rect class="f-none" x="${x0.toFixed(1)}" y="${(y(0) - 2).toFixed(1)}" width="${ww.toFixed(1)}" height="2"/>`;
+    wsvg += `<text x="${(x0 + ww / 2).toFixed(1)}" y="${H - 4}" text-anchor="middle">${w.wk.slice(-3).replace('W', 'S')}</text>`;
+  });
+  wsvg += '</svg>';
+  // tendance par axe : 10 derniers trajets contre les 10 d'avant
+  const mean = (ts, k) => { const v = ts.map(t => t.sum.axes[k]).filter(has); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null; };
+  const A = trips.slice(0, 10), B = trips.slice(10, 20);
+  const axes = AXES.map(([k, l]) => { const a = mean(A, k), b = mean(B, k), d = has(a) && has(b) ? a - b : null; return axisRow(l, a, has(d) ? `${d > 0 ? '▲ +' : d < 0 ? '▼ ' : '= '}${d} sur les 10 trajets d’avant` : '') }).join('');
+  // records
+  const best = trips.reduce((b, t) => !b || t.sum.score > b.sum.score ? t : b, null);
+  const flow = trips.reduce((b, t) => Math.max(b, t.sum.streakBest || 0), 0);
+  const wkSet = [...new Set(trips.map(t => PG.weekKey(t.ts)))].map(k => PG.weekStats(trips, k)).filter(w => w.n);
+  const bestWk = wkSet.reduce((b, w) => !b || w.score > b.score ? w : b, null);
+  const hs = PG.hotspots(trips).slice(0, 5);
+  // trajets récurrents
+  const groups = [], seen = new Set();
+  for (const t of trips) { if (seen.has(t.id) || !t.from) continue; const g = [t, ...PG.sameRoute(trips, t).filter(x => !seen.has(x.id))]; if (g.length >= 2) { g.forEach(x => seen.add(x.id)); groups.push(g); } }
+  const spark = (g) => { const v = g.slice().reverse().map(t => t.sum.score), w = 120, h = 30, x = i => 4 + (w - 8) * i / Math.max(1, v.length - 1), yy = s => 4 + (h - 8) * (1 - s / 100); return `<svg class="spark" viewBox="0 0 ${w} ${h}" style="width:${w}px" aria-hidden="true"><path class="ln" d="${v.map((s, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + yy(s).toFixed(1)).join('')}"/><circle class="dt" cx="${x(v.length - 1).toFixed(1)}" cy="${yy(v[v.length - 1]).toFixed(1)}" r="3"/></svg>`; };
+  $('#view-progress').innerHTML = `
+    <div class="card"><div class="b-head">${ring(Math.round(lv.pct * 100), '', 'sm', 'xp').replace(/>\d+<\/b>/, `>${lv.level}</b>`).replace(/aria-label="Score \d+ sur 100"/, `aria-label="Niveau ${lv.level}"`)}<div class="b-meta"><p class="eyebrow">Niveau ${lv.level}</p><h2>${lv.title}</h2><p class="note">${fmt(G.xp)} XP · encore ${fmt(lv.next - G.xp)} XP pour le niveau ${lv.level + 1}</p></div></div>
+      <p class="note">L’XP vient de la qualité : un trajet sous 40 ne rapporte rien et la distance compte jusqu’à 20 km seulement. Rouler plus ne sert à rien, rouler mieux, si.</p></div>
+    <div class="card"><div class="h3row"><h3>Ligue de la semaine</h3>${lgChip(weeks[7].league, weeks[7].score)}</div>${wsvg}
+      <p class="note">Score de la semaine = moyenne de tes trajets pondérée par les km. Bronze &lt; 60 · Argent 60 · Or 70 · Platine 80 · Diamant 90.</p></div>
+    <div class="card"><div class="h3row"><h3>Badges</h3><span class="eyebrow">${Object.keys(G.badges).length} / ${PG.BADGES.length}</span></div>
+      <div class="badges">${PG.BADGES.map(b => medal(b.id, !G.badges[b.id])).join('')}</div></div>
+    <div class="card"><h3>Tes 6 axes · 10 derniers trajets</h3>${trips.length ? axes : '<p class="empty">Fais un premier trajet.</p>'}</div>
+    <div class="card"><h3>Points noirs</h3>${hs.length ? `<ul class="list">${hs.map(h => `<li><div class="item"><span class="av"><i class="mk ${h.kind}"></i></span><div><b>${h.n} ${HOT[h.kind] || 'événements'}</b><small>au même endroit, sur ${h.trips} trajets différents</small></div><a class="btn sm ghost" href="https://www.openstreetmap.org/?mlat=${h.ll[0]}&amp;mlon=${h.ll[1]}#map=18/${h.ll[0]}/${h.ll[1]}" target="_blank" rel="noopener">Voir</a></div></li>`).join('')}</ul><p class="note">Les endroits où tu reproduis le même défaut. Anticipe-les la prochaine fois.</p>` : '<p class="empty">Aucun pour l’instant : il faut le même défaut au même endroit (70 m) sur deux trajets.</p>'}</div>
+    ${groups.length ? `<div class="card"><h3>Trajets habituels</h3><ul class="list">${groups.slice(0, 5).map(g => { const v = g.map(t => t.sum.score), d = v[0] - v[v.length - 1]; return `<li><div class="item"><span class="badge bd-${tone(v[0])}">${v[0]}</span><div><b>${fmt(g[0].sum.km, 1)} km · ${g.length} fois</b><small>${d > 0 ? '▲ +' : d < 0 ? '▼ ' : '= '}${d} depuis la première fois</small></div>${spark(g)}</div></li>`; }).join('')}</ul></div>` : ''}
+    <div class="card"><h3>Records</h3><div class="recs">
+      <div class="kpi"><small>Meilleur trajet</small><b>${best ? best.sum.score : '—'}</b></div>
+      <div class="kpi"><small>Plus long flow</small><b>${clock(flow)}</b></div>
+      <div class="kpi"><small>Meilleure semaine</small><b>${bestWk ? bestWk.score : '—'}</b></div>
+      <div class="kpi"><small>Km notés</small><b>${fmt(G.totalKm)}</b></div>
+    </div></div>`;
+}
+
+/* ---------- Amis ---------- */
+function renderFriends() {
+  const now = Date.now(), M = me(), wk = PG.weekStats(trips, PG.weekKey(now)), lv = PG.levelOf(G.xp);
+  const rows = PG.board(M, G, trips, now), nF = Object.keys(G.friends).length;
+  let pos = 0;
+  const board = rows.map(r => { if (has(r.ws)) pos++; const lg = PG.league(r.ws); return `<li><${r.me ? 'div' : 'button'} class="rank item${r.me ? ' me' : ''}" ${r.me ? '' : `data-act="friend" data-id="${esc(r.id)}"`}><span class="pos">${has(r.ws) ? pos : '–'}</span>${avatar(r.a)}<span><b>${esc(r.n)}${r.me ? ' (toi)' : ''}</b><small>${has(r.ws) ? `${fmt(r.wk, 1)} km · ` : ''}niv. ${r.lv}${r.stale ? ' · pas de carte cette semaine' : ''}</small></span><span class="sc">${has(r.ws) ? r.ws : '—'}<small>${lg ? lg.name : ''}</small></span></${r.me ? 'div' : 'button'}></li>`; }).join('');
+  const defis = G.defis.slice(0, 12).map(d => {
+    const st = d.status === 'open' && d.until < now ? 'expired' : d.status;
+    const pill = { open: ['En cours', 'on'], won: ['Gagné', 'ok'], expired: ['Expiré', ''], answered: ['Relevé', 'ok'] }[st] || ['', ''];
+    const who = d.mine ? 'Ton défi' : `${esc(d.from.n)} te défie`;
+    const sub = `plus de ${d.target} sur ${d.km} km · avant ${dayShort(d.until)}` + (d.won ? ` · tu as fait ${d.won.score}` : '') + (d.answer ? ` · ${esc(d.answer.n)} a fait ${d.answer.s}` : '');
+    const act = !d.mine && st === 'won' ? `<button class="btn sm" data-act="defi-reply" data-id="${esc(d.id)}">Répondre</button>` : d.mine && st === 'open' ? `<button class="btn sm ghost" data-act="defi-resend" data-id="${esc(d.id)}">Renvoyer</button>` : `<span class="pill ${pill[1]}">${pill[0]}</span>`;
+    return `<li><div class="item">${avatar(d.from.a)}<div><b>${who}</b><small>${sub}</small></div>${act}</div></li>`;
+  }).join('');
+  const feed = G.feed.slice(0, 30).map(f => {
+    if (f.type === 'trip') return `<li><div class="item">${avatar(P.a)}<div><b>Tu as fait ${f.score} sur ${fmt(f.km, 1)} km</b><small>${ago(f.ts)}${f.xp ? ' · +' + f.xp + ' XP' : ''}${f.levelUp ? ' · niveau ' + f.levelUp : ''}</small></div><span>${(f.badges || []).map(id => (PG.badge(id) || {}).icon || '').join(' ')}</span></div></li>`;
+    if (f.type === 'friend') return `<li><div class="item">${avatar(f.a)}<div><b>${esc(f.n)} ${f.isNew ? 'a rejoint ta bande' : f.r ? 'a relevé ton défi' : 'a partagé sa carte'}</b><small>${ago(f.ts)}${has(f.score) ? ' · dernier trajet ' + f.score : ''}${has(f.ws) ? ' · semaine ' + f.ws : ''}</small></div>${G.friends[f.id] ? `<button class="btn sm ghost" data-act="kudos" data-id="${esc(f.id)}">Bravo</button>` : ''}</div></li>`;
+    if (f.type === 'defi') return `<li><div class="item">${avatar(f.a)}<div><b>${esc(f.n)} te défie</b><small>${ago(f.ts)} · plus de ${f.target} sur ${f.km} km</small></div></div></li>`;
+    if (f.type === 'kudos') return `<li><div class="item">${avatar(f.a)}<div><b>${esc(f.n)} t’applaudit ${esc(f.e)}</b><small>${ago(f.ts)}${has(f.s) ? ' · pour ton ' + f.s : ''}</small></div></div></li>`;
+    return '';
+  }).join('');
+  $('#view-friends').innerHTML = `
+    <div class="card"><div class="hello">${avatar(P.a, 'big')}<div><b>${esc(M.n)}</b><small>Niveau ${lv.level} · ${plural(Object.keys(G.badges).length, 'badge')} · série ${PG.streak(trips)}</small><div style="margin-top:6px">${lgChip(wk.league, wk.score)}</div></div></div>
+      <div class="row go"><button class="btn grow" data-act="share-card">Partager ma carte</button><button class="btn ghost" data-act="defi-new" data-score="${trips[0] ? trips[0].sum.score : 80}">Défier</button></div></div>
+    <div class="card"><div class="h3row"><h3>Classement de la semaine</h3><span class="eyebrow">${PG.weekKey(now).replace('-W', ' · S')}</span></div><ul class="list">${board}</ul>
+      ${nF ? '<p class="note">Le score d’un ami se met à jour quand il t’envoie sa carte.</p>' : ''}</div>
+    ${!nF ? `<div class="card"><h3>Comment ajouter des amis</h3><ol class="how"><li>Touche « Partager ma carte » et envoie le lien (WhatsApp, SMS…).</li><li>Ton ami ouvre le lien : tu apparais dans son classement.</li><li>Il t’envoie sa carte en retour : il apparaît ici.</li></ol><p class="note">Aucun compte, aucun serveur : seuls ton pseudo, ton niveau et tes scores voyagent dans le lien. Jamais tes trajets ni tes positions.</p></div>` : ''}
+    ${defis ? `<div class="card"><h3>Défis</h3><ul class="list">${defis}</ul></div>` : ''}
+    <div class="card"><h3>Fil d’activité</h3>${feed ? `<ul class="list feed">${feed}</ul>` : '<p class="empty">Tes trajets, les cartes de tes amis et leurs bravos s’affichent ici.</p>'}</div>`;
+  G.lastFriendsView = now; save(K.game, G);
+}
+
+/* ---------- Trajets ---------- */
+function renderTrips() {
+  const el = $('#view-trips');
   if (S.opened) {
     const t = trips.find(x => x.id === S.opened);
-    if (!t) { S.opened = null; return renderHistory(); }
-    el.innerHTML = `<button class="btn link back" data-act="back">← Historique</button>${bilanHTML(t)}
-      <button class="btn ghost" data-act="del" data-id="${t.id}" style="align-self:flex-start">${S.confirm === 'del' + t.id ? 'Confirmer la suppression' : 'Supprimer ce trajet'}</button>`;
+    if (!t) { S.opened = null; return renderTrips(); }
+    el.innerHTML = `<button class="btn link back" data-act="back">← Trajets</button>${bilanHTML(t)}
+      <div class="row"><button class="btn grow" data-act="share-trip" data-id="${t.id}">Partager</button><button class="btn ghost" data-act="del" data-id="${t.id}">${S.confirm === 'del' + t.id ? 'Confirmer la suppression' : 'Supprimer'}</button></div>`;
     return;
   }
   if (!trips.length) { el.innerHTML = `<div class="card"><h2>Aucun trajet</h2><p class="empty" style="margin-top:8px">Le bilan de chaque trajet s’enregistre ici, événement par événement, comme affiché en direct.</p></div>`; return; }
@@ -1038,18 +1740,12 @@ function renderHistory() {
     spark = `<div class="card"><h3>Score des derniers trajets</h3><svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution du score">
       ${[0, 50, 100].map(v => `<line class="gl" x1="${m}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}"/><text x="${m - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`).join('')}
       <path class="ln" d="${last.map((t, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(t.sum.score).toFixed(1)).join('')}"/>
-      ${last.map((t, i) => `<circle class="dt" cx="${x(i)}" cy="${y(t.sum.score)}" r="3.5"/>`).join('')}</svg></div>`;
+      ${last.map((t, i) => `<circle class="dt" cx="${x(i).toFixed(1)}" cy="${y(t.sum.score).toFixed(1)}" r="3.5"/>`).join('')}</svg></div>`;
   }
-  el.innerHTML = spark + `<div class="card"><ul class="trips">${trips.map(t => `<li><button class="trip" data-act="open" data-id="${t.id}">
+  el.innerHTML = spark + `<div class="card"><ul class="list">${trips.map(t => `<li><button class="item" data-act="open" data-id="${t.id}">
     <span class="badge bd-${tone(t.sum.score)}">${t.sum.score}</span>
-    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${plural(t.events.length, 'événement')}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
+    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${plural(t.events.length, 'événement')}${t.xp ? ' · +' + t.xp + ' XP' : ''}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
     <button class="btn ghost" data-act="clear" style="align-self:flex-start">${S.confirm === 'clear' ? 'Confirmer l’effacement' : 'Effacer l’historique'}</button>`;
-}
-
-function render() {
-  $('#view-drive').hidden = S.tab !== 'drive'; $('#view-history').hidden = S.tab !== 'history';
-  for (const b of document.querySelectorAll('[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === S.tab));
-  if (S.tab === 'drive') renderDrive(); else renderHistory();
 }
 
 /* ---------- Cockpit : jauge verticale, disque, barre de volant ---------- */
@@ -1125,28 +1821,54 @@ function drawCockpit(canvas, e, ready) {
   } else if (e.t > 3) { ctx.fillStyle = col('--muted'); ctx.font = '12px ' + col('--font-body'); ctx.fillText('Gyroscope indisponible', mid, by + 11); }
 }
 
-const pointsOf = (s0, s1) => s1 - s0;
+
+
+/* ---------- Direct ---------- */
+const SAY = { brake: 'Freinage brusque', accel: 'Accélération vive', corner: 'Virage serré', swerve: 'Coup de volant', fix: 'Redressement', shift: 'Passage de vitesse brusque', phone: 'Téléphone en main. Concentre-toi sur la route.' };
+function say(text, urgent) {
+  if (!SET.voice || !('speechSynthesis' in window)) return;
+  try { const u = new SpeechSynthesisUtterance(text); u.lang = 'fr-FR'; u.rate = 1.05; if (urgent) speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {}
+}
+function sayEvent(e) {
+  if (e.kind === 'speed') return say(`Attention, limite ${e.lim}.`, true);
+  if (e.kind === 'shock') { if (e.fast) say('Dos d’âne trop vite.', true); return; }
+  if (e.kind === 'brake' && e.late) return say('Freinage tardif. Anticipe.', true);
+  if (SAY[e.kind]) say(SAY[e.kind], true);
+}
+
 function updateLive() {
   const r = S.run; if (!r || !$('#l-score')) return;
-  const e = r.engine, s = e.summary(), C = 2 * Math.PI * 56, ready = e.status === 'ready';
+  const e = r.engine, s = e.summary(), C = 2 * Math.PI * 56, ready = e.status === 'ready', now = performance.now();
   $('#l-score').textContent = s.score;
   const rg = $('#l-score-ring'); rg.setAttribute('stroke-dashoffset', (C * (1 - s.score / 100)).toFixed(1)); rg.setAttribute('class', 'pg rc-' + tone(s.score));
-  $('#l-speed').textContent = fmt((e.speed || 0) * 3.6);
+  const kmh = (e.speed || 0) * 3.6;
+  $('#l-speed').textContent = fmt(kmh);
   $('#l-line').textContent = `${fmt(s.km, 1)} km · ${clock(s.durationS)}`;
   $('#l-streak').textContent = clock(e.streak).replace(/^0/, '');
+  // limitation
+  const sg = $('#l-sign'); sg.hidden = !SET.limits;
+  if (SET.limits) { sg.textContent = r.lim || '?'; sg.className = 'sign' + (r.lim ? '' : ' unk'); sg.setAttribute('aria-label', r.lim ? `Limitation ${r.lim} km/h` : 'Limitation inconnue'); }
+  $('#l-speedw').className = 'speed' + (r.lim && kmh > r.lim + Math.max(5, r.lim * 0.05) ? ' over' : '');
   const st = $('#l-status');
   st.className = 'status' + (ready ? ' ok' : '');
   st.lastElementChild.textContent = e.status === 'init' ? 'Mesure…' : ready ? (r.gpsWarn ? 'Calé · GPS faible' : 'Calé') : e.recalCount ? 'Recalage : accélère en ligne droite' : 'Calage : accélère en ligne droite';
-  const pause = performance.now() - r.lastMotion > 2500, bn = $('#l-banner');
+  const pause = now - r.lastMotion > 2500, bn = $('#l-banner');
   bn.hidden = !pause; if (pause) bn.textContent = 'Capteurs en pause : garde l’écran allumé et l’appli au premier plan.';
+  // fatigue : pause recommandée toutes les 2 h ; un arrêt de 10 min remet le compteur à zéro
+  const dt = r.lastTick ? Math.min(5, (now - r.lastTick) / 1000) : 0; r.lastTick = now;
+  if (kmh > 3) { r.driveS += dt; r.stopS = 0; } else { r.stopS += dt; if (r.stopS >= 600) { r.driveS = 0; r.fatigueAt = 7200; } }
+  if (r.driveS >= r.fatigueAt) { r.fatigueAt += 1800; say('Deux heures de route. Fais une pause d’au moins un quart d’heure.', true); }
+  const fb = $('#l-fatigue'); fb.hidden = r.driveS < 7200; if (!fb.hidden) fb.textContent = `${clock(r.driveS).replace(/:\d\d$/, '')} de route sans pause : arrête-toi 15 minutes dès que possible.`;
+  for (const [k] of AXES) { const row = $('#ax-' + k), v = s.axes[k]; row.querySelector('i').style.width = (has(v) ? v : 0) + '%'; row.querySelector('i').className = 'g-' + (has(v) ? tone(v) : 'none'); row.querySelector('.v').textContent = has(v) ? v : '—'; }
   if (r.chipN !== e.events.length) { r.chipN = e.events.length; $('#l-chips').innerHTML = chipsHTML(e.events); }
-  for (const [k] of AXES) { const row = $('#ax-' + k), v = s.axes[k]; row.querySelector('i').style.width = v + '%'; row.querySelector('i').className = 'g-' + tone(v); row.querySelector('.v').textContent = v; }
+  // encouragement vocal toutes les 10 min sans à-coup
+  const flow = Math.floor(e.streak / 600); if (flow > (r.flowSaid || 0)) { r.flowSaid = flow; say(`${flow * 10} minutes sans à-coup. Bravo.`); } else if (flow < (r.flowSaid || 0)) r.flowSaid = flow;
 
   // Bandeau : dernier événement pendant 6 s, avec les points perdus ; sinon « conduite fluide ».
-  const tb = $('#l-toast'), now = performance.now();
+  const tb = $('#l-toast');
   if (r.seq !== e.evSeq) {
     const ev = e.lastEvent, first = r.seq === -1; r.seq = e.evSeq;
-    if (ev && !first) r.toast = { ev, d: scoring(ev) ? pointsOf(r.score, s.score) : 0, until: now + 6000 };
+    if (ev && !first) { r.toast = { ev, d: scoring(ev) ? s.score - r.score : 0, until: now + 6000 }; sayEvent(ev); }
   }
   r.score = s.score;
   if (r.toast && now > r.toast.until) r.toast = null;
@@ -1154,9 +1876,9 @@ function updateLive() {
   if (r.toastKey !== key) {
     r.toastKey = key;
     tb.className = 'toast ' + (!T ? 'ok' : !scoring(T.ev) ? 'i' : T.ev.sev === 2 ? 'b' : 'w') + (T ? ' pop' : '');
-    $('#l-tmk').className = 'mk ' + (T ? KIND[T.ev.kind].cls : '');
+    $('#l-tmk').className = 'mk ' + (T ? T.ev.kind : '');
     $('#l-tt').textContent = T ? evName(T.ev) : 'Conduite fluide';
-    $('#l-ts').textContent = T ? evSub(T.ev) : s.counts.brake + s.counts.accel + s.counts.corner + s.counts.swerve + s.counts.fix + s.counts.shiftHarsh ? `Record ${clock(s.streakBest)}` : 'Rien à signaler';
+    $('#l-ts').textContent = T ? evSub(T.ev) : e.events.some(scoring) ? `Record ${clock(s.streakBest)}` : 'Rien à signaler';
     $('#l-tp').textContent = T && T.d < 0 ? T.d : '';
   }
 }
@@ -1166,13 +1888,68 @@ function paint() {
   r.raf = requestAnimationFrame(paint);
 }
 
-/* ---------- Sources ---------- */
+/* ---------- Limitations de vitesse : OpenStreetMap (Overpass), zone de 400 m centrée 200 m devant la voiture ---------- */
+const OSM = { ways: [], center: null, busy: false, next: 0, fails: 0, cand: undefined, candN: 0, cur: null };
+const SPEEDS = { 'FR:urban': 50, 'FR:rural': 80, 'FR:motorway': 130, 'FR:zone30': 30, 'FR:zone20': 20, 'FR:walk': 6, walk: 6 };
+function parseMax(t, fwd) {
+  let s = (fwd === true && t['maxspeed:forward']) || (fwd === false && t['maxspeed:backward']) || t.maxspeed;
+  if (!s) return null; s = String(s).split(';')[0].trim();
+  if (SPEEDS[s]) return SPEEDS[s];
+  const m = /^(\d+)\s*(mph)?$/.exec(s); if (!m) return null;
+  const v = m[2] ? Math.round(+m[1] * 1.609) : +m[1]; return v >= 5 && v <= 150 ? v : null;
+}
+function osmMatch(lat, lon, head) {
+  const kx = Math.cos(lat * Math.PI / 180) * 111320, ky = 110540; let best = null;
+  for (const w of OSM.ways) {
+    const g = w.g;
+    for (let i = 1; i < g.length; i++) {
+      const ax = (g[i - 1][1] - lon) * kx, ay = (g[i - 1][0] - lat) * ky, bx = (g[i][1] - lon) * kx, by = (g[i][0] - lat) * ky;
+      const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy || 1e-9, u = Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2));
+      const d = Math.hypot(ax + u * dx, ay + u * dy); if (d > 30) continue;
+      let cost = d, fwd = null;
+      if (head !== null) { const c = Math.cos((head - Math.atan2(dx, dy) * 180 / Math.PI) * Math.PI / 180); cost += (1 - Math.abs(c)) * 25; fwd = c >= 0; }
+      if (!best || cost < best.cost) best = { cost, t: w.tags, fwd };
+    }
+  }
+  if (!best || best.cost > 30) return null;
+  const t = best.t, dir = t.oneway === 'yes' || t.oneway === '1' || t.highway === 'motorway' ? true : t.oneway === '-1' ? false : best.fwd;
+  return parseMax(t, dir);
+}
+async function osmFetch(lat, lon) {
+  OSM.busy = true;
+  const q = `[out:json][timeout:20];way(around:400,${lat.toFixed(5)},${lon.toFixed(5)})[highway][~"^maxspeed"~"."];out tags geom;`;
+  let tm = null;
+  try {
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null; tm = setTimeout(() => ctl && ctl.abort(), 20000);
+    const res = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: ctl ? ctl.signal : undefined });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const js = await res.json();
+    OSM.ways = (js.elements || []).filter(w => w.type === 'way' && w.geometry && w.geometry.length > 1).map(w => ({ tags: w.tags || {}, g: w.geometry.map(p => [p.lat, p.lon]) }));
+    OSM.center = [lat, lon]; OSM.fails = 0; OSM.next = Date.now() + 4000;
+  } catch (e) { OSM.fails++; OSM.next = Date.now() + Math.min(120000, 15000 * OSM.fails); }
+  clearTimeout(tm); OSM.busy = false;
+}
+function osmUpdate(lat, lon, head, v) {
+  if (!SET.limits) return null;
+  const far = !OSM.center || PG.dist(OSM.center, [lat, lon]) > 250;
+  if (far && !OSM.busy && Date.now() >= OSM.next) {
+    const ahead = v > 5 && Number.isFinite(head) ? 200 : 0, h = (head || 0) * Math.PI / 180;
+    osmFetch(lat + ahead * Math.cos(h) / 110540, lon + ahead * Math.sin(h) / (111320 * Math.cos(lat * Math.PI / 180)));
+  }
+  if (!OSM.center || PG.dist(OSM.center, [lat, lon]) > 380) { OSM.cur = null; return null; }   // hors de la zone chargée
+  const m = osmMatch(lat, lon, v > 2 && Number.isFinite(head) ? head : null);
+  if (m === OSM.cand) OSM.candN++; else { OSM.cand = m; OSM.candN = 1; }
+  if (OSM.candN >= 2) OSM.cur = m;   // deux relevés concordants avant de changer (carrefours)
+  return OSM.cur;
+}
+
+/* ---------- Capteurs ---------- */
 const BLOCKED = 'Capteurs indisponibles ici (permission refusée, ou aperçu intégré bloqué). Autorise le mouvement et la position, ou ouvre la version hébergée en HTTPS sur ton téléphone.';
 let wake = null;
 const lock = () => { try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { wake = l; }).catch(() => {}); } catch (e) {} };
 const unlock = () => { try { if (wake) wake.release(); } catch (e) {} wake = null; };
 const fail = msg => { stopSources(); S.run = null; S.error = msg; render(); };
-const hav = (a, b, c, d) => { const R = 6371000, p = Math.PI / 180, x = Math.sin((c - a) * p / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin((d - b) * p / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+const hav = (a, b, c, d) => PG.dist([a, b], [c, d]);
 
 function stopSources() {
   const r = S.run; unlock(); if (!r) return;
@@ -1180,7 +1957,9 @@ function stopSources() {
   if (r.onMotion) window.removeEventListener('devicemotion', r.onMotion);
   if (r.watch != null && navigator.geolocation) navigator.geolocation.clearWatch(r.watch);
   if (r.onVis) { document.removeEventListener('visibilitychange', r.onVis); window.removeEventListener('pagehide', r.onHide); }
+  if (r.onTouch) document.removeEventListener('pointerdown', r.onTouch, true);
   clearTimeout(r.watchdog); clearInterval(r.loop); clearInterval(r.saver);
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
 }
 
 async function startSensors() {
@@ -1189,8 +1968,10 @@ async function startSensors() {
     if (typeof DeviceMotionEvent.requestPermission === 'function' && await DeviceMotionEvent.requestPermission() !== 'granted') return fail(BLOCKED);
   } catch (e) { return fail(BLOCKED); }
   const engine = new PL.Engine({ mount: 'free' }), now = () => performance.now() / 1000;
-  const r = S.run = { engine, got: false, lastPos: null, gpsWarn: false, seq: -1, score: 100, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(), lastMotion: performance.now() };
-  render(); lock();
+  const r = S.run = { engine, got: false, lastPos: null, gpsWarn: false, seq: -1, score: 100, id: newId(), ts: Date.now(), lastMotion: performance.now(),
+    path: [], lims: [], lim: null, driveS: 0, stopS: 0, fatigueAt: 7200 };
+  OSM.cur = null; OSM.cand = undefined; OSM.candN = 0;
+  S.cele = null; render(); lock();
   r.onMotion = ev => {
     const a = ev.accelerationIncludingGravity;
     if (!a || a.x == null || a.y == null || a.z == null) return;
@@ -1199,12 +1980,22 @@ async function startSensors() {
   };
   window.addEventListener('devicemotion', r.onMotion);
   r.watch = navigator.geolocation.watchPosition(pos => {
-    const c = pos.coords; let v = c.speed;
+    const c = pos.coords, t = now(); let v = c.speed;
     if (v == null || Number.isNaN(v)) { v = 0; if (r.lastPos) { const dt = (pos.timestamp - r.lastPos.ts) / 1000; if (dt > 0) v = hav(r.lastPos.lat, r.lastPos.lon, c.latitude, c.longitude) / dt; } }
     r.lastPos = { lat: c.latitude, lon: c.longitude, ts: pos.timestamp }; r.gpsWarn = false;
-    engine.pushFix(now(), Math.max(0, v), c.heading);
+    if (engine.t0 !== null) {
+      const tr = t - engine.t0, last = r.path[r.path.length - 1];
+      if (!last || tr - last[0] >= 5 || hav(last[1], last[2], c.latitude, c.longitude) >= 25) r.path.push([tr, c.latitude, c.longitude]);
+    }
+    const lim = osmUpdate(c.latitude, c.longitude, c.heading, v);
+    if (lim !== r.lim) { r.lim = lim; if (engine.t0 !== null && r.lims.length < 400) r.lims.push([Math.round(t - engine.t0), lim]); }
+    engine.pushLimit(lim);
+    engine.pushFix(t, Math.max(0, v), c.heading);
   }, err => { if (err.code === 1) fail(BLOCKED); else r.gpsWarn = true; },
   { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+  // Toucher l'écran en roulant = manipulation du téléphone (sauf « Terminer », qui arrête le trajet).
+  r.onTouch = ev => { if (ev.target && ev.target.closest && ev.target.closest('[data-act="stop"]')) return; engine.touch(); };
+  document.addEventListener('pointerdown', r.onTouch, true);
   r.watchdog = setTimeout(() => { if (!r.got) fail(BLOCKED); }, 3000);
   r.loop = setInterval(updateLive, 200);
   r.saver = setInterval(saveDraft, 5000);
@@ -1218,32 +2009,250 @@ function finishRun() {
   engine.finish();
   if (engine.dist < 100 || engine.t < 20) { S.run = null; clearDraft(); S.error = 'Trajet trop court (moins de 100 m ou 20 s) : non enregistré.'; return render(); }
   if (engine.status !== 'ready') { S.run = null; clearDraft(); S.error = 'Calage impossible : aucune accélération franche en ligne droite. Redémarre et accélère doucement.'; return render(); }
-  const t = makeTrip(engine, { id: r.id, ts: r.ts }); trips = [t, ...trips].slice(0, 30); saveTrips(trips); clearDraft();
-  S.run = null; S.error = ''; shown = t; S.tab = 'drive'; render();
-  const h = document.querySelector('#view-drive article'); if (h && h.scrollIntoView) h.scrollIntoView({ block: 'start' });
+  const t = makeTrip(engine, r), a = PG.award(G, trips, t, Date.now());
+  trips = [t, ...trips].slice(0, 60); saveAll(); clearDraft();
+  S.run = null; S.error = ''; S.cele = { id: t.id, award: a }; S.tab = 'drive'; render();
+  say(`Trajet terminé : ${t.sum.score} sur 100. Plus ${a.xp} points d’expérience.`);
+  window.scrollTo && window.scrollTo(0, 0);
 }
 
-/* ---------- Événements ---------- */
-$('#app').addEventListener('click', ev => {
-  const tab = ev.target.closest('[data-tab]');
-  if (tab) { S.tab = tab.dataset.tab; S.confirm = ''; return render(); }
+/* ---------- Partage : carte image + lien ---------- */
+const host = APP_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+async function cardImage(kind, d) {
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
+  const x = c.getContext('2d'); if (!x) throw new Error('canvas');
+  const C = { bg: '#0E1A22', band: '#132430', ink: '#E9F0F4', muted: '#8FA3B2', accent: '#43C1DD', xp: '#E8B847', good: '#4FCB86', warn: '#E3AE4D', bad: '#F0736B', track: '#1E3140' };
+  const LG = { bronze: '#D08A4C', silver: '#AEBBC7', gold: '#E8B847', platinum: '#5FC3D6', diamond: '#9EA2FF' };
+  const D = "'Barlow Condensed','Arial Narrow',sans-serif", B = "'Barlow',system-ui,sans-serif", E = "'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+  x.fillStyle = C.bg; x.fillRect(0, 0, 1080, 1350);
+  // marquage au sol : ligne discontinue centrale
+  x.fillStyle = C.band; for (let yy = -40; yy < 1350; yy += 150) x.fillRect(1010, yy, 18, 90);
+  x.textBaseline = 'alphabetic';
+  x.fillStyle = C.ink; x.font = `700 46px ${D}`; x.fillText('PIED LÉGER', 80, 110);
+  // profil
+  x.fillStyle = C.track; x.beginPath(); x.arc(150, 250, 70, 0, 7); x.fill();
+  x.font = `80px ${E}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(d.a || '🚗', 150, 256);
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.fillStyle = C.ink; x.font = `700 76px ${D}`; x.fillText(String(d.n || 'Moi').slice(0, 20), 250, 252);
+  x.fillStyle = C.muted; x.font = `500 34px ${B}`; x.fillText(`Niveau ${d.lv} · ${PG.levelOf(d.xp || 0).title}`, 250, 300);
+  // anneau
+  const cx = 540, cy = 690, R = 240, val = kind === 'defi' ? d.target : d.s;
+  const col = kind === 'defi' ? C.xp : val >= 70 ? C.good : val >= 50 ? C.warn : C.bad;
+  x.lineWidth = 34; x.lineCap = 'round'; x.strokeStyle = C.track; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
+  x.strokeStyle = col; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.01, (val || 0) / 100)); x.stroke();
+  x.textAlign = 'center'; x.fillStyle = C.ink;
+  if (kind === 'defi') {
+    x.fillStyle = C.xp; x.font = `700 56px ${D}`; x.fillText('DÉFI', cx, cy - 120);
+    x.fillStyle = C.ink; x.font = `700 230px ${D}`; x.fillText(String(val), cx, cy + 80);
+    x.fillStyle = C.muted; x.font = `500 38px ${B}`; x.fillText(`à battre sur ${d.km} km`, cx, cy + 140);
+    x.fillStyle = C.ink; x.font = `600 44px ${B}`; x.fillText(`Avant ${dayShort(d.until)}`, cx, 1040);
+  } else {
+    x.font = `700 230px ${D}`; x.fillText(has(val) ? String(val) : '—', cx, cy + 80);
+    x.fillStyle = C.muted; x.font = `500 38px ${B}`; x.fillText(d.label || 'dernier trajet', cx, cy + 150);
+    // stats
+    const lg = PG.league(d.ws), cols = [[has(d.ws) ? String(d.ws) : '—', lg ? 'SEMAINE · ' + lg.name.toUpperCase() : 'SEMAINE', lg ? LG[lg.id] : C.ink], [String(d.st || 0), 'SÉRIE ≥ 70', C.ink], [String(d.b || 0), 'BADGES', C.xp]];
+    cols.forEach(([v, l, cc], i) => { const xx = 200 + i * 340; x.fillStyle = cc; x.font = `700 84px ${D}`; x.fillText(v, xx, 1060); x.fillStyle = C.muted; x.font = `600 26px ${B}`; x.fillText(l, xx, 1102); });
+    if (d.top && d.top.length) { x.font = `56px ${E}`; x.fillText(d.top.map(id => (PG.badge(id) || {}).icon || '').join('  '), cx, 1190); }
+  }
+  x.textAlign = 'left'; x.fillStyle = C.accent; x.font = `600 34px ${B}`; x.fillText(kind === 'defi' ? 'Relève le défi :' : 'Bats mon score :', 80, 1280);
+  x.fillStyle = C.ink; x.font = `500 30px ${B}`; x.fillText(host, 80, 1318);
+  return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
+}
+function openShare(kind, url, text, data) {
+  S.sheet = { type: 'share', kind, url, text, img: null, file: null, data }; renderSheet();
+  cardImage(kind, data).then(blob => {
+    if (!S.sheet || S.sheet.url !== url) return;
+    try { S.sheet.file = new File([blob], 'pied-leger.png', { type: 'image/png' }); } catch (e) {}
+    S.sheet.img = URL.createObjectURL(blob); renderSheet();
+  }).catch(() => {});
+}
+function shareCard(reply, trip) {
+  const now = Date.now(), c = PG.card(me(), G, trips, now, reply);
+  if (trip) Object.assign(c, { s: trip.sum.score, km: Math.round(trip.sum.km * 10) / 10 });
+  const lg = PG.league(c.ws), url = APP_URL + '#' + PG.encode('c', c);
+  const text = reply ? `${c.a} J’ai relevé ton défi sur Pied Léger : ${c.s}.` : `${c.a} ${c.n} sur Pied Léger : ${has(c.s) ? c.s + ' au dernier trajet' : 'nouveau'}${has(c.ws) ? `, ${c.ws} cette semaine (ligue ${lg.name})` : ''}. Ajoute-moi et bats mon score :`;
+  openShare('card', url, text, { ...c, xp: G.xp, label: trip ? `trajet de ${fmt(trip.sum.km, 1)} km` : 'dernier trajet' });
+}
+function shareDefi(d) {
+  const url = APP_URL + '#' + PG.encode('d', { id: d.id, from: d.from, g: { s: d.target, km: d.km }, u: d.until });
+  openShare('defi', url, `${me().a} Défi Pied Léger : fais plus de ${d.target} sur un trajet de ${d.km} km avant ${dayShort(d.until)}. Relève-le :`, { ...me(), lv: PG.levelOf(G.xp).level, xp: G.xp, target: d.target, km: d.km, until: d.until });
+}
+function doShare() {
+  const sh = S.sheet; if (!sh) return;
+  const data = { title: 'Pied Léger', text: sh.text, url: sh.url };
+  if (navigator.share) {
+    let payload = data;
+    try { if (sh.file && navigator.canShare && navigator.canShare({ files: [sh.file] })) payload = { ...data, files: [sh.file] }; } catch (e) {}
+    navigator.share(payload).then(() => snack('Partagé')).catch(err => { if (!err || err.name !== 'AbortError') copyLink(); });
+  } else copyLink();
+}
+function copyLink() {
+  const sh = S.sheet; if (!sh) return;
+  const txt = sh.text + '\n' + sh.url, sel = () => { const b = $('#share-link'); if (b) { const r = document.createRange(); r.selectNodeContents(b); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } snack('Copie bloquée ici : le lien est sélectionné'); };
+  try { navigator.clipboard.writeText(txt).then(() => snack('Lien copié'), sel); } catch (e) { sel(); }
+}
+let snackT = null;
+function snack(msg) { const el = $('#snack'); el.textContent = msg; el.hidden = false; clearTimeout(snackT); snackT = setTimeout(() => { el.hidden = true; }, 2600); }
+
+/* ---------- Feuilles ---------- */
+function sheetHTML() {
+  const sh = S.sheet, now = Date.now(); if (!sh) return '';
+  const x = `<button class="btn link x" data-act="sheet-close" aria-label="Fermer">Fermer</button>`;
+  if (sh.type === 'profile') return `${sh.first ? '' : x}<h2>${sh.first ? 'Bienvenue sur Pied Léger' : 'Ton profil'}</h2>
+    ${sh.first ? '<p class="note" style="margin:0">Choisis un pseudo et un avatar : ce sont les seules infos que voient tes amis.</p>' : ''}
+    <div class="field"><label for="pf-name">Pseudo</label><input id="pf-name" maxlength="24" autocomplete="nickname" value="${esc(P.n)}" placeholder="Ton prénom"></div>
+    <div class="field"><span class="lbl">Avatar</span><div class="avs">${PG.AVATARS.map(a => `<button data-act="pick-av" data-av="${a}" aria-pressed="${(sh.av || P.a) === a}" aria-label="Avatar ${a}">${a}</button>`).join('')}</div></div>
+    <button class="btn" data-act="profile-save">${sh.first ? 'C’est parti' : 'Enregistrer'}</button>
+    ${sh.first ? '<button class="btn link" data-act="sheet-close">Plus tard</button>' : ''}`;
+  if (sh.type === 'share') return `${x}<h2>${{ defi: 'Envoyer le défi', kudos: 'Envoyer le bravo' }[sh.kind] || 'Partager ta carte'}</h2>
+    ${sh.kind === 'kudos' ? '' : sh.img ? `<img class="preview" src="${sh.img}" alt="Carte de partage : ${esc(sh.text)}">` : '<p class="note" style="margin:0">Préparation de l’image…</p>'}
+    <button class="btn" data-act="share-send">Envoyer</button>
+    <button class="btn ghost" data-act="share-copy" style="width:100%">Copier le lien</button>
+    <div class="linkbox" id="share-link">${esc(sh.text)} ${esc(sh.url)}</div>
+    <p class="note" style="margin:0">Le lien contient ton pseudo, ton niveau et tes scores. Jamais tes trajets ni tes positions.</p>`;
+  if (sh.type === 'defi-new') {
+    const last = trips[0] ? trips[0].sum.score : null, wk = PG.weekStats(trips, PG.weekKey(now)).score;
+    const ts = [...new Set([last, wk, 75, 80, 85, 90].filter(v => has(v) && v >= 50 && v <= 98))].sort((a, b) => a - b);
+    if (!ts.includes(S.defi.target)) S.defi.target = ts.includes(80) ? 80 : ts[0];
+    return `${x}<h2>Lancer un défi</h2><p class="note" style="margin:0">Ton ami doit faire mieux sur un seul trajet, avant la fin de la semaine prochaine.</p>
+      <div class="field"><span class="lbl">Score à battre</span><div class="opts">${ts.map(v => `<button data-act="defi-opt" data-k="target" data-v="${v}" aria-pressed="${S.defi.target === v}">${v}${v === last ? ' · ton dernier' : v === wk ? ' · ta semaine' : ''}</button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">Distance minimale</span><div class="opts">${[3, 5, 10, 20].map(v => `<button data-act="defi-opt" data-k="km" data-v="${v}" aria-pressed="${S.defi.km === v}">${v} km</button>`).join('')}</div></div>
+      <button class="btn" data-act="defi-create">Créer et envoyer</button>`;
+  }
+  if (sh.type === 'badge') {
+    const b = PG.badge(sh.id), got = G.badges[sh.id];
+    return `${x}<div class="b-head">${medal(sh.id, !got, false)}<div class="b-meta"><h2>${esc(b.name)}</h2><p class="note" style="margin:4px 0 0">${esc(b.desc)}</p><p class="eyebrow" style="margin-top:6px">${got ? 'Débloqué le ' + dayShort(got) : 'À débloquer · +50 XP'}</p></div></div>`;
+  }
+  if (sh.type === 'friend') {
+    const f = G.friends[sh.id]; if (!f) return x + '<p class="empty">Ami introuvable.</p>';
+    const wk = PG.weekKey(now), lg = f.w === wk ? PG.league(f.ws) : null;
+    return `${x}<div class="hello">${avatar(f.a, 'big')}<div><b>${esc(f.n)}</b><small>Niveau ${f.lv} · ${plural(f.b || 0, 'badge')} · série ${f.st || 0}</small><div style="margin-top:6px">${lgChip(lg, f.w === wk ? f.ws : null)}</div></div></div>
+      <p class="note" style="margin:0">Dernier trajet : <b>${has(f.s) ? f.s : '—'}</b>${f.km ? ` sur ${fmt(f.km, 1)} km` : ''}${f.ts ? ' · ' + ago(f.ts) : ''}. Carte reçue ${ago(f.got || now)}.</p>
+      ${f.top && f.top.length ? `<div class="medals" style="justify-content:flex-start">${f.top.map(id => medal(id)).join('')}</div>` : ''}
+      <div class="field"><span class="lbl">Envoyer un bravo</span><div class="opts">${['👏', '🔥', '💪', '🎉', '😎'].map(e => `<button data-act="kudos-send" data-id="${esc(f.id)}" data-e="${e}" aria-label="Bravo ${e}">${e}</button>`).join('')}</div></div>
+      <div class="row"><button class="btn grow" data-act="defi-new" data-score="${has(f.s) ? Math.min(95, f.s + 1) : 80}">Défier ${esc(f.n)}</button><button class="btn ghost" data-act="friend-del" data-id="${esc(f.id)}">${S.confirm === 'fdel' + f.id ? 'Confirmer' : 'Retirer'}</button></div>`;
+  }
+  if (sh.type === 'incoming') {
+    const { msg, res } = sh;
+    if (!res) return x + '<h2>Lien illisible</h2><p class="note" style="margin:0">Ce lien Pied Léger est incomplet ou abîmé. Demande à ton ami de le renvoyer.</p>';
+    if (res.self) return x + '<h2>C’est ta propre carte</h2><p class="note" style="margin:0">Envoie-la à tes amis : quand ils l’ouvrent, tu apparais dans leur classement.</p>';
+    const needName = !P.set ? `<p class="note" style="margin:0">Choisis d’abord ton pseudo pour répondre.</p><button class="btn ghost" data-act="profile" style="width:100%">Choisir mon pseudo</button>` : '';
+    if (msg.k === 'c') {
+      const f = res.friend, ans = res.defi && res.defi.answer;
+      return `${x}<div class="hello">${avatar(f.a, 'big')}<div><b>${esc(f.n)}</b><small>${ans ? 'a relevé ton défi' : res.isNew ? 'rejoint ta bande' : 'a mis sa carte à jour'} · niveau ${f.lv}</small></div></div>
+        ${ans ? `<p class="lvup" style="margin:0">${esc(f.n)} a fait ${ans.s} (défi : plus de ${res.defi.target}).</p>` : ''}
+        <p class="note" style="margin:0">Dernier trajet : <b>${has(f.s) ? f.s : '—'}</b> · semaine : <b>${has(f.ws) ? f.ws : '—'}</b>${res.stale ? ' (tu avais déjà plus récent)' : ''}.</p>
+        ${(res.badges || []).length ? `<div class="medals">${res.badges.map(id => medal(id)).join('')}</div>` : ''}
+        ${needName}
+        <button class="btn" data-act="share-card">Envoyer ma carte en retour</button>
+        <button class="btn ghost" data-act="tab" data-tab="friends" style="width:100%">Voir le classement</button>`;
+    }
+    if (msg.k === 'd') {
+      const d = res.defi;
+      return `${x}<div class="hello">${avatar(d.from.a, 'big')}<div><b>${esc(d.from.n)} te défie</b><small>avant ${dayShort(d.until)}</small></div></div>
+        <p class="lvup" style="margin:0">Fais plus de ${d.target} sur un trajet d’au moins ${d.km} km. +100 XP si tu gagnes.</p>
+        ${d.status === 'expired' ? '<p class="note" style="margin:0">Ce défi est déjà expiré.</p>' : ''}
+        ${needName}
+        <button class="btn" data-act="tab" data-tab="drive">Relever le défi</button>`;
+    }
+    if (res.notMe) return `${x}<h2>Bravo pour quelqu’un d’autre</h2><p class="note" style="margin:0">Ce message de ${esc(msg.from.n)} était destiné à un autre ami.</p>`;
+    return `${x}<div class="hello">${avatar(msg.from.a, 'big')}<div><b>${esc(msg.from.n)} t’applaudit ${esc(msg.e)}</b><small>${has(msg.s) ? 'pour ton ' + msg.s : ''}</small></div></div><button class="btn" data-act="sheet-close">Merci</button>`;
+  }
+  return '';
+}
+function renderSheet() {
+  const el = $('#sheet');
+  if (!S.sheet) { el.innerHTML = ''; return; }
+  const keep = document.activeElement && document.activeElement.id === 'pf-name' ? $('#pf-name').value : null;
+  el.innerHTML = `<div class="sheet-wrap" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true"><div class="sheet-in">${sheetHTML()}</div></div></div>`;
+  if (keep !== null && $('#pf-name')) $('#pf-name').value = keep;
+}
+
+/* ---------- Liens reçus ---------- */
+function handleHash() {
+  const h = location.hash; if (!h || h.length < 4 || !/^#[cdk]=/.test(h)) return;
+  const msg = PG.decode(h);
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  const res = msg ? PG.receive(G, msg, me(), Date.now()) : null; save(K.game, G);
+  S.sheet = { type: 'incoming', msg, res }; render();
+}
+
+/* ---------- Rendu ---------- */
+function navDot() {
+  const n = G.feed.filter(f => f.type !== 'trip' && f.ts > (G.lastFriendsView || 0)).length, d = $('#nav-dot');
+  d.hidden = !n || S.tab === 'friends'; d.textContent = n > 9 ? '9+' : n;
+}
+function render() {
+  const driving = !!S.run; if (driving) S.tab = 'drive';
+  $('#app').classList.toggle('driving', driving); $('#nav').hidden = driving;
+  for (const k of ['drive', 'progress', 'friends', 'trips']) $('#view-' + k).hidden = S.tab !== k;
+  for (const b of document.querySelectorAll('.nav [data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === S.tab));
+  renderTop();
+  if (S.tab === 'drive') renderDrive(); else if (S.tab === 'progress') renderProgress(); else if (S.tab === 'friends') renderFriends(); else renderTrips();
+  renderSheet(); navDot();
+}
+
+/* ---------- Actions ---------- */
+document.addEventListener('click', ev => {
+  const tb = ev.target.closest('.nav [data-tab]');
+  if (tb) { S.tab = tb.dataset.tab; S.confirm = ''; S.opened = S.tab === 'trips' ? S.opened : null; window.scrollTo && window.scrollTo(0, 0); return render(); }
   const b = ev.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act, id = b.dataset.id;
-  if (act === 'go') { S.error = ''; startSensors(); }
-  else if (act === 'stop') finishRun();
-  else if (act === 'recal') { if (S.run) { S.run.engine.recalibrate(); updateLive(); } }
-  else if (act === 'open') { S.opened = id; S.confirm = ''; renderHistory(); }
-  else if (act === 'back') { S.opened = null; S.confirm = ''; renderHistory(); }
-  else if (act === 'del') {
-    if (S.confirm !== 'del' + id) { S.confirm = 'del' + id; return renderHistory(); }
-    trips = trips.filter(t => t.id !== id); saveTrips(trips); S.opened = null; S.confirm = ''; shown = trips[0] || null; renderHistory();
-  } else if (act === 'clear') {
-    if (S.confirm !== 'clear') { S.confirm = 'clear'; return renderHistory(); }
-    trips = []; saveTrips(trips); S.confirm = ''; shown = null; renderHistory();
+  if (act === 'sheet-bg') { if (ev.target === b && !(S.sheet && S.sheet.first)) { S.sheet = null; renderSheet(); } return; }
+  switch (act) {
+    case 'go': S.error = ''; say('C’est parti. Bonne route.'); startSensors(); break;
+    case 'stop': finishRun(); break;
+    case 'recal': if (S.run) { S.run.engine.recalibrate(); updateLive(); } break;
+    case 'tg': SET[b.dataset.key] = !SET[b.dataset.key]; save(K.set, SET); b.setAttribute('aria-pressed', String(SET[b.dataset.key])); if (b.dataset.key === 'voice' && SET.voice) say('Coach vocal activé.'); break;
+    case 'tab': S.tab = b.dataset.tab; S.sheet = null; S.opened = null; window.scrollTo && window.scrollTo(0, 0); render(); break;
+    case 'cele-close': S.cele = null; render(); break;
+    case 'open': S.tab = 'trips'; S.opened = id; S.confirm = ''; S.sheet = null; window.scrollTo && window.scrollTo(0, 0); render(); break;
+    case 'back': S.opened = null; S.confirm = ''; render(); break;
+    case 'del':
+      if (S.confirm !== 'del' + id) { S.confirm = 'del' + id; return render(); }
+      trips = trips.filter(t => t.id !== id); saveAll(); S.opened = null; S.confirm = ''; if (S.cele && S.cele.id === id) S.cele = null; render(); break;
+    case 'clear':
+      if (S.confirm !== 'clear') { S.confirm = 'clear'; return render(); }
+      trips = []; saveAll(); S.confirm = ''; S.cele = null; render(); break;
+    case 'profile': S.sheet = { type: 'profile', first: false }; renderSheet(); setTimeout(() => { const i = $('#pf-name'); if (i) i.focus(); }, 50); break;
+    case 'pick-av': S.sheet.av = b.dataset.av; renderSheet(); break;
+    case 'profile-save': {
+      const n = ($('#pf-name').value || '').replace(/[<>]/g, '').trim().slice(0, 24);
+      P = { ...P, n, a: S.sheet.av || P.a, set: !!n }; save(K.prof, P); S.sheet = null; render(); snack(n ? 'Profil enregistré' : 'Sans pseudo, tu apparais comme « Moi »'); break;
+    }
+    case 'sheet-close': S.sheet = null; S.confirm = ''; renderSheet(); break;
+    case 'badge': S.sheet = { type: 'badge', id }; renderSheet(); break;
+    case 'friend': S.sheet = { type: 'friend', id }; S.confirm = ''; renderSheet(); break;
+    case 'friend-del':
+      if (S.confirm !== 'fdel' + id) { S.confirm = 'fdel' + id; return renderSheet(); }
+      delete G.friends[id]; save(K.game, G); S.sheet = null; S.confirm = ''; render(); break;
+    case 'share-card': shareCard(); break;
+    case 'share-trip': { const t = trips.find(x => x.id === id); shareCard(null, t); break; }
+    case 'share-send': doShare(); break;
+    case 'share-copy': copyLink(); break;
+    case 'defi-new': S.defi.target = Math.max(50, Math.min(95, +b.dataset.score || 80)); S.sheet = { type: 'defi-new' }; renderSheet(); break;
+    case 'defi-opt': S.defi[b.dataset.k] = +b.dataset.v; renderSheet(); break;
+    case 'defi-create': { const nd = PG.newDefi(me(), S.defi.target, S.defi.km, Date.now()); G.defis.unshift(nd.local); save(K.game, G); shareDefi(nd.local); break; }
+    case 'defi-resend': { const d = G.defis.find(x => x.id === id); if (d) shareDefi(d); break; }
+    case 'defi-reply': shareCard(id); break;
+    case 'kudos': S.sheet = { type: 'friend', id }; renderSheet(); break;
+    case 'kudos-send': {
+      const f = G.friends[id]; if (!f) break;
+      const url = APP_URL + '#' + PG.encode('k', { from: me(), to: f.id, e: b.dataset.e, re: f.ts, s: f.s });
+      S.sheet = { type: 'share', kind: 'kudos', url, text: `${b.dataset.e} Bravo ${f.n}${has(f.s) ? ' pour ton ' + f.s : ''} !`, img: null, file: null };
+      renderSheet(); break;
+    }
   }
 });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.sheet && !S.sheet.first) { S.sheet = null; renderSheet(); } });
+window.addEventListener('hashchange', handleHash);
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!S.run) render(); }, 200); });
+
+if (!P.set && !/^#[cdk]=/.test(location.hash)) S.sheet = { type: 'profile', first: true };
 render();
+handleHash();
 })();
+
 </script>
 </body></html>

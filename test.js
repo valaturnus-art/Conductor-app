@@ -52,4 +52,24 @@ const csv = 't,ax,ay,az,speed,heading,gx,gy,gz\n' + rows.join('\n');
 const a = PL.analyzeRows(PL.parseCsv(csv), 'vent').summary();
 assert(Math.abs(a.score - sc('normal')) <= 2 && a.gyro, 'CSV avec gyroscope');
 const ms = PL.parseCsv(csv.replace(/\n(\d+\.?\d*),/g, (m, t) => '\n' + Math.round(t * 1000) + ',')); assert(ms.length === rows.length && ms[10].t < 1);
+
+// 5. Limitations, téléphone, éco-dynamisme.
+function drive(style, lim, touches = []) {
+  const e = new PL.Engine({ mount: 'vent' }), s = new PL.Sim({ style, seed: 7 }); let ti = 0;
+  while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az, o.gx, o.gy, o.gz); if (o.fix !== null) { if (lim) e.pushLimit(lim(o.t)); e.pushFix(o.tf, o.fix, o.heading); } if (ti < touches.length && o.t >= touches[ti]) { e.touch(); ti++; } }
+  e.finish(); return e;
+}
+{
+  const free = drive('normal', null).summary();
+  assert.strictEqual(free.axes.vitesse, null, 'sans limitation connue : pas d’axe vitesse'); assert.strictEqual(free.score, sc('normal'));
+  const slow = drive('normal', () => 50), ok = drive('normal', () => 130);
+  assert(slow.events.some(x => x.kind === 'speed' && x.sev === 2 && x.lim === 50), 'excès sévère en zone 50');
+  assert(slow.summary().axes.vitesse < 60 && slow.summary().score < free.score, 'axe vitesse pénalisé');
+  assert(!ok.events.some(x => x.kind === 'speed') && ok.summary().axes.vitesse >= 95, 'limite 130 : rien à redire');
+  const ph = drive('normal', null, [0.5, 100, 104, 160]), sp = ph.summary();
+  assert.strictEqual(sp.counts.phone, 2, 'à l’arrêt ignoré, 2 manipulations distinctes'); assert.strictEqual(sp.score, free.score - 16, '−8 points par manipulation');
+  const eco = k => R[k].summary().eco;
+  assert(eco('calm') && eco('rough') && eco('rough').ratio > eco('calm').ratio, 'éco-dynamisme : nerveux > posé');
+  console.log('vitesse (zone 50):', slow.summary().axes.vitesse, '| éco posé', JSON.stringify(eco('calm')), '| nerveux', eco('rough').ratio);
+}
 console.log('\nOK');

@@ -1,4 +1,4 @@
-/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). v2 : exigeant, gyroscope, volant, passages de vitesse. */
+/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
 const PL = (() => {
   'use strict';
   const G = 9.81, D2R = Math.PI / 180;
@@ -24,13 +24,18 @@ const PL = (() => {
     // Passage de vitesse : creux d'accélération en phase d'accélération (rupture de couple), puis reprise.
     shift: { minDepth: 0.8, preMin: 0.7, open: 0.4, recover: 0.3, maxFall: 1.0, maxDip: 2.0, harsh: 1.0, sev: 1.9, slope: 5, slopeSev: 9, reb: 0.9 },
     minKm: 3,
+    // Excès de vitesse (limite fournie par l'appli, OpenStreetMap) : tolérance des radars (5 km/h sous 100, 5 % au-delà),
+    // au moins 5 s ; sévère dès +20 km/h (seuil de la classe supérieure d'amende).
+    speed: { tol: 5, tolPct: 0.05, minS: 5, sev: 20, k: 1.2, share: [0.02, 0.2] },
+    // Téléphone manipulé en roulant (> 15 km/h) : écran touché ou téléphone déplacé ; une fois par 20 s ; −8 points chacun, 30 max.
+    phone: { minSpeed: 4.2, gap: 20, pen: 8, maxPen: 30 },
     phaseMin: 0.8, phaseTime: 8,
     // Intensité : percentile 90 de l'effort quand on freine / accélère / tourne (100 sous a, 0 au-delà de b).
     inten: { brake: [1.6, 4.0], accel: [1.2, 2.8], corner: [1.5, 3.6] },
     jerk: [0.4, 1.5], steer: [0.5, 1.8]
   };
   // Pondération des axes ; le score final mélange la moyenne et le plus faible axe (un point noir pèse).
-  const W = { freinage: .24, acceleration: .16, virages: .20, trajectoire: .20, fluidite: .20 };
+  const W = { freinage: .24, acceleration: .16, virages: .20, trajectoire: .20, fluidite: .20, vitesse: .22 };
   const AXIS_K = { freinage: 1.7, acceleration: 1.7, virages: 1.7, trajectoire: 1.3 };
 
   const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
@@ -66,6 +71,8 @@ const PL = (() => {
       this.latSign = 1; this.latAcc = 0; this.latN = 0; this.latCal = { sum: 0, den: 0, n: 0 }; this.prevHead = null;
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
+      this.limit = null; this.limDist = 0; this.overDist = 0; this.spd = null; this.phoneT = -1e9;
+      this.eco = { bins: new Float64Array(241), posT: 0, vaSum: 0, vSum: 0, vT: 0, brakeE: 0 };
       // Gyroscope : cap de la voiture (lacet), volant, redressements
       this.gyroOn = false; this.bias = 0; this.ySign = 1; this.ySum = 0; this.yF = 0; this.yawSlow = 0; this.yaw = 0; this.yawD = 0; this.yS1 = 0; this.yS2 = 0; this.yawShow = 0;
       this.ybuf = []; this.fx = null; this.fxLast = -9;
@@ -147,6 +154,7 @@ const PL = (() => {
         this.f = null; this.fSource = null; this.basis = null; this.gCal = u; this.open = {}; this.sg = null; this.sgPrev = null; this.dip = null; this.fx = null;
         this.status = 'calibrating'; this.recalCount++;
         if (this.ventOk) this._applyPrior(u);
+        this._phone(ts, 'move');
       }
       if (!this.basis || dot(u, this.basis.u) < 0.996) this._newBasis(u);
 
@@ -264,6 +272,7 @@ const PL = (() => {
         const dtf = ts - this.fix.t;
         if (dtf > 0.2 && dtf < 5) {
           this.dist += (v + this.fix.v) / 2 * dtf;
+          this._fixExtras(ts, v, dtf);
           const a = (v - this.fix.v) / dtf;
           if (this.basis && this.hN > 0 && Math.abs(a) >= 0.4) {
             const hm = [this.hAcc[0] / this.hN, this.hAcc[1] / this.hN], c = this.cal;
@@ -299,6 +308,55 @@ const PL = (() => {
         this.prevHead = { t: ts, h: heading, v };
       } else this.prevHead = null;
       this.fix = { t: ts, v }; this.speed = v; this.hAcc = [0, 0]; this.hN = 0; this.latAcc = 0; this.latN = 0;
+    }
+
+    /** Limitation de vitesse de la route en cours (km/h), ou null si inconnue. */
+    pushLimit(kmh) { this.limit = fin(kmh) && kmh > 0 ? kmh : null; if (!this.limit) this._closeSpeed(); }
+    /** Écran touché par le conducteur : compte comme manipulation si la voiture roule. */
+    touch() { return this._phone(this.t, 'touch'); }
+    _phone(ts, src) {
+      const c = CFG.phone, v = this.speed;
+      if (v === null || v < c.minSpeed) return false;
+      const fresh = ts - this.phoneT >= c.gap; this.phoneT = ts;
+      if (!fresh) return false;
+      this._push({ kind: 'phone', t: ts, v: v * 3.6, src, sev: 2, peak: 0 }, true);
+      return true;
+    }
+    _fixExtras(ts, v, dtf) {
+      const vm = (v + this.fix.v) / 2, E = this.eco;
+      // vitesse GPS lissée (τ 1 s) avant dérivation, comme le lissage de la méthode RDE
+      const vs = E.vs === undefined ? v : E.vs + (v - E.vs) * (1 - Math.exp(-dtf / 1)), a = E.vs === undefined ? 0 : (vs - E.vs) / dtf; E.vs = vs;
+      // Éco-dynamisme, méthode RDE (règlement UE 2017/1151) : v·a+ (a > 0,1 m/s²), 95e centile et RPA.
+      if (vm > 1) {
+        E.vSum += vm * dtf; E.vT += dtf;
+        if (a > 0.1) { const va = vm * a; E.bins[Math.min(240, Math.floor(va / 0.25))] += dtf; E.posT += dtf; E.vaSum += va * dtf; }
+      }
+      if (a < 0) E.brakeE += (this.fix.v * this.fix.v - v * v) / 2;
+      if (this.limit) {
+        this.limDist += vm * dtf;
+        const kmh = v * 3.6, c = CFG.speed, tol = Math.max(c.tol, this.limit * c.tolPct), ex = kmh - this.limit;
+        if (ex > tol) {
+          this.overDist += vm * dtf;
+          let o = this.spd;
+          if (!o) o = this.spd = { kind: 'speed', t: ts, end: ts, peak: ex, v: kmh, lim: this.limit, sev: 1, pushed: false };
+          o.end = ts; if (ex > o.peak) { o.peak = ex; o.v = kmh; o.lim = this.limit; }
+          o.sev = o.peak >= c.sev ? 2 : 1;
+          // Annoncé dès qu'il dure 5 s : l'objet de la liste est mis à jour ensuite (même événement en direct et au bilan).
+          if (!o.pushed && o.end - o.t >= c.minS) { o.pushed = true; this._push(o, true); }
+        } else if (ex < tol - 2) this._closeSpeed();
+      } else this._closeSpeed();
+    }
+    _closeSpeed() { const o = this.spd; if (!o) return; this.spd = null; if (o.pushed) { delete o.pushed; this._bad(this.t); } }
+    _ecoSummary() {
+      const E = this.eco; if (E.vT < 30 || E.posT < 10 || this.dist < 500) return null;
+      const vAvg = E.vSum / E.vT * 3.6;
+      let c = 0, va95 = 0; for (let i = 0; i < 241; i++) { c += E.bins[i]; if (c >= 0.95 * E.posT) { va95 = (i + 0.5) * 0.25; break; } }
+      const vaMax = vAvg <= 74.6 ? 0.136 * vAvg + 14.44 : 0.0742 * vAvg + 18.966;
+      const rpa = E.vaSum / this.dist, rpaMin = vAvg <= 94.05 ? -0.0016 * vAvg + 0.1755 : 0.025;
+      const ratio = va95 / vaMax;
+      return { va95: Math.round(va95 * 10) / 10, vaMax: Math.round(vaMax * 10) / 10, rpa: Math.round(rpa * 1000) / 1000, rpaMin: Math.round(rpaMin * 1000) / 1000,
+        vAvg: Math.round(vAvg), ratio: Math.round(ratio * 100) / 100, score: Math.round(100 * lin(ratio, 0.5, 1.1)),
+        brakeWhKm: Math.round(E.brakeE / 3600 / Math.max(this.dist / 1000, 0.1) * 1300 * 10) / 10 };
     }
 
     _bin(k, x, dt) { this.bins[k][Math.min(NB - 1, Math.floor(x / BIN))] += dt; this.phaseT[k] += dt; }
@@ -454,7 +512,7 @@ const PL = (() => {
       if (this.sg) { this._endSeg(this.sg); this.sg = null; }
       if (this.fxQ) { const q = this.fxQ; this.fxQ = null; this._push(q, true); }
       if (this.shiftPend) { const p = this.shiftPend; this.shiftPend = null; this._endShift(p); }
-      this._closeShock(this.t);
+      this._closeShock(this.t); this._closeSpeed();
       return this.summary();
     }
 
@@ -477,10 +535,19 @@ const PL = (() => {
         acceleration: mix(expo(wsum(e => e.kind === 'accel'), AXIS_K.acceleration), inten('accel')),
         virages: mix(expo(wsum(e => e.kind === 'corner'), AXIS_K.virages), inten('corner')),
         trajectoire: mix(expo(wsum(e => e.kind === 'swerve' || e.kind === 'fix'), AXIS_K.trajectoire), Rv),
-        fluidite: Math.round(Sh === null ? J : 0.65 * J + 0.35 * Sh)
+        fluidite: Math.round(Sh === null ? J : 0.65 * J + 0.35 * Sh),
+        vitesse: null
       };
-      let wm = 0, mn = 100; for (const k in W) { wm += axes[k] * W[k]; mn = Math.min(mn, axes[k]); }
-      const score = Math.round(0.7 * wm + 0.3 * mn);
+      // Vitesse : seulement si la limitation est connue sur au moins 0,5 km et 30 % du trajet.
+      const limKm = this.limDist / 1000, overShare = this.limDist > 0 ? this.overDist / this.limDist : 0;
+      if (limKm >= 0.5 && this.limDist >= 0.3 * this.dist) {
+        const sw = wsum(e => e.kind === 'speed'), c = CFG.speed;
+        axes.vitesse = mix(100 * Math.exp(-(sw / Math.max(limKm, CFG.minKm)) / c.k), 100 * lin(overShare, c.share[0], c.share[1]));
+      }
+      let wm = 0, ws = 0, mn = 100; for (const k in W) { if (axes[k] === null) continue; wm += axes[k] * W[k]; ws += W[k]; mn = Math.min(mn, axes[k]); }
+      wm /= ws;
+      const nPhone = cnt(e => e.kind === 'phone'), phonePen = Math.min(CFG.phone.maxPen, CFG.phone.pen * nPhone);
+      const score = Math.max(0, Math.round(0.7 * wm + 0.3 * mn) - phonePen);
       const moving = this.movingS;
       return {
         score, axes, km, durationS: this.t, movingS: moving,
@@ -488,8 +555,9 @@ const PL = (() => {
         counts: {
           brake: cnt(e => e.kind === 'brake'), late: cnt(e => e.late), accel: cnt(e => e.kind === 'accel'), corner: cnt(e => e.kind === 'corner'),
           swerve: cnt(e => e.kind === 'swerve'), fix: cnt(e => e.kind === 'fix'), shift: nShift, shiftHarsh: cnt(e => e.kind === 'shift'),
-          shock: cnt(e => e.kind === 'shock'), fast: cnt(e => e.fast)
+          shock: cnt(e => e.kind === 'shock'), fast: cnt(e => e.fast), speed: cnt(e => e.kind === 'speed'), phone: nPhone
         },
+        phonePen, speedShare: Math.round(overShare * 1000) / 1000, limKm: Math.round(limKm * 10) / 10, eco: this._ecoSummary(),
         jerkRms: rms, steerRms, gyro: this.gyroOn, coverage: this.t > 5 ? clamp(1 - this.gapS / this.t, 0, 1) : 1,
         streakBest: Math.max(this.bestStreak, this.moveStart === null ? 0 : this.t - this.lastBadT),
         p90: { brake: this._p90('brake'), accel: this._p90('accel'), corner: this._p90('corner') }
