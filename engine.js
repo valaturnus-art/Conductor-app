@@ -1,0 +1,303 @@
+/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). */
+const PL = (() => {
+  'use strict';
+  const G = 9.81;
+  const CFG = {
+    brake:  { mod: 2.9, sev: 4.4 },   // m/s², freinage brusque (~0,3 g)
+    accel:  { mod: 2.5, sev: 3.5 },   // accélération vive
+    corner: { mod: 2.8, sev: 4.0 },   // accélération latérale en virage
+    minEventS: 0.3, minCornerSpeed: 3, stopSpeed: 0.5, movingSpeed: 1,
+    lpHz: 1.5, hysteresis: 0.7
+  };
+  const W = { freinage: .28, virages: .22, acceleration: .18, vitesse: .20, fluidite: .12 };
+
+  const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  const cross = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  const unit = a => { const n = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0]/n, a[1]/n, a[2]/n]; };
+  const madd = (a, s, b) => [a[0]+s*b[0], a[1]+s*b[1], a[2]+s*b[2]];
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+
+  class Engine {
+    constructor(opts = {}) { this.limitKmh = opts.limitKmh || 90; this.reset(); }
+
+    reset() {
+      this.t0 = null; this.tPrev = null; this.t = 0;
+      this.g = null; this.gBuf = []; this.gCal = null;
+      this.speed = null; this.fix = null; this.dist = 0;
+      this.movingS = 0; this.overS = 0; this.over10S = 0; this.maxV = 0;
+      this.basis = null; this.f = null;
+      this.cal = { n: 0, sx: 0, sy: 0, den: 0 };
+      this.hAcc = [0, 0]; this.hN = 0;
+      this.fl = [0, 0, 0, 0];
+      this.aLong = 0; this.aLat = 0;
+      this.open = {}; this.events = [];
+      this.series = []; this.nextSeriesT = 0;
+      this.trail = []; this.nextTrailT = 0;
+      this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
+      this.recalCount = 0;
+      this.status = 'init'; // init -> calibrating -> ready
+    }
+
+    _newBasis(u) {
+      const a = Math.abs(u[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+      const e1 = unit(madd(a, -dot(a, u), u));
+      this.basis = { u, e1, e2: cross(u, e1) };
+      this.cal = { n: 0, sx: 0, sy: 0, den: 0 };
+      this.hAcc = [0, 0]; this.hN = 0;
+    }
+
+    /** Accéléromètre, gravité incluse (m/s²), t en secondes. */
+    pushMotion(t, ax, ay, az) {
+      if (this.t0 === null) this.t0 = t;
+      const ts = t - this.t0;
+      const dt = this.tPrev === null ? 0.02 : clamp(t - this.tPrev, 0.001, 0.2);
+      this.tPrev = t; this.t = ts;
+      const r = [ax, ay, az];
+
+      // 1. Gravité : moyenne initiale, puis suivi lent (rapide à l'arrêt).
+      if (!this.g) {
+        this.gBuf.push(r);
+        if (this.gBuf.length >= 25) {
+          const s = [0, 0, 0];
+          for (const v of this.gBuf) { s[0] += v[0]; s[1] += v[1]; s[2] += v[2]; }
+          this.g = [s[0]/25, s[1]/25, s[2]/25]; this.gBuf = null;
+          this.gCal = unit(this.g); this.status = 'calibrating';
+        }
+        return;
+      }
+      const stopped = this.speed !== null && this.speed < CFG.stopSpeed;
+      const kg = 1 - Math.exp(-dt / (stopped ? 1 : 40));
+      for (let i = 0; i < 3; i++) this.g[i] += (r[i] - this.g[i]) * kg;
+      const u = unit(this.g);
+
+      // Téléphone déplacé : on oublie l'axe avant et on recalibre.
+      if (this.f && dot(u, this.gCal) < 0.94) {
+        this.f = null; this.basis = null; this.gCal = u; this.open = {};
+        this.status = 'calibrating'; this.recalCount++;
+      }
+      if (!this.f && (!this.basis || dot(u, this.basis.u) < 0.996)) this._newBasis(u);
+
+      // 2. Accélération linéaire et projection sur les axes du véhicule.
+      const lin = [r[0]-this.g[0], r[1]-this.g[1], r[2]-this.g[2]];
+      if (!this.f) {
+        this.hAcc[0] += dot(lin, this.basis.e1); this.hAcc[1] += dot(lin, this.basis.e2); this.hN++;
+      }
+      let aL = 0, aT = 0;
+      if (this.f) {
+        const fp = unit(madd(this.f, -dot(this.f, u), u));
+        aL = dot(lin, fp); aT = dot(lin, cross(u, fp));
+      }
+      const al = 1 - Math.exp(-2 * Math.PI * CFG.lpHz * dt), F = this.fl;
+      F[0] += al * (aL - F[0]); F[1] += al * (F[0] - F[1]);
+      F[2] += al * (aT - F[2]); F[3] += al * (F[2] - F[3]);
+      this.aLong = F[1]; this.aLat = F[3];
+
+      // 3. Temps cumulés selon la vitesse GPS.
+      const v = this.speed;
+      if (v !== null) {
+        const kmh = v * 3.6;
+        if (v > CFG.movingSpeed) this.movingS += dt;
+        if (kmh > this.limitKmh) this.overS += dt;
+        if (kmh > this.limitKmh + 10) this.over10S += dt;
+        if (kmh > this.maxV) this.maxV = kmh;
+      }
+
+      // 4. Événements.
+      if (this.f && v !== null) {
+        this._detect('brake', -this.aLong, v, ts);
+        this._detect('accel', this.aLong, v, ts);
+        if (v >= CFG.minCornerSpeed) this._detect('corner', Math.abs(this.aLat), v, ts);
+        else this._close('corner', ts);
+      }
+
+      // 5. Séries pour l'affichage et la fluidité (à-coups à 2 Hz).
+      if (ts >= this.nextSeriesT) { this.series.push({ t: Math.round(ts), v: (v || 0) * 3.6 }); this.nextSeriesT = ts + 1; }
+      if (ts >= this.nextTrailT) {
+        this.trail.push([this.aLat, this.aLong]); if (this.trail.length > 40) this.trail.shift();
+        this.nextTrailT = ts + 0.1;
+      }
+      if (this.tickT === null) { this.tickT = ts; this.prevA = [this.aLong, this.aLat]; }
+      else if (ts - this.tickT >= 0.5) {
+        const d = ts - this.tickT;
+        if (this.f && v !== null && v > 2) {
+          const jl = (this.aLong - this.prevA[0]) / d, jt = (this.aLat - this.prevA[1]) / d;
+          this.jerkSq += (jl*jl + jt*jt) * d; this.jerkT += d;
+        }
+        this.tickT = ts; this.prevA = [this.aLong, this.aLat];
+      }
+    }
+
+    /** Vitesse GPS (m/s). Sert aussi à trouver l'axe avant du véhicule. */
+    pushFix(t, v) {
+      if (this.t0 === null) this.t0 = t;
+      const ts = t - this.t0;
+      if (this.fix) {
+        const dtf = ts - this.fix.t;
+        if (dtf > 0.2 && dtf < 5) {
+          this.dist += (v + this.fix.v) / 2 * dtf;
+          const a = (v - this.fix.v) / dtf;
+          if (this.basis && !this.f && this.hN > 0 && Math.abs(a) >= 0.4) {
+            const hm = [this.hAcc[0] / this.hN, this.hAcc[1] / this.hN], c = this.cal;
+            c.sx += hm[0] * a; c.sy += hm[1] * a; c.den += Math.hypot(hm[0], hm[1]) * Math.abs(a); c.n++;
+            const m = Math.hypot(c.sx, c.sy);
+            if (c.n >= 6 && c.den > 1 && m / c.den >= 0.75) {
+              const b = this.basis;
+              this.f = unit([
+                (c.sx*b.e1[0] + c.sy*b.e2[0]) / m,
+                (c.sx*b.e1[1] + c.sy*b.e2[1]) / m,
+                (c.sx*b.e1[2] + c.sy*b.e2[2]) / m
+              ]);
+              this.status = 'ready';
+            }
+          }
+        }
+      }
+      this.fix = { t: ts, v }; this.speed = v; this.hAcc = [0, 0]; this.hN = 0;
+    }
+
+    _detect(kind, x, v, ts) {
+      const th = CFG[kind]; let o = this.open[kind];
+      if (x >= th.mod) {
+        if (!o) this.open[kind] = { t0: ts, peak: x, tPeak: ts, v: v * 3.6 };
+        else if (x > o.peak) { o.peak = x; o.tPeak = ts; o.v = v * 3.6; }
+      } else if (o && x < th.mod * CFG.hysteresis) this._close(kind, ts);
+    }
+    _close(kind, ts) {
+      const o = this.open[kind]; if (!o) return;
+      delete this.open[kind];
+      if (ts - o.t0 < CFG.minEventS) return;
+      this.events.push({
+        kind, t: o.tPeak, peak: o.peak, v: o.v, dur: ts - o.t0,
+        sev: o.peak >= CFG[kind].sev ? 2 : 1
+      });
+      this.events.sort((a, b) => a.t - b.t);
+    }
+
+    finish() { for (const k of Object.keys(this.open)) this._close(k, this.t); return this.summary(); }
+
+    summary() {
+      const km = this.dist / 1000, base = Math.max(km, 2);
+      const wsum = k => this.events.reduce((s, e) => e.kind === k ? s + (e.sev === 2 ? 2.5 : 1) : s, 0);
+      const expo = (k, kk) => Math.round(100 * Math.exp(-(wsum(k) / base) / kk));
+      const moving = this.movingS;
+      const ro = moving > 5 ? this.overS / moving : 0, r10 = moving > 5 ? this.over10S / moving : 0;
+      const rms = this.jerkT > 5 ? Math.sqrt(this.jerkSq / this.jerkT) : null;
+      const axes = {
+        freinage: expo('brake', 1.2),
+        virages: expo('corner', 1.2),
+        acceleration: expo('accel', 1.4),
+        vitesse: Math.round(clamp(100 - 200 * (ro + r10), 0, 100)),
+        fluidite: rms === null ? 100 : Math.round(100 * clamp(1 - (rms - 0.4) / 1.2, 0, 1))
+      };
+      let score = 0; for (const k in W) score += axes[k] * W[k];
+      const cnt = k => this.events.filter(e => e.kind === k).length;
+      return {
+        score: Math.round(score), axes, km, durationS: this.t, movingS: moving,
+        avgKmh: moving > 5 ? km / (moving / 3600) : 0, maxKmh: this.maxV,
+        counts: { brake: cnt('brake'), accel: cnt('accel'), corner: cnt('corner') },
+        overRatio: ro, jerkRms: rms
+      };
+    }
+  }
+
+  /* ---------- Simulateur : trajet de démonstration, téléphone orienté au hasard ---------- */
+  const mulberry32 = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const TR = 1.0;
+  const smooth = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+  const pulse = (t, p) => {
+    const tau = t - p.t0; if (tau < 0 || tau > p.d) return 0;
+    const tr = Math.min(TR, p.d / 2);
+    return p.a * Math.min(smooth(tau / tr), smooth((p.d - tau) / tr));
+  };
+  // [début s, durée s, accélération m/s², brusque?]
+  const LONG = [[8,10,1.5,0],[40,4,-1.5,0],[46,6,1.8,0],[75,4,1.4,0],[95,5,-1.4,0],[110,3,2.9,1],
+                [150,2.6,-4.8,1],[158,8,1.2,0],[200,3,-3.2,1],[210,8,1.4,2]].map(([t0,d,a,h]) => ({t0,d,a,h}));
+  const LAT = [[41,4,2.0,0],[100,3.5,-3.3,1],[120,4,1.6,0],[170,3.5,3.4,1],[204,4,2.2,0]].map(([t0,d,a,h]) => ({t0,d,a,h}));
+  // Facteurs par type d'impulsion : 0 = normale, 1 = brusque, 2 = prise de vitesse.
+  const STYLE = { calm: [1, 0.5, 0.75], normal: [1, 1, 1], rough: [1.1, 1.3, 1.1] };
+  const scaleP = (p, k) => p.h === 1 && k < 1
+    ? { t0: p.t0, d: (p.d - TR) / k + TR, a: p.a * k }   // même vitesse gagnée ou perdue, plus doucement
+    : { t0: p.t0, d: p.d, a: p.a * k };
+  const rot = (yaw, pitch, roll) => {
+    const c = Math.cos, s = Math.sin;
+    const Rz = [[c(yaw),-s(yaw),0],[s(yaw),c(yaw),0],[0,0,1]];
+    const Rx = [[1,0,0],[0,c(pitch),-s(pitch)],[0,s(pitch),c(pitch)]];
+    const Ry = [[c(roll),0,s(roll)],[0,1,0],[-s(roll),0,c(roll)]];
+    const mm = (A, B) => A.map(row => [0,1,2].map(j => row[0]*B[0][j] + row[1]*B[1][j] + row[2]*B[2][j]));
+    return mm(Rz, mm(Rx, Ry));
+  };
+
+  class Sim {
+    constructor({ style = 'normal', seed = 7 } = {}) {
+      this.rng = mulberry32(seed);
+      const k = STYLE[style] || STYLE.normal;
+      this.long = LONG.map(p => scaleP(p, k[p.h])); this.lat = LAT.map(p => scaleP(p, k[p.h]));
+      this.R = rot(2.53, -1.08, 0.12);          // téléphone sur support, de travers
+      this.dt = 0.02; this.t = 0; this.v = 0; this.nextFix = 1; this.stopAt = null; this.done = false;
+    }
+    _n(s) { const r = this.rng; return s * Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
+    step() {
+      const t = this.t, dt = this.dt;
+      let a = 0; for (const p of this.long) a += pulse(t, p);
+      if (t >= 250) a -= smooth((t - 250) / 1.5) * Math.min(1.6, 0.35 * this.v + 0.15);
+      const vNew = Math.max(0, this.v + a * dt), aReal = (vNew - this.v) / dt; this.v = vNew;
+      let lat = 0; for (const p of this.lat) lat += pulse(t, p);
+      lat *= Math.min(1, this.v / 5);
+      const m = this.v > 0.5 ? 1 : 0.1, tw = 2 * Math.PI * t;
+      const vib = j => 0.22 * m * (Math.sin(tw * 11 + j) + 0.6 * Math.sin(tw * 17 + 2 * j));
+      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08), G + vib(2.1) + this._n(0.08)];
+      const R = this.R;
+      const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), fix: null, tf: t + dt };
+      this.t += dt;
+      if (this.t >= this.nextFix) { this.nextFix += 1; out.fix = Math.max(0, this.v + this._n(0.12)); }
+      if (this.t > 252 && this.v < 0.02) { if (this.stopAt === null) this.stopAt = this.t; if (this.t - this.stopAt >= 5) this.done = true; }
+      return out;
+    }
+    get progress() { return Math.min(1, this.t / 270); }
+  }
+
+  /* ---------- Import CSV : t, ax, ay, az, speed ---------- */
+  function parseCsv(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length) return [];
+    const delim = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';
+    const split = l => l.split(delim).map(s => s.trim().replace(/^"|"$/g, ''));
+    let idx = { t: 0, ax: 1, ay: 2, az: 3, speed: 4 }, start = 0;
+    const head = split(lines[0]);
+    if (head.some(h => /[a-z]/i.test(h))) {
+      start = 1;
+      const find = names => head.findIndex(h => names.includes(h.toLowerCase().replace(/[^a-z]/g, '')));
+      const f = { t: find(['t','time','timestamp','seconds']), ax: find(['ax','x']), ay: find(['ay','y']),
+                  az: find(['az','z']), speed: find(['speed','v','vitesse']) };
+      for (const k in f) if (f[k] >= 0) idx[k] = f[k]; else if (k !== 'speed') idx[k] = idx[k];
+      if (f.speed < 0) idx.speed = -1;
+    }
+    const num = s => { if (s === undefined || s === '') return null; const x = parseFloat(delim === ';' ? s.replace(',', '.') : s); return Number.isFinite(x) ? x : null; };
+    const rows = [];
+    for (let i = start; i < lines.length; i++) {
+      const c = split(lines[i]);
+      const t = num(c[idx.t]), ax = num(c[idx.ax]), ay = num(c[idx.ay]), az = num(c[idx.az]);
+      if (t === null || ax === null || ay === null || az === null) continue;
+      rows.push({ t, ax, ay, az, speed: idx.speed >= 0 ? num(c[idx.speed]) : null });
+    }
+    if (rows.length > 3) {
+      const ds = []; for (let i = 1; i < Math.min(rows.length, 200); i++) ds.push(rows[i].t - rows[i-1].t);
+      ds.sort((a, b) => a - b); const med = ds[ds.length >> 1];
+      const sc = med > 5e5 ? 1e-9 : med > 0.5 ? 1e-3 : 1;
+      if (sc !== 1) for (const r of rows) r.t *= sc;
+    }
+    return rows;
+  }
+  function analyzeRows(rows, limitKmh) {
+    const e = new Engine({ limitKmh });
+    for (const r of rows) { e.pushMotion(r.t, r.ax, r.ay, r.az); if (r.speed !== null) e.pushFix(r.t, r.speed); }
+    e.finish(); return e;
+  }
+  function runSim(style, limitKmh, seed) {
+    const e = new Engine({ limitKmh }), s = new Sim({ style, seed }), rows = [];
+    while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix); }
+    e.finish(); return e;
+  }
+  return { Engine, Sim, CFG, parseCsv, analyzeRows, runSim, rot, dot };
+})();
+if (typeof module !== 'undefined') module.exports = PL;

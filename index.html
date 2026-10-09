@@ -1,0 +1,780 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0C1318"><title>Pied Léger</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : une colonne mobile (560 px max), onglets Conduite / Historique, bilan en une fiche. */
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --ink:#13202B; --muted:#566676; --line:#D3DAE1; --soft:#E4E9EE;
+  --accent:#0A6C88; --accent-ink:#FFFFFF;
+  --good:#1C8A4B; --warn:#A96A12; --bad:#C23B32; --bad-ink:#FFFFFF;
+  --k-brake:#C23B32; --k-accel:#B7791F; --k-corner:#4F5BD5;
+  --font-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --font-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-data:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1318; --surface:#141D25; --ink:#E5ECF1; --muted:#8C9CAA; --line:#26333E; --soft:#1B2731;
+  --accent:#43C1DD; --accent-ink:#06222B;
+  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08;
+  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C1318; --surface:#141D25; --ink:#E5ECF1; --muted:#8C9CAA; --line:#26333E; --soft:#1B2731;
+  --accent:#43C1DD; --accent-ink:#06222B;
+  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08;
+  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--font-body);-webkit-text-size-adjust:100%}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:560px;margin-inline:auto;padding-inline:16px;padding-block:20px 56px;display:flex;flex-direction:column;gap:16px}
+.top h1{margin:0;font:700 30px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
+.top p{margin:6px 0 0;color:var(--muted)}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;padding:10px 0;margin-bottom:-1px;font:500 15px var(--font-body);color:var(--muted);border-bottom:2px solid transparent;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+h2{margin:0;font:600 24px/1.15 var(--font-display);letter-spacing:.01em;text-wrap:balance}
+h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lbl{display:block;margin:16px 0 6px;font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hint{margin:6px 0 0;color:var(--muted);font-size:13px}
+.seg{display:flex;gap:2px;padding:3px;background:var(--soft);border-radius:10px}
+.seg button{flex:1;min-width:0;padding:8px 6px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:500 14px var(--font-body);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.btn{display:block;width:100%;padding:14px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:600 16px var(--font-body);text-align:center;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:var(--soft);color:var(--ink);padding:10px 14px;font-size:14px;width:auto;display:inline-block}
+.btn.stop{background:var(--bad);color:var(--bad-ink)}
+.btn.link{background:none;color:var(--muted);padding:8px 0;font-size:14px;font-weight:500;text-decoration:underline;text-underline-offset:3px;width:auto;display:inline-block}
+.sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.filerow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filerow:focus-within .btn.ghost{outline:2px solid var(--accent);outline-offset:2px}
+.filename{color:var(--muted);font:400 13px var(--font-data);overflow-wrap:anywhere;min-width:0}
+.err{margin-top:14px;padding:10px 12px;border:1px solid var(--bad);border-radius:10px;background:var(--soft);font-size:14px}
+.note{margin:12px 0 0;color:var(--muted);font-size:13px}
+.go{margin-top:18px}
+
+/* score */
+.b-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ring{position:relative;width:132px;height:132px;flex:none}
+.ring svg{display:block;transform:rotate(-90deg)}
+.ring .tr{stroke:var(--soft)}
+.ring .pg{transition:stroke-dashoffset .25s}
+.rc-good{stroke:var(--good)} .rc-warn{stroke:var(--warn)} .rc-bad{stroke:var(--bad)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 60px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.b-meta{flex:1;min-width:170px}
+.eyebrow{margin:0 0 4px;color:var(--muted);font:400 12px var(--font-data)}
+.stats{display:grid;grid-template-columns:repeat(2,auto);justify-content:start;gap:8px 22px;margin:12px 0 0}
+.stats dt{font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stats dd{margin:0;font:500 14px var(--font-data);font-variant-numeric:tabular-nums}
+.sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.tip{margin:0;padding:10px 12px;background:var(--soft);border-radius:10px;font-size:14px}
+
+/* axes */
+.axis{display:grid;grid-template-columns:minmax(88px,108px) 1fr 34px;align-items:center;gap:10px;padding:5px 0}
+.axis .bar{height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
+.axis .bar i{display:block;height:100%;border-radius:4px;transition:width .2s}
+.axis .v{text-align:right;font:500 14px var(--font-data);font-variant-numeric:tabular-nums}
+.g-good{background:var(--good)} .g-warn{background:var(--warn)} .g-bad{background:var(--bad)}
+
+/* événements */
+.evs{list-style:none;margin:0;padding:0}
+.ev{display:grid;grid-template-columns:14px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.ev:first-child{border-top:0}
+.ev b{display:block;font-weight:600}
+.ev small{color:var(--muted);font:400 12px var(--font-data)}
+.ev time{color:var(--muted);font:400 12px var(--font-data);font-variant-numeric:tabular-nums}
+.sev{padding:2px 7px;border:1px solid;border-radius:99px;font:600 11px var(--font-body);letter-spacing:.06em;text-transform:uppercase}
+.sev1{color:var(--warn)} .sev2{color:var(--bad)}
+.mk{display:inline-block;width:12px;height:12px;justify-self:center}
+.mk.brake{background:var(--k-brake);border-radius:50%}
+.mk.accel{background:var(--k-accel);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.mk.corner{background:var(--k-corner);transform:rotate(45deg) scale(.78)}
+.empty{margin:0;color:var(--muted)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:13px}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+
+/* graphiques */
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font:400 11px var(--font-data);fill:var(--muted)}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.chart .ar{fill:var(--accent);opacity:.12}
+.chart .lim{stroke:var(--warn);stroke-width:1.5;stroke-dasharray:5 4}
+.chart .lt{fill:var(--warn)}
+.chart .m-brake{fill:var(--k-brake)} .chart .m-accel{fill:var(--k-accel)} .chart .m-corner{fill:var(--k-corner)}
+.chart .m{stroke:var(--surface);stroke-width:1.5}
+.gg{display:block;width:100%;max-width:300px;aspect-ratio:1/1;margin:14px auto 4px}
+
+/* direct */
+.live-top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.speed{font:700 54px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.speed small{font:500 14px var(--font-data);color:var(--muted);margin-left:4px}
+.trip-line{margin:8px 0 0;font:400 13px var(--font-data);color:var(--muted)}
+.status{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:5px 11px;border-radius:99px;background:var(--soft);font-size:13px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.status.ok i{background:var(--good)}
+
+/* historique */
+.trips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.trips li{border-top:1px solid var(--line)}
+.trips li:first-child{border-top:0}
+.trip{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:12px 0;background:none;border:0;color:inherit;text-align:left;cursor:pointer}
+.badge{display:grid;place-items:center;height:46px;border:2px solid;border-radius:10px;font:700 22px var(--font-display);font-variant-numeric:tabular-nums}
+.bd-good{color:var(--good)} .bd-warn{color:var(--warn)} .bd-bad{color:var(--bad)}
+.trip b{display:block;font-weight:600}
+.trip small{color:var(--muted);font:400 12px var(--font-data)}
+.chev{color:var(--muted);font-size:20px}
+.back{align-self:flex-start;padding:4px 0}
+.spark{display:block;width:100%;height:auto;overflow:visible}
+.spark .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.spark .dt{fill:var(--accent)}
+.spark text{font:400 11px var(--font-data);fill:var(--muted)}
+.spark .gl{stroke:var(--line)}
+
+@media (prefers-reduced-motion: reduce){.ring .pg,.axis .bar i{transition:none}}
+</style>
+
+<main class="app" id="app">
+  <header class="top">
+    <h1>Pied Léger</h1>
+    <p>La qualité de ta conduite, mesurée par les capteurs du téléphone.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-drive" data-tab="drive" aria-selected="true">Conduite</button>
+    <button role="tab" id="tab-history" data-tab="history" aria-selected="false">Historique</button>
+  </nav>
+  <section id="view-drive" class="stack" aria-labelledby="tab-drive"></section>
+  <section id="view-history" class="stack" aria-labelledby="tab-history" hidden></section>
+</main>
+
+<script>
+/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). */
+const PL = (() => {
+  'use strict';
+  const G = 9.81;
+  const CFG = {
+    brake:  { mod: 2.9, sev: 4.4 },   // m/s², freinage brusque (~0,3 g)
+    accel:  { mod: 2.5, sev: 3.5 },   // accélération vive
+    corner: { mod: 2.8, sev: 4.0 },   // accélération latérale en virage
+    minEventS: 0.3, minCornerSpeed: 3, stopSpeed: 0.5, movingSpeed: 1,
+    lpHz: 1.5, hysteresis: 0.7
+  };
+  const W = { freinage: .28, virages: .22, acceleration: .18, vitesse: .20, fluidite: .12 };
+
+  const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+  const cross = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  const unit = a => { const n = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0]/n, a[1]/n, a[2]/n]; };
+  const madd = (a, s, b) => [a[0]+s*b[0], a[1]+s*b[1], a[2]+s*b[2]];
+  const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+
+  class Engine {
+    constructor(opts = {}) { this.limitKmh = opts.limitKmh || 90; this.reset(); }
+
+    reset() {
+      this.t0 = null; this.tPrev = null; this.t = 0;
+      this.g = null; this.gBuf = []; this.gCal = null;
+      this.speed = null; this.fix = null; this.dist = 0;
+      this.movingS = 0; this.overS = 0; this.over10S = 0; this.maxV = 0;
+      this.basis = null; this.f = null;
+      this.cal = { n: 0, sx: 0, sy: 0, den: 0 };
+      this.hAcc = [0, 0]; this.hN = 0;
+      this.fl = [0, 0, 0, 0];
+      this.aLong = 0; this.aLat = 0;
+      this.open = {}; this.events = [];
+      this.series = []; this.nextSeriesT = 0;
+      this.trail = []; this.nextTrailT = 0;
+      this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
+      this.recalCount = 0;
+      this.status = 'init'; // init -> calibrating -> ready
+    }
+
+    _newBasis(u) {
+      const a = Math.abs(u[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+      const e1 = unit(madd(a, -dot(a, u), u));
+      this.basis = { u, e1, e2: cross(u, e1) };
+      this.cal = { n: 0, sx: 0, sy: 0, den: 0 };
+      this.hAcc = [0, 0]; this.hN = 0;
+    }
+
+    /** Accéléromètre, gravité incluse (m/s²), t en secondes. */
+    pushMotion(t, ax, ay, az) {
+      if (this.t0 === null) this.t0 = t;
+      const ts = t - this.t0;
+      const dt = this.tPrev === null ? 0.02 : clamp(t - this.tPrev, 0.001, 0.2);
+      this.tPrev = t; this.t = ts;
+      const r = [ax, ay, az];
+
+      // 1. Gravité : moyenne initiale, puis suivi lent (rapide à l'arrêt).
+      if (!this.g) {
+        this.gBuf.push(r);
+        if (this.gBuf.length >= 25) {
+          const s = [0, 0, 0];
+          for (const v of this.gBuf) { s[0] += v[0]; s[1] += v[1]; s[2] += v[2]; }
+          this.g = [s[0]/25, s[1]/25, s[2]/25]; this.gBuf = null;
+          this.gCal = unit(this.g); this.status = 'calibrating';
+        }
+        return;
+      }
+      const stopped = this.speed !== null && this.speed < CFG.stopSpeed;
+      const kg = 1 - Math.exp(-dt / (stopped ? 1 : 40));
+      for (let i = 0; i < 3; i++) this.g[i] += (r[i] - this.g[i]) * kg;
+      const u = unit(this.g);
+
+      // Téléphone déplacé : on oublie l'axe avant et on recalibre.
+      if (this.f && dot(u, this.gCal) < 0.94) {
+        this.f = null; this.basis = null; this.gCal = u; this.open = {};
+        this.status = 'calibrating'; this.recalCount++;
+      }
+      if (!this.f && (!this.basis || dot(u, this.basis.u) < 0.996)) this._newBasis(u);
+
+      // 2. Accélération linéaire et projection sur les axes du véhicule.
+      const lin = [r[0]-this.g[0], r[1]-this.g[1], r[2]-this.g[2]];
+      if (!this.f) {
+        this.hAcc[0] += dot(lin, this.basis.e1); this.hAcc[1] += dot(lin, this.basis.e2); this.hN++;
+      }
+      let aL = 0, aT = 0;
+      if (this.f) {
+        const fp = unit(madd(this.f, -dot(this.f, u), u));
+        aL = dot(lin, fp); aT = dot(lin, cross(u, fp));
+      }
+      const al = 1 - Math.exp(-2 * Math.PI * CFG.lpHz * dt), F = this.fl;
+      F[0] += al * (aL - F[0]); F[1] += al * (F[0] - F[1]);
+      F[2] += al * (aT - F[2]); F[3] += al * (F[2] - F[3]);
+      this.aLong = F[1]; this.aLat = F[3];
+
+      // 3. Temps cumulés selon la vitesse GPS.
+      const v = this.speed;
+      if (v !== null) {
+        const kmh = v * 3.6;
+        if (v > CFG.movingSpeed) this.movingS += dt;
+        if (kmh > this.limitKmh) this.overS += dt;
+        if (kmh > this.limitKmh + 10) this.over10S += dt;
+        if (kmh > this.maxV) this.maxV = kmh;
+      }
+
+      // 4. Événements.
+      if (this.f && v !== null) {
+        this._detect('brake', -this.aLong, v, ts);
+        this._detect('accel', this.aLong, v, ts);
+        if (v >= CFG.minCornerSpeed) this._detect('corner', Math.abs(this.aLat), v, ts);
+        else this._close('corner', ts);
+      }
+
+      // 5. Séries pour l'affichage et la fluidité (à-coups à 2 Hz).
+      if (ts >= this.nextSeriesT) { this.series.push({ t: Math.round(ts), v: (v || 0) * 3.6 }); this.nextSeriesT = ts + 1; }
+      if (ts >= this.nextTrailT) {
+        this.trail.push([this.aLat, this.aLong]); if (this.trail.length > 40) this.trail.shift();
+        this.nextTrailT = ts + 0.1;
+      }
+      if (this.tickT === null) { this.tickT = ts; this.prevA = [this.aLong, this.aLat]; }
+      else if (ts - this.tickT >= 0.5) {
+        const d = ts - this.tickT;
+        if (this.f && v !== null && v > 2) {
+          const jl = (this.aLong - this.prevA[0]) / d, jt = (this.aLat - this.prevA[1]) / d;
+          this.jerkSq += (jl*jl + jt*jt) * d; this.jerkT += d;
+        }
+        this.tickT = ts; this.prevA = [this.aLong, this.aLat];
+      }
+    }
+
+    /** Vitesse GPS (m/s). Sert aussi à trouver l'axe avant du véhicule. */
+    pushFix(t, v) {
+      if (this.t0 === null) this.t0 = t;
+      const ts = t - this.t0;
+      if (this.fix) {
+        const dtf = ts - this.fix.t;
+        if (dtf > 0.2 && dtf < 5) {
+          this.dist += (v + this.fix.v) / 2 * dtf;
+          const a = (v - this.fix.v) / dtf;
+          if (this.basis && !this.f && this.hN > 0 && Math.abs(a) >= 0.4) {
+            const hm = [this.hAcc[0] / this.hN, this.hAcc[1] / this.hN], c = this.cal;
+            c.sx += hm[0] * a; c.sy += hm[1] * a; c.den += Math.hypot(hm[0], hm[1]) * Math.abs(a); c.n++;
+            const m = Math.hypot(c.sx, c.sy);
+            if (c.n >= 6 && c.den > 1 && m / c.den >= 0.75) {
+              const b = this.basis;
+              this.f = unit([
+                (c.sx*b.e1[0] + c.sy*b.e2[0]) / m,
+                (c.sx*b.e1[1] + c.sy*b.e2[1]) / m,
+                (c.sx*b.e1[2] + c.sy*b.e2[2]) / m
+              ]);
+              this.status = 'ready';
+            }
+          }
+        }
+      }
+      this.fix = { t: ts, v }; this.speed = v; this.hAcc = [0, 0]; this.hN = 0;
+    }
+
+    _detect(kind, x, v, ts) {
+      const th = CFG[kind]; let o = this.open[kind];
+      if (x >= th.mod) {
+        if (!o) this.open[kind] = { t0: ts, peak: x, tPeak: ts, v: v * 3.6 };
+        else if (x > o.peak) { o.peak = x; o.tPeak = ts; o.v = v * 3.6; }
+      } else if (o && x < th.mod * CFG.hysteresis) this._close(kind, ts);
+    }
+    _close(kind, ts) {
+      const o = this.open[kind]; if (!o) return;
+      delete this.open[kind];
+      if (ts - o.t0 < CFG.minEventS) return;
+      this.events.push({
+        kind, t: o.tPeak, peak: o.peak, v: o.v, dur: ts - o.t0,
+        sev: o.peak >= CFG[kind].sev ? 2 : 1
+      });
+      this.events.sort((a, b) => a.t - b.t);
+    }
+
+    finish() { for (const k of Object.keys(this.open)) this._close(k, this.t); return this.summary(); }
+
+    summary() {
+      const km = this.dist / 1000, base = Math.max(km, 2);
+      const wsum = k => this.events.reduce((s, e) => e.kind === k ? s + (e.sev === 2 ? 2.5 : 1) : s, 0);
+      const expo = (k, kk) => Math.round(100 * Math.exp(-(wsum(k) / base) / kk));
+      const moving = this.movingS;
+      const ro = moving > 5 ? this.overS / moving : 0, r10 = moving > 5 ? this.over10S / moving : 0;
+      const rms = this.jerkT > 5 ? Math.sqrt(this.jerkSq / this.jerkT) : null;
+      const axes = {
+        freinage: expo('brake', 1.2),
+        virages: expo('corner', 1.2),
+        acceleration: expo('accel', 1.4),
+        vitesse: Math.round(clamp(100 - 200 * (ro + r10), 0, 100)),
+        fluidite: rms === null ? 100 : Math.round(100 * clamp(1 - (rms - 0.4) / 1.2, 0, 1))
+      };
+      let score = 0; for (const k in W) score += axes[k] * W[k];
+      const cnt = k => this.events.filter(e => e.kind === k).length;
+      return {
+        score: Math.round(score), axes, km, durationS: this.t, movingS: moving,
+        avgKmh: moving > 5 ? km / (moving / 3600) : 0, maxKmh: this.maxV,
+        counts: { brake: cnt('brake'), accel: cnt('accel'), corner: cnt('corner') },
+        overRatio: ro, jerkRms: rms
+      };
+    }
+  }
+
+  /* ---------- Simulateur : trajet de démonstration, téléphone orienté au hasard ---------- */
+  const mulberry32 = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const TR = 1.0;
+  const smooth = x => { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); };
+  const pulse = (t, p) => {
+    const tau = t - p.t0; if (tau < 0 || tau > p.d) return 0;
+    const tr = Math.min(TR, p.d / 2);
+    return p.a * Math.min(smooth(tau / tr), smooth((p.d - tau) / tr));
+  };
+  // [début s, durée s, accélération m/s², brusque?]
+  const LONG = [[8,10,1.5,0],[40,4,-1.5,0],[46,6,1.8,0],[75,4,1.4,0],[95,5,-1.4,0],[110,3,2.9,1],
+                [150,2.6,-4.8,1],[158,8,1.2,0],[200,3,-3.2,1],[210,8,1.4,2]].map(([t0,d,a,h]) => ({t0,d,a,h}));
+  const LAT = [[41,4,2.0,0],[100,3.5,-3.3,1],[120,4,1.6,0],[170,3.5,3.4,1],[204,4,2.2,0]].map(([t0,d,a,h]) => ({t0,d,a,h}));
+  // Facteurs par type d'impulsion : 0 = normale, 1 = brusque, 2 = prise de vitesse.
+  const STYLE = { calm: [1, 0.5, 0.75], normal: [1, 1, 1], rough: [1.1, 1.3, 1.1] };
+  const scaleP = (p, k) => p.h === 1 && k < 1
+    ? { t0: p.t0, d: (p.d - TR) / k + TR, a: p.a * k }   // même vitesse gagnée ou perdue, plus doucement
+    : { t0: p.t0, d: p.d, a: p.a * k };
+  const rot = (yaw, pitch, roll) => {
+    const c = Math.cos, s = Math.sin;
+    const Rz = [[c(yaw),-s(yaw),0],[s(yaw),c(yaw),0],[0,0,1]];
+    const Rx = [[1,0,0],[0,c(pitch),-s(pitch)],[0,s(pitch),c(pitch)]];
+    const Ry = [[c(roll),0,s(roll)],[0,1,0],[-s(roll),0,c(roll)]];
+    const mm = (A, B) => A.map(row => [0,1,2].map(j => row[0]*B[0][j] + row[1]*B[1][j] + row[2]*B[2][j]));
+    return mm(Rz, mm(Rx, Ry));
+  };
+
+  class Sim {
+    constructor({ style = 'normal', seed = 7 } = {}) {
+      this.rng = mulberry32(seed);
+      const k = STYLE[style] || STYLE.normal;
+      this.long = LONG.map(p => scaleP(p, k[p.h])); this.lat = LAT.map(p => scaleP(p, k[p.h]));
+      this.R = rot(2.53, -1.08, 0.12);          // téléphone sur support, de travers
+      this.dt = 0.02; this.t = 0; this.v = 0; this.nextFix = 1; this.stopAt = null; this.done = false;
+    }
+    _n(s) { const r = this.rng; return s * Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r()); }
+    step() {
+      const t = this.t, dt = this.dt;
+      let a = 0; for (const p of this.long) a += pulse(t, p);
+      if (t >= 250) a -= smooth((t - 250) / 1.5) * Math.min(1.6, 0.35 * this.v + 0.15);
+      const vNew = Math.max(0, this.v + a * dt), aReal = (vNew - this.v) / dt; this.v = vNew;
+      let lat = 0; for (const p of this.lat) lat += pulse(t, p);
+      lat *= Math.min(1, this.v / 5);
+      const m = this.v > 0.5 ? 1 : 0.1, tw = 2 * Math.PI * t;
+      const vib = j => 0.22 * m * (Math.sin(tw * 11 + j) + 0.6 * Math.sin(tw * 17 + 2 * j));
+      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08), G + vib(2.1) + this._n(0.08)];
+      const R = this.R;
+      const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), fix: null, tf: t + dt };
+      this.t += dt;
+      if (this.t >= this.nextFix) { this.nextFix += 1; out.fix = Math.max(0, this.v + this._n(0.12)); }
+      if (this.t > 252 && this.v < 0.02) { if (this.stopAt === null) this.stopAt = this.t; if (this.t - this.stopAt >= 5) this.done = true; }
+      return out;
+    }
+    get progress() { return Math.min(1, this.t / 270); }
+  }
+
+  /* ---------- Import CSV : t, ax, ay, az, speed ---------- */
+  function parseCsv(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length) return [];
+    const delim = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';
+    const split = l => l.split(delim).map(s => s.trim().replace(/^"|"$/g, ''));
+    let idx = { t: 0, ax: 1, ay: 2, az: 3, speed: 4 }, start = 0;
+    const head = split(lines[0]);
+    if (head.some(h => /[a-z]/i.test(h))) {
+      start = 1;
+      const find = names => head.findIndex(h => names.includes(h.toLowerCase().replace(/[^a-z]/g, '')));
+      const f = { t: find(['t','time','timestamp','seconds']), ax: find(['ax','x']), ay: find(['ay','y']),
+                  az: find(['az','z']), speed: find(['speed','v','vitesse']) };
+      for (const k in f) if (f[k] >= 0) idx[k] = f[k]; else if (k !== 'speed') idx[k] = idx[k];
+      if (f.speed < 0) idx.speed = -1;
+    }
+    const num = s => { if (s === undefined || s === '') return null; const x = parseFloat(delim === ';' ? s.replace(',', '.') : s); return Number.isFinite(x) ? x : null; };
+    const rows = [];
+    for (let i = start; i < lines.length; i++) {
+      const c = split(lines[i]);
+      const t = num(c[idx.t]), ax = num(c[idx.ax]), ay = num(c[idx.ay]), az = num(c[idx.az]);
+      if (t === null || ax === null || ay === null || az === null) continue;
+      rows.push({ t, ax, ay, az, speed: idx.speed >= 0 ? num(c[idx.speed]) : null });
+    }
+    if (rows.length > 3) {
+      const ds = []; for (let i = 1; i < Math.min(rows.length, 200); i++) ds.push(rows[i].t - rows[i-1].t);
+      ds.sort((a, b) => a - b); const med = ds[ds.length >> 1];
+      const sc = med > 5e5 ? 1e-9 : med > 0.5 ? 1e-3 : 1;
+      if (sc !== 1) for (const r of rows) r.t *= sc;
+    }
+    return rows;
+  }
+  function analyzeRows(rows, limitKmh) {
+    const e = new Engine({ limitKmh });
+    for (const r of rows) { e.pushMotion(r.t, r.ax, r.ay, r.az); if (r.speed !== null) e.pushFix(r.t, r.speed); }
+    e.finish(); return e;
+  }
+  function runSim(style, limitKmh, seed) {
+    const e = new Engine({ limitKmh }), s = new Sim({ style, seed }), rows = [];
+    while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix); }
+    e.finish(); return e;
+  }
+  return { Engine, Sim, CFG, parseCsv, analyzeRows, runSim, rot, dot };
+})();
+if (typeof module !== 'undefined') module.exports = PL;
+
+</script>
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n, d = 0) => n.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const clock = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60, p = n => String(n).padStart(2, '0'); return (h ? h + ':' + p(m) : p(m)) + ':' + p(x); };
+const KIND = {
+  brake:  { name: 'Freinage brusque',  cls: 'brake' },
+  accel:  { name: 'Accélération vive', cls: 'accel' },
+  corner: { name: 'Virage serré',      cls: 'corner' }
+};
+const AXES = [['freinage', 'Freinage'], ['virages', 'Virages'], ['acceleration', 'Accélération'], ['vitesse', 'Vitesse'], ['fluidite', 'Fluidité']];
+const ADVICE = {
+  freinage: 'Anticipe : lève le pied plus tôt pour freiner moins fort.',
+  virages: 'Ralentis avant le virage, pas dedans.',
+  acceleration: 'Appuie sur l’accélérateur progressivement.',
+  vitesse: 'Reste sous la limite réglée : tu l’as dépassée trop longtemps.',
+  fluidite: 'Évite les à-coups : relâche et reprends l’accélérateur en douceur.'
+};
+const tone = s => s >= 75 ? 'good' : s >= 60 ? 'warn' : 'bad';
+const grade = s => s >= 90 ? 'Très fluide' : s >= 75 ? 'Posée' : s >= 60 ? 'À surveiller' : 'Nerveuse';
+const dateLabel = ts => new Date(ts).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+/* ---------- Stockage local (facultatif) ---------- */
+const KEY = 'pied-leger:trips:v1';
+let mem = [];
+const loadTrips = () => { try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : mem; } catch (e) { return mem; } };
+const saveTrips = a => { mem = a; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} };
+
+/* ---------- État ---------- */
+const S = { tab: 'drive', mode: 'demo', style: 'normal', speedX: 10, limit: 90, run: null, file: null, error: '', note: '', opened: null, confirm: '' };
+let trips = loadTrips();
+const makeTrip = (engine, meta) => ({
+  id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ts: Date.now(), mode: meta.mode, label: meta.label || '',
+  limit: engine.limitKmh, sum: engine.summary(), events: engine.events,
+  series: engine.series.map(p => ({ t: p.t, v: Math.round(p.v * 10) / 10 }))
+});
+const example = (() => {
+  const e = PL.runSim('normal', 90, 7);
+  const t = makeTrip(e, { mode: 'demo', label: 'Exemple simulé · trajet de démonstration' }); t.example = true; return t;
+})();
+let shown = trips[0] || example;
+
+/* ---------- Gabarits ---------- */
+const seg = (name, opts, cur) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" id="${name}-${v}" data-set="${name}" data-val="${v}" aria-pressed="${String(cur) === String(v)}">${l}</button>`).join('')}</div>`;
+const axisRow = (label, v) => `<div class="axis"><span>${label}</span><span class="bar"><i class="g-${tone(v)}" style="width:${v}%"></i></span><span class="v">${v}</span></div>`;
+const ring = (score, id) => { const C = 2 * Math.PI * 56; return `<div class="ring"><svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true"><circle class="tr" cx="66" cy="66" r="56" fill="none" stroke-width="10"/><circle class="pg rc-${tone(score)}" ${id ? `id="${id}-ring"` : ''} cx="66" cy="66" r="56" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - score / 100)).toFixed(1)}"/></svg><b ${id ? `id="${id}"` : ''} aria-label="Score ${score} sur 100">${score}</b></div>`; };
+const evRow = e => `<li class="ev"><span class="mk ${KIND[e.kind].cls}" aria-hidden="true"></span><div><b>${KIND[e.kind].name}</b><small>${fmt(e.peak, 1)} m/s² · ${fmt(e.v)} km/h</small></div><span class="sev sev${e.sev}">${e.sev === 2 ? 'sévère' : 'modéré'}</span><time>${clock(e.t)}</time></li>`;
+
+function chartSVG(trip, W) {
+  const H = 190, m = { l: 36, r: 8, t: 10, b: 22 }, pts = trip.series;
+  const dur = Math.max(30, pts.length ? pts[pts.length - 1].t : 30);
+  let vmax = trip.limit + 10; for (const p of pts) if (p.v > vmax) vmax = p.v;
+  const yMax = Math.ceil(vmax / 20) * 20;
+  const x = t => m.l + (W - m.l - m.r) * t / dur, y = v => m.t + (H - m.t - m.b) * (1 - v / yMax);
+  let out = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vitesse au cours du trajet, avec les événements de conduite">`;
+  for (let v = 0; v <= yMax; v += 20) out += `<line class="gl" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  const step = [15, 30, 60, 120, 300, 600, 900, 1800].find(s => dur / s <= 6) || 3600;
+  for (let t = 0; t <= dur; t += step) out += `<text x="${x(t)}" y="${H - 5}" text-anchor="${t === 0 ? 'start' : 'middle'}">${clock(t)}</text>`;
+  if (pts.length) {
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + y(p.v).toFixed(1)).join('');
+    out += `<path class="ar" d="${d}L${x(pts[pts.length - 1].t).toFixed(1)} ${y(0)}L${x(pts[0].t).toFixed(1)} ${y(0)}Z"/><path class="ln" d="${d}"/>`;
+  }
+  out += `<line class="lim" x1="${m.l}" x2="${W - m.r}" y1="${y(trip.limit)}" y2="${y(trip.limit)}"/><text class="lt" x="${W - m.r}" y="${y(trip.limit) - 5}" text-anchor="end">limite ${trip.limit}</text>`;
+  for (const e of trip.events) {
+    const cx = x(e.t), cy = y(e.v), r = e.sev === 2 ? 6.5 : 5;
+    if (e.kind === 'brake') out += `<circle class="m m-brake" cx="${cx}" cy="${cy}" r="${r}"/>`;
+    else if (e.kind === 'accel') out += `<path class="m m-accel" d="M${cx} ${cy - r - 1}L${cx + r + 1} ${cy + r}L${cx - r - 1} ${cy + r}Z"/>`;
+    else out += `<rect class="m m-corner" x="${cx - r + 1}" y="${cy - r + 1}" width="${2 * r - 2}" height="${2 * r - 2}" transform="rotate(45 ${cx} ${cy})"/>`;
+  }
+  return out + '</svg>';
+}
+const contentWidth = () => Math.max(260, Math.min($('#app').clientWidth || 360, 560) - 64);
+
+function bilanHTML(trip) {
+  const s = trip.sum, weakest = AXES.map(([k]) => [k, s.axes[k]]).sort((a, b) => a[1] - b[1])[0];
+  const tip = weakest[1] < 85 ? `<p class="tip"><b>Point faible : ${AXES.find(a => a[0] === weakest[0])[1].toLowerCase()}.</b> ${ADVICE[weakest[0]]}</p>` : `<p class="tip"><b>Conduite fluide.</b> Rien à corriger sur ce trajet.</p>`;
+  const evs = trip.events.length ? `<ul class="evs">${trip.events.map(evRow).join('')}</ul>` : '<p class="empty">Aucun événement : ni freinage, ni accélération, ni virage brusque.</p>';
+  return `<article class="card" aria-label="Bilan du trajet">
+    <div class="b-head">${ring(s.score)}<div class="b-meta">
+      <p class="eyebrow">${esc(trip.example ? trip.label : dateLabel(trip.ts) + (trip.label ? ' · ' + trip.label : ''))}</p>
+      <h2>${grade(s.score)}</h2>
+      <dl class="stats"><div><dt>Distance</dt><dd>${fmt(s.km, 1)} km</dd></div><div><dt>Durée</dt><dd>${clock(s.durationS)}</dd></div><div><dt>Vitesse moy.</dt><dd>${fmt(s.avgKmh)} km/h</dd></div><div><dt>Vitesse max</dt><dd>${fmt(s.maxKmh)} km/h</dd></div></dl>
+    </div></div>
+    <div class="sec">${tip}</div>
+    <div class="sec"><h3>Détail du score</h3>${AXES.map(([k, l]) => axisRow(l, s.axes[k])).join('')}</div>
+    <div class="sec"><h3>Vitesse (km/h) et événements</h3>${chartSVG(trip, contentWidth())}
+      <div class="legend"><span><i class="mk brake"></i>Freinage</span><span><i class="mk accel"></i>Accélération</span><span><i class="mk corner"></i>Virage</span></div></div>
+    <div class="sec"><h3>Événements (${trip.events.length})</h3>${evs}</div>
+  </article>`;
+}
+
+function controlsHTML() {
+  const m = S.mode;
+  let body = '';
+  if (m === 'demo') body = `<label class="lbl">Style de conduite simulé</label>${seg('style', [['calm', 'Posé'], ['normal', 'Normal'], ['rough', 'Nerveux']], S.style)}
+    <label class="lbl">Vitesse de lecture</label>${seg('speedX', [[1, '×1'], [10, '×10'], [30, '×30']], S.speedX)}
+    <p class="hint">Trajet de 4,6 min généré avec un téléphone posé de travers : l’app doit retrouver l’avant du véhicule toute seule.</p>`;
+  else if (m === 'sensors') body = `<p class="note">Fixe le téléphone sur un support, écran allumé, puis lance le trajet à l’arrêt. L’app lit l’accéléromètre et le GPS.</p>`;
+  else body = `<label class="lbl" for="file">Fichier de mesures</label>
+    <div class="filerow"><label class="btn ghost" for="file">Choisir un CSV</label><input class="sr" id="file" type="file" accept=".csv,text/csv,text/plain"><span class="filename">${S.file ? esc(S.file.name) : 'Aucun fichier'}</span></div>
+    <p class="hint">Colonnes : t (s), ax, ay, az (m/s², gravité incluse), speed (m/s, vide si absent). Séparateur , ou ; et temps en s, ms ou ns.</p>`;
+  const cta = m === 'import' ? 'Analyser le fichier' : 'Démarrer le trajet';
+  return `<div class="card">
+    <h2>Nouveau trajet</h2>
+    <label class="lbl">Source</label>${seg('mode', [['demo', 'Démo'], ['sensors', 'Capteurs'], ['import', 'Import']], m)}
+    ${body}
+    <label class="lbl">Limite de vitesse (km/h)</label>${seg('limit', [[50, '50'], [80, '80'], [90, '90'], [110, '110'], [130, '130']], S.limit)}
+    <p class="hint">Réglage manuel : l’app ne lit pas les panneaux.</p>
+    ${S.error ? `<div class="err" role="alert">${esc(S.error)}</div>` : ''}
+    ${S.note ? `<p class="note">${esc(S.note)}</p>` : ''}
+    <div class="go"><button class="btn" id="go" data-act="go" ${m === 'import' && !S.file ? 'disabled' : ''}>${cta}</button></div>
+    <p class="note">Lance le trajet à l’arrêt et ne touche pas au téléphone en roulant. Les mesures restent sur l’appareil.</p>
+  </div>`;
+}
+
+function liveHTML() {
+  return `<div class="card" aria-live="off">
+    <div class="live-top">${ring(100, 'l-score')}<div><div class="speed"><span id="l-speed">0</span><small>km/h</small></div><p class="trip-line" id="l-line">0,0 km · 00:00</p></div></div>
+    <div class="status" id="l-status"><i></i><span>Mesure de la gravité…</span></div>
+    <canvas class="gg" id="gg" aria-label="Diagramme des accélérations : longitudinale en vertical, latérale en horizontal"></canvas>
+    <p class="hint" style="text-align:center;margin:0 0 6px">Cercles à 2, 4 et 6 m/s² · pointillés : seuils modéré et sévère</p>
+    <div class="sec">${AXES.map(([k, l]) => `<div class="axis" id="ax-${k}"><span>${l}</span><span class="bar"><i class="g-good" style="width:100%"></i></span><span class="v">100</span></div>`).join('')}</div>
+    <div class="sec"><h3>Derniers événements</h3><ul class="evs" id="l-evs"></ul><p class="empty" id="l-none">Aucun pour l’instant.</p></div>
+    <div class="go"><button class="btn stop" data-act="stop">Terminer le trajet</button></div>
+  </div>`;
+}
+
+function renderDrive() {
+  const el = $('#view-drive');
+  if (S.run) { el.innerHTML = liveHTML(); S.run.evCount = -1; updateLive(); return; }
+  el.innerHTML = controlsHTML() + `<h3 style="margin:8px 0 -6px">${shown.example ? 'Exemple de bilan' : 'Dernier trajet'}</h3>` + bilanHTML(shown);
+}
+
+function renderHistory() {
+  const el = $('#view-history');
+  if (S.opened) {
+    const t = trips.find(x => x.id === S.opened);
+    if (!t) { S.opened = null; return renderHistory(); }
+    el.innerHTML = `<button class="btn link back" data-act="back">← Historique</button>${bilanHTML(t)}
+      <button class="btn ghost" data-act="del" data-id="${t.id}" style="align-self:flex-start">${S.confirm === 'del' + t.id ? 'Confirmer la suppression' : 'Supprimer ce trajet'}</button>`;
+    return;
+  }
+  if (!trips.length) { el.innerHTML = `<div class="card"><h2>Aucun trajet</h2><p class="empty" style="margin-top:8px">Lance une démo dans l’onglet Conduite : le bilan s’enregistre ici.</p></div>`; return; }
+  const W = contentWidth(), last = trips.slice(0, 12).reverse();
+  let spark = '';
+  if (last.length > 1) {
+    const H = 90, m = 26, x = i => m + (W - m - 8) * i / (last.length - 1), y = v => 8 + (H - 20) * (1 - v / 100);
+    spark = `<div class="card"><h3>Score des derniers trajets</h3><svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution du score">
+      ${[0, 50, 100].map(v => `<line class="gl" x1="${m}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}"/><text x="${m - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`).join('')}
+      <path class="ln" d="${last.map((t, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(t.sum.score).toFixed(1)).join('')}"/>
+      ${last.map((t, i) => `<circle class="dt" cx="${x(i)}" cy="${y(t.sum.score)}" r="3.5"/>`).join('')}</svg></div>`;
+  }
+  el.innerHTML = spark + `<div class="card"><ul class="trips">${trips.map(t => `<li><button class="trip" data-act="open" data-id="${t.id}">
+    <span class="badge bd-${tone(t.sum.score)}">${t.sum.score}</span>
+    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${t.events.length} événement${t.events.length > 1 ? 's' : ''} · ${esc(t.label)}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
+    <button class="btn ghost" data-act="clear" style="align-self:flex-start">${S.confirm === 'clear' ? 'Confirmer l’effacement' : 'Effacer l’historique'}</button>`;
+}
+
+function render() {
+  $('#view-drive').hidden = S.tab !== 'drive'; $('#view-history').hidden = S.tab !== 'history';
+  for (const b of document.querySelectorAll('[data-tab]')) b.setAttribute('aria-selected', String(b.dataset.tab === S.tab));
+  if (S.tab === 'drive') renderDrive(); else renderHistory();
+}
+
+/* ---------- Direct ---------- */
+function drawGG(canvas, e) {
+  const W = canvas.clientWidth; if (!W) return;
+  const dpr = window.devicePixelRatio || 1, px = Math.round(W * dpr);
+  if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
+  const ctx = canvas.getContext('2d'); if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, W);
+  const cs = getComputedStyle(document.documentElement), col = n => cs.getPropertyValue(n).trim();
+  const c = W / 2, R = c - 20, MAX = 6, sc = R / MAX;
+  ctx.lineWidth = 1; ctx.strokeStyle = col('--line'); ctx.setLineDash([]);
+  for (const r of [2, 4, 6]) { ctx.beginPath(); ctx.arc(c, c, r * sc, 0, 2 * Math.PI); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(c - R, c); ctx.lineTo(c + R, c); ctx.moveTo(c, c - R); ctx.lineTo(c, c + R); ctx.stroke();
+  ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+  ctx.strokeStyle = col('--warn'); ctx.beginPath(); ctx.arc(c, c, 2.9 * sc, 0, 2 * Math.PI); ctx.stroke();
+  ctx.strokeStyle = col('--bad'); ctx.beginPath(); ctx.arc(c, c, 4.4 * sc, 0, 2 * Math.PI); ctx.stroke();
+  ctx.setLineDash([]); ctx.fillStyle = col('--muted'); ctx.font = '11px ' + col('--font-data');
+  ctx.textAlign = 'center'; ctx.fillText('accélération', c, 12); ctx.fillText('freinage', c, W - 5);
+  ctx.textAlign = 'left'; ctx.fillText('virage', 2, c - 5); ctx.textAlign = 'right'; ctx.fillText('virage', W - 2, c - 5);
+  const pos = p => { const mag = Math.hypot(p[0], p[1]), k = mag > MAX * 1.04 ? MAX * 1.04 / mag : 1; return [c + p[0] * k * sc, c - p[1] * k * sc]; };
+  const tr = e.trail; ctx.strokeStyle = col('--accent'); ctx.lineCap = 'round';
+  for (let i = 1; i < tr.length; i++) { const a = pos(tr[i - 1]), b = pos(tr[i]); ctx.globalAlpha = i / tr.length * 0.8; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+  if (tr.length) {
+    const p = pos(tr[tr.length - 1]), hot = Math.hypot(e.aLong, e.aLat) > 2.9;
+    ctx.fillStyle = hot ? col('--bad') : col('--accent'); ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, 2 * Math.PI); ctx.fill();
+  }
+}
+
+function updateLive() {
+  const r = S.run; if (!r || !$('#l-score')) return;
+  const e = r.engine, s = e.summary(), C = 2 * Math.PI * 56;
+  $('#l-score').textContent = s.score;
+  const rg = $('#l-score-ring'); rg.setAttribute('stroke-dashoffset', (C * (1 - s.score / 100)).toFixed(1)); rg.setAttribute('class', 'pg rc-' + tone(s.score));
+  $('#l-speed').textContent = fmt((e.speed || 0) * 3.6);
+  $('#l-line').textContent = `${fmt(s.km, 2)} km · ${clock(s.durationS)}`;
+  const st = $('#l-status'), ready = e.status === 'ready';
+  st.className = 'status' + (ready ? ' ok' : '');
+  st.lastElementChild.textContent = e.recalCount && !ready ? 'Téléphone déplacé : recalibrage, accélère en ligne droite'
+    : e.status === 'init' ? 'Mesure de la gravité…' : ready ? 'Capteurs calibrés' + (r.gpsWarn ? ' · signal GPS faible' : '') : 'Calibration : accélère doucement en ligne droite';
+  for (const [k] of AXES) { const row = $('#ax-' + k), v = s.axes[k]; row.querySelector('i').style.width = v + '%'; row.querySelector('i').className = 'g-' + tone(v); row.querySelector('.v').textContent = v; }
+  if (r.evCount !== e.events.length) {
+    r.evCount = e.events.length;
+    $('#l-evs').innerHTML = e.events.slice(-4).reverse().map(evRow).join(''); $('#l-none').hidden = e.events.length > 0;
+  }
+  drawGG($('#gg'), e);
+}
+
+/* ---------- Sources ---------- */
+const BLOCKED = 'Capteurs indisponibles ici : permission refusée ou aperçu bloqué. Autorise le GPS et le mouvement dans le navigateur, ou ouvre la version hébergée en HTTPS sur ton téléphone. La démo et l’import CSV marchent partout.';
+let wake = null;
+const lock = () => { try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(l => { wake = l; }).catch(() => {}); } catch (e) {} };
+const unlock = () => { try { if (wake) wake.release(); } catch (e) {} wake = null; };
+const fail = msg => { stopSources(); S.run = null; S.error = msg; S.note = ''; render(); };
+const hav = (a, b, c, d) => { const R = 6371000, p = Math.PI / 180, x = Math.sin((c - a) * p / 2) ** 2 + Math.cos(a * p) * Math.cos(c * p) * Math.sin((d - b) * p / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+
+function stopSources() {
+  const r = S.run; unlock(); if (!r) return;
+  if (r.raf) cancelAnimationFrame(r.raf);
+  if (r.onMotion) window.removeEventListener('devicemotion', r.onMotion);
+  if (r.watch != null && navigator.geolocation) navigator.geolocation.clearWatch(r.watch);
+  clearTimeout(r.watchdog); clearInterval(r.loop);
+}
+
+function startDemo() {
+  const engine = new PL.Engine({ limitKmh: S.limit }), sim = new PL.Sim({ style: S.style });
+  const r = S.run = { mode: 'demo', engine, sim, last: performance.now(), x: S.speedX, evCount: -1 };
+  render(); lock();
+  const frame = now => {
+    if (S.run !== r) return;
+    let budget = Math.min(0.1, (now - r.last) / 1000) * r.x; r.last = now;
+    while (budget > 0 && !sim.done) {
+      const o = sim.step(); engine.pushMotion(o.t, o.ax, o.ay, o.az);
+      if (o.fix !== null) engine.pushFix(o.tf, o.fix);
+      budget -= sim.dt;
+    }
+    updateLive();
+    if (sim.done) finishRun(); else r.raf = requestAnimationFrame(frame);
+  };
+  r.raf = requestAnimationFrame(frame);
+}
+
+async function startSensors() {
+  if (typeof DeviceMotionEvent === 'undefined' || !navigator.geolocation) return fail(BLOCKED);
+  try {
+    if (typeof DeviceMotionEvent.requestPermission === 'function' && await DeviceMotionEvent.requestPermission() !== 'granted') return fail(BLOCKED);
+  } catch (e) { return fail(BLOCKED); }
+  const engine = new PL.Engine({ limitKmh: S.limit }), now = () => performance.now() / 1000;
+  const r = S.run = { mode: 'sensors', engine, got: false, lastPos: null, gpsWarn: false, evCount: -1 };
+  render(); lock();
+  r.onMotion = ev => {
+    const a = ev.accelerationIncludingGravity;
+    if (!a || a.x == null || a.y == null || a.z == null) return;
+    r.got = true; engine.pushMotion(now(), a.x, a.y, a.z);
+  };
+  window.addEventListener('devicemotion', r.onMotion);
+  r.watch = navigator.geolocation.watchPosition(pos => {
+    const c = pos.coords; let v = c.speed;
+    if (v == null || Number.isNaN(v)) { v = 0; if (r.lastPos) { const dt = (pos.timestamp - r.lastPos.ts) / 1000; if (dt > 0) v = hav(r.lastPos.lat, r.lastPos.lon, c.latitude, c.longitude) / dt; } }
+    r.lastPos = { lat: c.latitude, lon: c.longitude, ts: pos.timestamp }; r.gpsWarn = false;
+    engine.pushFix(now(), Math.max(0, v));
+  }, err => { if (err.code === 1) fail(BLOCKED); else r.gpsWarn = true; },
+  { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+  r.watchdog = setTimeout(() => { if (!r.got) fail(BLOCKED); }, 3000);
+  r.loop = setInterval(updateLive, 100);
+}
+
+async function runImport() {
+  if (!S.file) return;
+  let text; try { text = await S.file.text(); } catch (e) { return fail('Impossible de lire ce fichier.'); }
+  const rows = PL.parseCsv(text);
+  if (rows.length < 100) return fail('Fichier illisible : il faut au moins 100 lignes t, ax, ay, az, speed.');
+  if (!rows.some(r => r.speed !== null)) return fail('Pas de colonne speed : la calibration a besoin de la vitesse GPS.');
+  const e = PL.analyzeRows(rows, S.limit);
+  conclude(e, 'Import · ' + S.file.name);
+}
+
+function conclude(engine, label) {
+  engine.finish();
+  if (engine.dist < 100 || engine.t < 20) { S.run = null; S.error = 'Trajet trop court pour être noté : il faut au moins 100 m et 20 s.'; S.note = ''; return render(); }
+  if (engine.status !== 'ready') { S.run = null; S.error = 'Calibration impossible : aucune accélération franche en ligne droite n’a été mesurée. Redémarre à l’arrêt et accélère doucement.'; S.note = ''; return render(); }
+  const t = makeTrip(engine, { mode: S.mode, label }); trips = [t, ...trips].slice(0, 30); saveTrips(trips);
+  S.run = null; S.error = ''; S.note = ''; shown = t; S.tab = 'drive'; render();
+  const h = document.querySelector('#view-drive article'); if (h && h.scrollIntoView) h.scrollIntoView({ block: 'start' });
+}
+function finishRun() {
+  const r = S.run; if (!r) return; stopSources();
+  conclude(r.engine, r.mode === 'demo' ? 'Démo · ' + { calm: 'posé', normal: 'normal', rough: 'nerveux' }[S.style] : 'Capteurs');
+}
+
+/* ---------- Événements ---------- */
+$('#app').addEventListener('click', ev => {
+  const tab = ev.target.closest('[data-tab]');
+  if (tab) { S.tab = tab.dataset.tab; S.confirm = ''; return render(); }
+  const st = ev.target.closest('[data-set]');
+  if (st) { const k = st.dataset.set, v = st.dataset.val; S[k] = (k === 'limit' || k === 'speedX') ? Number(v) : v; S.error = ''; S.note = ''; return render(); }
+  const b = ev.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id;
+  if (act === 'go') { S.error = ''; S.note = ''; if (S.mode === 'demo') startDemo(); else if (S.mode === 'sensors') startSensors(); else runImport(); }
+  else if (act === 'stop') finishRun();
+  else if (act === 'open') { S.opened = id; S.confirm = ''; renderHistory(); }
+  else if (act === 'back') { S.opened = null; S.confirm = ''; renderHistory(); }
+  else if (act === 'del') {
+    if (S.confirm !== 'del' + id) { S.confirm = 'del' + id; return renderHistory(); }
+    trips = trips.filter(t => t.id !== id); saveTrips(trips); S.opened = null; S.confirm = ''; shown = trips[0] || example; renderHistory();
+  } else if (act === 'clear') {
+    if (S.confirm !== 'clear') { S.confirm = 'clear'; return renderHistory(); }
+    trips = []; saveTrips(trips); S.confirm = ''; shown = example; renderHistory();
+  }
+});
+$('#app').addEventListener('change', ev => {
+  if (ev.target.id === 'file') { S.file = ev.target.files[0] || null; S.error = ''; renderDrive(); }
+});
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (!S.run) render(); }, 200); });
+render();
+})();
+</script>
+</body></html>
