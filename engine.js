@@ -6,10 +6,13 @@ const PL = (() => {
     brake:  { mod: 2.9, sev: 4.4 },   // m/s², freinage brusque (~0,3 g)
     accel:  { mod: 2.5, sev: 3.5 },   // accélération vive
     corner: { mod: 2.8, sev: 4.0 },   // accélération latérale en virage
+    shock:  { mod: 5, sev: 8 },       // m/s², choc vertical (nid-de-poule, dos-d'âne)
+    shockRefractory: 1.0, minShockSpeed: 3, shockHz: 12,
+    lateLead: -0.5,                   // m/s² : freinage « tardif » si on ne levait pas déjà le pied
     minEventS: 0.3, minCornerSpeed: 3, stopSpeed: 0.5, movingSpeed: 1,
     lpHz: 1.5, hysteresis: 0.7
   };
-  const W = { freinage: .28, virages: .22, acceleration: .18, vitesse: .20, fluidite: .12 };
+  const W = { freinage: .32, virages: .26, acceleration: .24, fluidite: .18 };
 
   const dot = (a, b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
   const cross = (a, b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
@@ -18,13 +21,13 @@ const PL = (() => {
   const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 
   class Engine {
-    constructor(opts = {}) { this.limitKmh = opts.limitKmh || 90; this.reset(); }
+    constructor() { this.reset(); }
 
     reset() {
       this.t0 = null; this.tPrev = null; this.t = 0;
       this.g = null; this.gBuf = []; this.gCal = null;
       this.speed = null; this.fix = null; this.dist = 0;
-      this.movingS = 0; this.overS = 0; this.over10S = 0; this.maxV = 0;
+      this.movingS = 0; this.maxV = 0;
       this.basis = null; this.f = null;
       this.cal = { n: 0, sx: 0, sy: 0, den: 0 };
       this.hAcc = [0, 0]; this.hN = 0;
@@ -33,6 +36,7 @@ const PL = (() => {
       this.open = {}; this.events = [];
       this.series = []; this.nextSeriesT = 0;
       this.trail = []; this.nextTrailT = 0;
+      this.hist = []; this.vz = 0; this.shock = null; this.lastShock = -9;
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
       this.status = 'init'; // init -> calibrating -> ready
@@ -97,12 +101,14 @@ const PL = (() => {
       if (v !== null) {
         const kmh = v * 3.6;
         if (v > CFG.movingSpeed) this.movingS += dt;
-        if (kmh > this.limitKmh) this.overS += dt;
-        if (kmh > this.limitKmh + 10) this.over10S += dt;
         if (kmh > this.maxV) this.maxV = kmh;
       }
 
-      // 4. Événements.
+      // 4. Chocs de chaussée : accélération verticale, filtre léger (12 Hz).
+      this.vz += (dot(lin, u) - this.vz) * (1 - Math.exp(-2 * Math.PI * CFG.shockHz * dt));
+      if (v !== null) this._shockCheck(Math.abs(this.vz), v, ts);
+
+      // Événements de conduite.
       if (this.f && v !== null) {
         this._detect('brake', -this.aLong, v, ts);
         this._detect('accel', this.aLong, v, ts);
@@ -114,6 +120,7 @@ const PL = (() => {
       if (ts >= this.nextSeriesT) { this.series.push({ t: Math.round(ts), v: (v || 0) * 3.6 }); this.nextSeriesT = ts + 1; }
       if (ts >= this.nextTrailT) {
         this.trail.push([this.aLat, this.aLong]); if (this.trail.length > 40) this.trail.shift();
+        this.hist.push([ts, this.aLong]); if (this.hist.length > 60) this.hist.shift();
         this.nextTrailT = ts + 0.1;
       }
       if (this.tickT === null) { this.tickT = ts; this.prevA = [this.aLong, this.aLat]; }
@@ -158,7 +165,7 @@ const PL = (() => {
     _detect(kind, x, v, ts) {
       const th = CFG[kind]; let o = this.open[kind];
       if (x >= th.mod) {
-        if (!o) this.open[kind] = { t0: ts, peak: x, tPeak: ts, v: v * 3.6 };
+        if (!o) this.open[kind] = { t0: ts, peak: x, tPeak: ts, v: v * 3.6, lead: kind === 'brake' ? this._lead(ts) : null };
         else if (x > o.peak) { o.peak = x; o.tPeak = ts; o.v = v * 3.6; }
       } else if (o && x < th.mod * CFG.hysteresis) this._close(kind, ts);
     }
@@ -166,27 +173,42 @@ const PL = (() => {
       const o = this.open[kind]; if (!o) return;
       delete this.open[kind];
       if (ts - o.t0 < CFG.minEventS) return;
-      this.events.push({
-        kind, t: o.tPeak, peak: o.peak, v: o.v, dur: ts - o.t0,
-        sev: o.peak >= CFG[kind].sev ? 2 : 1
-      });
-      this.events.sort((a, b) => a.t - b.t);
+      const ev = { kind, t: o.tPeak, peak: o.peak, v: o.v, dur: ts - o.t0, sev: o.peak >= CFG[kind].sev ? 2 : 1 };
+      if (kind === 'brake') ev.late = o.lead === null || o.lead > CFG.lateLead;
+      this.events.push(ev); this.events.sort((a, b) => a.t - b.t);
+    }
+    /** Accélération longitudinale moyenne entre 4 s et 1,2 s avant le freinage. */
+    _lead(ts) {
+      const w = this.hist.filter(h => h[0] >= ts - 4 && h[0] <= ts - 1.2);
+      return w.length ? w.reduce((s, h) => s + h[1], 0) / w.length : null;
+    }
+    _shockCheck(x, v, ts) {
+      const th = CFG.shock, o = this.shock;
+      if (o) {
+        if (x > o.peak) o.peak = x;
+        if (ts - o.t0 >= 0.25) this._closeShock(ts);
+      } else if (x >= th.mod && v >= CFG.minShockSpeed && ts - this.lastShock > CFG.shockRefractory) {
+        this.shock = { t0: ts, peak: x, v: v * 3.6 };
+      }
+    }
+    _closeShock(ts) {
+      const o = this.shock; if (!o) return;
+      this.events.push({ kind: 'shock', t: o.t0, peak: o.peak, v: o.v, dur: 0.25, sev: o.peak >= CFG.shock.sev ? 2 : 1 });
+      this.events.sort((a, b) => a.t - b.t); this.shock = null; this.lastShock = ts;
     }
 
-    finish() { for (const k of Object.keys(this.open)) this._close(k, this.t); return this.summary(); }
+    finish() { for (const k of Object.keys(this.open)) this._close(k, this.t); this._closeShock(this.t); return this.summary(); }
 
     summary() {
       const km = this.dist / 1000, base = Math.max(km, 2);
-      const wsum = k => this.events.reduce((s, e) => e.kind === k ? s + (e.sev === 2 ? 2.5 : 1) : s, 0);
+      const wsum = k => this.events.reduce((s, e) => e.kind === k ? s + (e.sev === 2 ? 2.5 : 1) * (e.late ? 1.4 : 1) : s, 0);
       const expo = (k, kk) => Math.round(100 * Math.exp(-(wsum(k) / base) / kk));
       const moving = this.movingS;
-      const ro = moving > 5 ? this.overS / moving : 0, r10 = moving > 5 ? this.over10S / moving : 0;
       const rms = this.jerkT > 5 ? Math.sqrt(this.jerkSq / this.jerkT) : null;
       const axes = {
         freinage: expo('brake', 1.2),
         virages: expo('corner', 1.2),
         acceleration: expo('accel', 1.4),
-        vitesse: Math.round(clamp(100 - 200 * (ro + r10), 0, 100)),
         fluidite: rms === null ? 100 : Math.round(100 * clamp(1 - (rms - 0.4) / 1.2, 0, 1))
       };
       let score = 0; for (const k in W) score += axes[k] * W[k];
@@ -194,8 +216,8 @@ const PL = (() => {
       return {
         score: Math.round(score), axes, km, durationS: this.t, movingS: moving,
         avgKmh: moving > 5 ? km / (moving / 3600) : 0, maxKmh: this.maxV,
-        counts: { brake: cnt('brake'), accel: cnt('accel'), corner: cnt('corner') },
-        overRatio: ro, jerkRms: rms
+        counts: { brake: cnt('brake'), accel: cnt('accel'), corner: cnt('corner'), shock: cnt('shock'), late: this.events.filter(e => e.late).length },
+        jerkRms: rms
       };
     }
   }
@@ -211,9 +233,12 @@ const PL = (() => {
   };
   // [début s, durée s, accélération m/s², brusque?]
   const LONG = [[8,10,1.5,0],[40,4,-1.5,0],[46,6,1.8,0],[75,4,1.4,0],[95,5,-1.4,0],[110,3,2.9,1],
-                [150,2.6,-4.8,1],[158,8,1.2,0],[200,3,-3.2,1],[210,8,1.4,2]].map(([t0,d,a,h]) => ({t0,d,a,h}));
+                [150,2.6,-4.8,1],[158,8,1.2,0],[196,4,-0.8,0],[200,3,-3.2,1],[210,8,1.4,2]].map(([t0,d,a,h]) => ({t0,d,a,h}));
   const LAT = [[41,4,2.0,0],[100,3.5,-3.3,1],[120,4,1.6,0],[170,3.5,3.4,1],[204,4,2.2,0]].map(([t0,d,a,h]) => ({t0,d,a,h}));
   // Facteurs par type d'impulsion : 0 = normale, 1 = brusque, 2 = prise de vitesse.
+  // Nids-de-poule : [instant s, amplitude m/s²]. Indépendants du style de conduite.
+  const SHOCKS = [[62, 14], [133, 10], [188, 16], [231, 8]];
+  const shockAt = t => SHOCKS.reduce((a, [t0, A]) => { const x = t - t0; return x >= 0 && x < 0.6 ? a + A * Math.exp(-x / 0.06) * Math.sin(2 * Math.PI * 10 * x) : a; }, 0);
   const STYLE = { calm: [1, 0.5, 0.75], normal: [1, 1, 1], rough: [1.1, 1.3, 1.1] };
   const scaleP = (p, k) => p.h === 1 && k < 1
     ? { t0: p.t0, d: (p.d - TR) / k + TR, a: p.a * k }   // même vitesse gagnée ou perdue, plus doucement
@@ -245,7 +270,7 @@ const PL = (() => {
       lat *= Math.min(1, this.v / 5);
       const m = this.v > 0.5 ? 1 : 0.1, tw = 2 * Math.PI * t;
       const vib = j => 0.22 * m * (Math.sin(tw * 11 + j) + 0.6 * Math.sin(tw * 17 + 2 * j));
-      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08), G + vib(2.1) + this._n(0.08)];
+      const rv = [aReal + vib(0) + this._n(0.08), lat + vib(1.3) + this._n(0.08), G + vib(2.1) + this._n(0.08) + (this.v > 3 ? shockAt(t) : 0)];
       const R = this.R;
       const out = { t, ax: dot(R[0], rv), ay: dot(R[1], rv), az: dot(R[2], rv), fix: null, tf: t + dt };
       this.t += dt;
@@ -288,13 +313,13 @@ const PL = (() => {
     }
     return rows;
   }
-  function analyzeRows(rows, limitKmh) {
-    const e = new Engine({ limitKmh });
+  function analyzeRows(rows) {
+    const e = new Engine();
     for (const r of rows) { e.pushMotion(r.t, r.ax, r.ay, r.az); if (r.speed !== null) e.pushFix(r.t, r.speed); }
     e.finish(); return e;
   }
-  function runSim(style, limitKmh, seed) {
-    const e = new Engine({ limitKmh }), s = new Sim({ style, seed }), rows = [];
+  function runSim(style, seed) {
+    const e = new Engine(), s = new Sim({ style, seed });
     while (!s.done) { const o = s.step(); e.pushMotion(o.t, o.ax, o.ay, o.az); if (o.fix !== null) e.pushFix(o.tf, o.fix); }
     e.finish(); return e;
   }

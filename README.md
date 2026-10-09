@@ -2,8 +2,8 @@
 
 Web app qui note la qualité de conduite d'un conducteur à partir des capteurs du téléphone (accéléromètre + GPS).
 
-- Score de 0 à 100 sur 5 axes : freinage, virages, accélération, vitesse, fluidité.
-- Événements datés (freinage brusque, accélération vive, virage serré) et conseil par trajet.
+- Score de 0 à 100 sur 4 axes : freinage, virages, accélération, fluidité.
+- Événements datés : freinage tardif (sans anticipation) ou brusque, accélération vive, virage serré, choc de chaussée (nid-de-poule, hors score), avec un conseil par trajet.
 - Historique local (les mesures restent sur l'appareil).
 - Sources : capteurs réels, démo simulée, import CSV (`t, ax, ay, az, speed`).
 
@@ -19,4 +19,4 @@ Ouvrir la page en HTTPS sur un téléphone, choisir **Capteurs**, fixer le tél�
 
 ## Limites
 
-Pas de capture écran éteint (limite du web), vitesse limite réglée à la main, seuils à caler sur de vrais trajets.
+Pas de capture écran éteint (limite du web), seuils à caler sur de vrais trajets (notamment les chocs de chaussée).
