@@ -244,7 +244,7 @@ const PL = (() => {
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
       // Gyroscope : cap de la voiture (lacet), volant, redressements
-      this.gyroOn = false; this.bias = 0; this.ySign = 1; this.ySum = 0; this.yF = 0; this.yawSlow = 0; this.yaw = 0; this.yawD = 0;
+      this.gyroOn = false; this.bias = 0; this.ySign = 1; this.ySum = 0; this.yF = 0; this.yawSlow = 0; this.yaw = 0; this.yawD = 0; this.yS1 = 0; this.yS2 = 0; this.yawShow = 0;
       this.ybuf = []; this.fx = null; this.fxLast = -9;
       this.steerSq = 0; this.steerT = 0;
       // Segments latéraux (coups de volant), creux d'accélération (passages de vitesse)
@@ -372,6 +372,8 @@ const PL = (() => {
         this.yF += (yc - this.yF) * (1 - Math.exp(-2 * Math.PI * 2.5 * dt));
         this.yawD += (yc - this.yawD) * (1 - Math.exp(-2 * Math.PI * 4 * dt));
         this.yaw = this.yawD / D2R;                                 // °/s, pour l'affichage
+        this.yS1 += (yc - this.yS1) * (1 - Math.exp(-2 * Math.PI * 1.2 * dt)); this.yS2 += (this.yS1 - this.yS2) * (1 - Math.exp(-2 * Math.PI * 1.2 * dt));
+        this.yawShow = Math.abs(this.yS2) / D2R < 1.5 ? 0 : this.yS2 / D2R;   // °/s, affichage seul : 1,2 Hz ×2 + zone morte
         this.yawSlow += (this.yF - this.yawSlow) * (1 - Math.exp(-dt / 3));
         if (Math.abs(this.aLat) >= 0.9) this.lastCurveT = ts;
         if (v !== null && v >= CFG.swerve.minSpeed && ts - this.lastCurveT > 2.5) {
@@ -1005,7 +1007,7 @@ function liveHTML() {
     <div class="l-top"><div class="status" id="l-status"><i></i><span>Mesure de la gravité…</span></div><span class="trip-line" id="l-line">0,0 km · 00:00</span></div>
     <div class="banner" id="l-banner" role="alert" hidden></div>
     <div class="l-hero">${ring(100, 'l-score', 'sm')}<div class="speed"><span id="l-speed">0</span><small>km/h</small></div><div class="streak"><b id="l-streak">0:00</b><small>sans à-coup</small></div></div>
-    <canvas class="gg" id="gg" aria-label="Instruments : à gauche, secousses verticales des roues gauches et droites ; à droite, disque des forces ressenties (avant au freinage, arrière à l’accélération, côté en virage) ; en bas, barre de braquage du volant"></canvas>
+    <canvas class="gg" id="gg" aria-label="Instruments : à gauche, secousses verticales des roues gauches et droites ; à droite, disque des forces ressenties (avant au freinage, arrière à l’accélération, côté en virage) ; en bas, barre de direction : de quel côté la voiture tourne, colorée quand un coup de volant ou un redressement est compté"></canvas>
     <div class="toast ok" id="l-toast" role="status"><span class="mk" id="l-tmk"></span><div><b id="l-tt">Conduite fluide</b><small id="l-ts">Rien à signaler</small></div><span class="pts" id="l-tp"></span></div>
     <div class="chips" id="l-chips"></div>
     <div class="sec" style="margin-top:12px;padding-top:8px">${AXES.map(([k, l]) => `<div class="axis" id="ax-${k}"><span>${l}</span><span class="bar"><i class="g-good" style="width:100%"></i></span><span class="v">100</span></div>`).join('')}</div>
@@ -1107,16 +1109,17 @@ function drawCockpit(canvas, e, ready) {
     ctx.strokeStyle = col('--ink'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx0, cy); ctx.lineTo(gx1, cy); ctx.stroke();
   }
 
-  // Barre de volant : vitesse de rotation de la voiture (gauche ↔ droite), échelle en racine pour voir les petits gestes.
+  // Barre de direction : côté vers lequel la voiture tourne, très lissée ; elle prend la couleur de l'événement quand un coup de volant ou un redressement est compté.
   const bx = 4, bw = W - 8, by = H - 22, bh = 14, mid = bx + bw / 2;
   ctx.fillStyle = col('--muted'); ctx.font = '600 11px ' + col('--font-body'); ctx.textAlign = 'center';
-  ctx.fillText('VOLANT', mid, by - 9);
+  ctx.fillText('DIRECTION', mid, by - 9);
   ctx.fillStyle = col('--soft'); ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, bw, bh, 7) : ctx.rect(bx, by, bw, bh); ctx.fill();
   if (e.gyroOn) {
-    const y = e.yaw, v = Math.sign(y) * Math.min(1, Math.sqrt(Math.abs(y) / 25));
-    ctx.fillStyle = col('--accent'); ctx.fillRect(v >= 0 ? mid : mid + v * bw / 2, by + 2, Math.abs(v) * bw / 2, bh - 4);
+    const y = e.yawShow, v = Math.sign(y) * Math.min(1, Math.abs(y) / 20);
+    const le = e.lastEvent, lit = le && (le.kind === 'swerve' || le.kind === 'fix') && e.t - le.t < 3;
+    ctx.fillStyle = lit ? col(le.kind === 'swerve' ? '--k-swerve' : '--k-fix') : col('--accent'); ctx.fillRect(v >= 0 ? mid : mid + v * bw / 2, by + 2, Math.abs(v) * bw / 2, bh - 4);
     ctx.strokeStyle = col('--line'); ctx.lineWidth = 1;
-    for (const k of [-1, 1]) for (const d of [5, 15]) { const xx = mid + k * Math.sqrt(d / 25) * bw / 2; ctx.beginPath(); ctx.moveTo(xx, by + 1); ctx.lineTo(xx, by + bh - 1); ctx.stroke(); }
+    for (const k of [-1, 1]) for (const d of [5, 10, 15]) { const xx = mid + k * d / 20 * bw / 2; ctx.beginPath(); ctx.moveTo(xx, by + 1); ctx.lineTo(xx, by + bh - 1); ctx.stroke(); }
     ctx.strokeStyle = col('--ink'); ctx.beginPath(); ctx.moveTo(mid, by - 2); ctx.lineTo(mid, by + bh + 2); ctx.stroke();
     ctx.fillStyle = col('--muted'); ctx.textAlign = 'left'; ctx.fillText('G', bx + 2, by - 9); ctx.textAlign = 'right'; ctx.fillText('D', bx + bw - 2, by - 9);
   } else if (e.t > 3) { ctx.fillStyle = col('--muted'); ctx.font = '12px ' + col('--font-body'); ctx.fillText('Gyroscope indisponible', mid, by + 11); }

@@ -67,7 +67,7 @@ const PL = (() => {
       this.tickT = null; this.prevA = [0, 0]; this.jerkSq = 0; this.jerkT = 0;
       this.recalCount = 0;
       // Gyroscope : cap de la voiture (lacet), volant, redressements
-      this.gyroOn = false; this.bias = 0; this.ySign = 1; this.ySum = 0; this.yF = 0; this.yawSlow = 0; this.yaw = 0; this.yawD = 0;
+      this.gyroOn = false; this.bias = 0; this.ySign = 1; this.ySum = 0; this.yF = 0; this.yawSlow = 0; this.yaw = 0; this.yawD = 0; this.yS1 = 0; this.yS2 = 0; this.yawShow = 0;
       this.ybuf = []; this.fx = null; this.fxLast = -9;
       this.steerSq = 0; this.steerT = 0;
       // Segments latéraux (coups de volant), creux d'accélération (passages de vitesse)
@@ -195,6 +195,8 @@ const PL = (() => {
         this.yF += (yc - this.yF) * (1 - Math.exp(-2 * Math.PI * 2.5 * dt));
         this.yawD += (yc - this.yawD) * (1 - Math.exp(-2 * Math.PI * 4 * dt));
         this.yaw = this.yawD / D2R;                                 // °/s, pour l'affichage
+        this.yS1 += (yc - this.yS1) * (1 - Math.exp(-2 * Math.PI * 1.2 * dt)); this.yS2 += (this.yS1 - this.yS2) * (1 - Math.exp(-2 * Math.PI * 1.2 * dt));
+        this.yawShow = Math.abs(this.yS2) / D2R < 1.5 ? 0 : this.yS2 / D2R;   // °/s, affichage seul : 1,2 Hz ×2 + zone morte
         this.yawSlow += (this.yF - this.yawSlow) * (1 - Math.exp(-dt / 3));
         if (Math.abs(this.aLat) >= 0.9) this.lastCurveT = ts;
         if (v !== null && v >= CFG.swerve.minSpeed && ts - this.lastCurveT > 2.5) {
