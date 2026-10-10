@@ -7,8 +7,8 @@ const mk = (style, seed, ts, extra = {}) => { const e = PL.runSim(style, seed); 
 // 1. Calendrier, niveaux, ligues
 assert.strictEqual(PG.weekKey(T0), '2026-W41'); assert.strictEqual(PG.weekKey(new Date(2026, 9, 11, 23).getTime()), '2026-W41'); assert.strictEqual(PG.weekKey(new Date(2026, 9, 12, 1).getTime()), '2026-W42');
 assert.strictEqual(PG.weekKey(new Date(2027, 0, 1).getTime()), '2026-W53');
-assert.strictEqual(PG.levelOf(0).level, 1); assert.strictEqual(PG.levelOf(60).level, 2); assert(PG.levelOf(2100).level === 10 && PG.levelOf(2100).title === 'Velours');
-assert.strictEqual(PG.league(91).name, 'Diamant'); assert.strictEqual(PG.league(59).name, 'Bronze'); assert.strictEqual(PG.league(null), null);
+assert.strictEqual(PG.levelOf(0).level, 1); assert.strictEqual(PG.levelOf(60).level, 2); assert(PG.levelOf(2100).level === 10 && PG.levelOf(2100).title === 'Tireur d’élite');
+assert.strictEqual(PG.league(91).name, 'Galaxie'); assert.strictEqual(PG.league(59).name, 'Terre'); assert.strictEqual(PG.league(75).id, 'agate'); assert.strictEqual(PG.league(null), null);
 assert.strictEqual(PG.dailyChallenges('2026-10-05').length, 3); assert.deepStrictEqual(PG.dailyChallenges('2026-10-05').map(c => c.id), PG.dailyChallenges('2026-10-05').map(c => c.id));
 assert.notDeepStrictEqual(PG.dailyChallenges('2026-10-05').map(c => c.id), PG.dailyChallenges('2026-10-06').map(c => c.id));
 

@@ -1,6 +1,15 @@
-# Pied Léger
+# Bille
 
-Web app qui note la conduite avec les capteurs du téléphone (accéléromètre, gyroscope, GPS) et la transforme en jeu entre amis. Notation volontairement stricte. Quatre onglets : **Conduire**, **Progrès**, **Amis**, **Trajets**.
+**Garde la bille au centre.** Le jeu de la conduite en douceur : le téléphone note ta conduite avec ses capteurs (accéléromètre, gyroscope, GPS) et tu joues avec ta bande. Notation volontairement stricte. Quatre onglets : **Rouler**, **Progrès**, **Bande**, **Trajets**.
+
+## Marque
+
+- **Idée** : une bille posée dans un bol sur le tableau de bord. Freine fort, elle file vers l'avant ; vire sec, elle part sur le côté ; conduis en douceur, elle reste au centre. C'est le vieux truc des moniteurs (« le verre d'eau sur le tableau de bord »), transformé en jeu de cour d'école.
+- **Univers** : les points sont des **billes**. Les ligues de la semaine suivent les billes de la cour, de la plus commune à la plus rare : Terre, Verre, Agate, Œil-de-chat, Galaxie. Les badges sont des **billes rares** à collectionner. Niveaux : Petite bille, Joueur de cour, Pointeur, Tireur d'élite, Maître du calot, Légende de la cour.
+- **Logo** : « bille » en minuscules, le point du i remplacé par une bille orange. Icône : la bille au centre de son bol, sur fond bleu cobalt.
+- **Couleurs** : bleu cobalt (marque), orange bille (récompenses), vert / ambre / rouge réservés aux états de conduite. Thème clair et sombre.
+- **Typo** : Unbounded (titres, scores), Onest (texte).
+- **Ton** : tutoiement, phrases courtes, encourageant, jamais moralisateur. « Bille au centre. », « Garde-la au centre la prochaine fois. »
 
 ## Ce qui est mesuré
 
@@ -23,16 +32,16 @@ Cockpit (jauge verticale, disque des forces, barre de direction), panneau de lim
 
 ## Jeu
 
-- **XP** gagnés par la qualité : rien sous 40, distance plafonnée à 20 km. Niveaux et titres.
-- **20 badges** (Velours, Freins de soie, Flow, Dans les clous, Zéro écran, Nuit sereine…).
+- **Billes** gagnées par la qualité : rien sous 40, distance plafonnée à 20 km. Niveaux et titres.
+- **20 billes rares** (Velours, Freins de soie, Flow, Dans les clous, Zéro écran, Nuit sereine…).
 - **3 défis du jour** tirés au sort et **défi de la semaine** (score de la semaine passée + 3, 30 km et 3 trajets minimum).
-- **Ligues hebdo** (Bronze < 60, Argent, Or, Platine, Diamant ≥ 90), score de la semaine pondéré par les km.
+- **Ligues hebdo** (Terre < 60, Verre, Agate, Œil-de-chat, Galaxie ≥ 90), score de la semaine pondéré par les km.
 - **Série** : trajets consécutifs ≥ 70 (on récompense la qualité, pas le fait de rouler plus).
 - **Coaching** : axe le plus faible des 5 derniers trajets, tendance, conseil.
 - **Points noirs** : même défaut au même endroit (70 m) sur deux trajets. **Trajets habituels** : même départ et même arrivée (300 m), progression.
 - **Carte du trajet** (tracé GPS, sans fond de carte) avec l'endroit de chaque événement.
 
-## Amis, sans serveur
+## Bande, sans serveur
 
 Tout passe par des liens (WhatsApp, SMS…) : **carte de profil** (image + lien), **défi** (score à battre sur une distance), **bravo**. Ouvrir le lien d'un ami l'ajoute au classement de la semaine et au fil d'activité. Le lien ne contient que pseudo, avatar, niveau et scores : jamais de trajet ni de position. Tout est revalidé à la réception.
 
@@ -44,7 +53,7 @@ Tout passe par des liens (WhatsApp, SMS…) : **carte de profil** (image + lien)
 
 ## Fichiers
 
-- `index.html` : application autonome (moteur, jeu et interface inclus).
+- `index.html` : application autonome (moteur, jeu et interface inclus), installable sur l'écran d'accueil (`manifest.webmanifest`, icônes).
 - `engine.js` : moteur sans interface. `game.js` : jeu et social sans interface.
 
 ## Limites

@@ -1,124 +1,176 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0C1318"><title>Pied Léger</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2D46F5"><meta name="description" content="Garde la bille au centre : le jeu de la conduite en douceur."><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Bille"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="apple-touch-icon" href="apple-touch-icon.png"><title>Bille</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700;800&display=swap">
 <style>
-/* Une colonne mobile (560 px max), barre d'onglets en bas : Conduire / Progrès / Amis / Trajets. En roulant, le cockpit seul. */
+/* Bille — une colonne mobile (560 px max), onglets en bas. Motif unique : le bol et la bille (cockpit, logo, ligues, billes rares). */
 :root{
-  --bg:#EDF0F3; --surface:#FFFFFF; --ink:#13202B; --muted:#566676; --line:#D3DAE1; --soft:#E4E9EE;
-  --accent:#0A6C88; --accent-ink:#FFFFFF; --accent-soft:#D5E8EE;
-  --good:#1C8A4B; --warn:#A96A12; --bad:#C23B32; --bad-ink:#FFFFFF;
-  --xp:#B9851A;
-  --k-brake:#C23B32; --k-accel:#B7791F; --k-corner:#4F5BD5; --k-swerve:#0E8F7E; --k-fix:#C2417B; --k-shift:#7A55E0; --k-shock:#5E6B78; --k-speed:#D1202F; --k-phone:#2D3B47;
-  --lg-bronze:#A4672F; --lg-silver:#7D8B98; --lg-gold:#B98A12; --lg-platinum:#3E8C9E; --lg-diamond:#5B5FD6;
+  --bg:#F2F3F8; --surface:#FFFFFF; --ink:#141634; --muted:#5D6283; --line:#DDE0EC; --soft:#ECEEF6;
+  --brand:#2D46F5; --brand-ink:#FFFFFF; --brand-deep:#1B2CB5; --brand-soft:#E4E8FF;
+  --hero:#2D46F5; --hero-deep:#1B2CB5; --hero-ink:#FFFFFF;
+  --pop:#FF6B2C; --pop-deep:#C94A12; --coin-ink:#C24410;
+  --good:#12A765; --warn:#D98200; --bad:#E23353; --bad-ink:#FFFFFF; --bad-deep:#A81C38;
+  --bowl-in:#FAFBFF; --bowl-out:#D9DEF0;
+  --k-brake:#E23353; --k-accel:#D98200; --k-corner:#4F5BD5; --k-swerve:#0E8F7E; --k-fix:#C2417B; --k-shift:#7A55E0; --k-shock:#5E6B78; --k-speed:#D1202F; --k-phone:#2D3B47;
+  --lg-terre:#B5653A; --lg-verre:#1797A7; --lg-agate:#E0562B; --lg-oeil:#2E9E5B; --lg-galaxie:#5B3FD6;
   --sign-bg:#FFFFFF; --sign-ring:#D1202F; --sign-ink:#111111;
-  --font-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
-  --font-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --font-data:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
-  --nav-h:64px;
+  --font-display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --font-body:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-data:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --nav-h:66px; --r:20px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0C1318; --surface:#141D25; --ink:#E5ECF1; --muted:#8C9CAA; --line:#26333E; --soft:#1B2731;
-  --accent:#43C1DD; --accent-ink:#06222B; --accent-soft:#16323C;
-  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08; --xp:#E8B847;
-  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; --k-speed:#FF6B6B; --k-phone:#C9D4DD;
-  --lg-bronze:#D08A4C; --lg-silver:#AEBBC7; --lg-gold:#E8B847; --lg-platinum:#5FC3D6; --lg-diamond:#9EA2FF;
+  --bg:#0D0F22; --surface:#161936; --ink:#EEF0FF; --muted:#9CA2CC; --line:#2A2F57; --soft:#1F2347;
+  --brand:#6C7DFF; --brand-ink:#0B0E2A; --brand-deep:#3F4FD8; --brand-soft:#222A6B;
+  --hero:#2B3AC9; --hero-deep:#18237E; --hero-ink:#FFFFFF;
+  --pop:#FF8752; --pop-deep:#D85F27; --coin-ink:#FF9A6B;
+  --good:#3DD68C; --warn:#FFB23E; --bad:#FF5C7A; --bad-ink:#2A0712; --bad-deep:#B8304C;
+  --bowl-in:#262B60; --bowl-out:#14173A;
+  --k-brake:#FF5C7A; --k-accel:#FFB23E; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; --k-speed:#FF6B6B; --k-phone:#C9D4DD;
+  --lg-terre:#D88A5C; --lg-verre:#4CC9D8; --lg-agate:#FF7A4D; --lg-oeil:#56C985; --lg-galaxie:#9B85FF;
   color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0C1318; --surface:#141D25; --ink:#E5ECF1; --muted:#8C9CAA; --line:#26333E; --soft:#1B2731;
-  --accent:#43C1DD; --accent-ink:#06222B; --accent-soft:#16323C;
-  --good:#4FCB86; --warn:#E3AE4D; --bad:#F0736B; --bad-ink:#2A0B08; --xp:#E8B847;
-  --k-brake:#F0736B; --k-accel:#E3AE4D; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; --k-speed:#FF6B6B; --k-phone:#C9D4DD;
-  --lg-bronze:#D08A4C; --lg-silver:#AEBBC7; --lg-gold:#E8B847; --lg-platinum:#5FC3D6; --lg-diamond:#9EA2FF;
+  --bg:#0D0F22; --surface:#161936; --ink:#EEF0FF; --muted:#9CA2CC; --line:#2A2F57; --soft:#1F2347;
+  --brand:#6C7DFF; --brand-ink:#0B0E2A; --brand-deep:#3F4FD8; --brand-soft:#222A6B;
+  --hero:#2B3AC9; --hero-deep:#18237E; --hero-ink:#FFFFFF;
+  --pop:#FF8752; --pop-deep:#D85F27; --coin-ink:#FF9A6B;
+  --good:#3DD68C; --warn:#FFB23E; --bad:#FF5C7A; --bad-ink:#2A0712; --bad-deep:#B8304C;
+  --bowl-in:#262B60; --bowl-out:#14173A;
+  --k-brake:#FF5C7A; --k-accel:#FFB23E; --k-corner:#8C97FF; --k-swerve:#3CCDB8; --k-fix:#F07AAE; --k-shift:#A58BFF; --k-shock:#A7B3BF; --k-speed:#FF6B6B; --k-phone:#C9D4DD;
+  --lg-terre:#D88A5C; --lg-verre:#4CC9D8; --lg-agate:#FF7A4D; --lg-oeil:#56C985; --lg-galaxie:#9B85FF;
   color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:400 15px/1.45 var(--font-body);-webkit-text-size-adjust:100%}
 button,input{font-family:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{max-width:560px;margin-inline:auto;padding-inline:16px;padding-block:14px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.app{max-width:560px;margin-inline:auto;padding-inline:16px;padding-block:12px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 .app.driving{padding-bottom:28px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.top h1{margin:0;font:700 26px/1 var(--font-display);letter-spacing:.03em;text-transform:uppercase}
-.me-chip{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);cursor:pointer;font:500 14px var(--font-body);min-width:0}
+
+/* en-tête : logo, billes, profil */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
+.logo{display:inline-flex;align-items:baseline;margin:0;font:800 30px/1 var(--font-display);letter-spacing:-.02em;color:var(--ink)}
+.logo .i{position:relative;display:inline-block}
+.logo .i b{position:absolute;left:50%;top:-.04em;width:.34em;height:.34em;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 34% 30%,#FFFFFF 0 13%,var(--pop) 17% 58%,var(--pop-deep) 100%);box-shadow:inset -1px -2px 3px rgba(0,0,0,.18)}
+.top-r{display:flex;align-items:center;gap:8px;min-width:0}
+.coinchip,.me-chip{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);font:700 14px var(--font-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.me-chip{padding-left:4px;cursor:pointer;min-width:0}
 .me-chip .av{width:30px;height:30px;font-size:18px}
-.me-chip small{font:500 12px var(--font-data);color:var(--muted)}
+.me-chip small{font:600 12px var(--font-body);color:var(--muted)}
+.coin{display:inline-block;width:.95em;height:.95em;border-radius:50%;flex:none;vertical-align:-.12em;background:radial-gradient(circle at 34% 30%,#FFFFFF 0 13%,var(--pop) 17% 58%,var(--pop-deep) 100%);box-shadow:inset -1px -2px 3px rgba(0,0,0,.18)}
 .av{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--soft);font-size:22px;line-height:1;flex:none}
 .av.big{width:56px;height:56px;font-size:32px}
 
 /* barre d'onglets */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .nav-in{max-width:560px;margin-inline:auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
-.nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--muted);font:500 12px var(--font-body);cursor:pointer;position:relative}
-.nav button svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.nav button[aria-selected="true"]{color:var(--accent)}
-.nav .dot{position:absolute;top:8px;left:calc(50% + 8px);min-width:16px;height:16px;padding-inline:4px;border-radius:99px;background:var(--bad);color:var(--bad-ink);font:600 10px/16px var(--font-body)}
+.nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--muted);font:600 12px var(--font-body);cursor:pointer;position:relative}
+.nav button svg{width:24px;height:24px;padding:3px 16px;box-sizing:content-box;border-radius:99px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:background .15s}
+.nav button[aria-selected="true"]{color:var(--brand)}
+.nav button[aria-selected="true"] svg{background:var(--brand-soft)}
+.nav .dot{position:absolute;top:6px;left:calc(50% + 12px);min-width:18px;height:18px;padding-inline:5px;border-radius:99px;background:var(--pop);color:#FFFFFF;font:700 11px/18px var(--font-body)}
 
 .stack{display:flex;flex-direction:column;gap:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
-h2{margin:0;font:600 26px/1.1 var(--font-display);letter-spacing:.01em;text-wrap:balance}
-h3{margin:0 0 10px;font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.h3row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+h2{margin:0;font:600 22px/1.2 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+h3{margin:0 0 10px;font:700 12px var(--font-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.h3row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.h3row h3{margin:0}
 .hint{margin:8px 0 0;color:var(--muted);font-size:13px}
-.err{margin-top:12px;padding:10px 12px;border:1px solid var(--bad);border-radius:10px;background:var(--soft);font-size:14px}
+.err{margin-top:12px;padding:10px 12px;border:1.5px solid var(--bad);border-radius:12px;background:var(--surface);color:var(--ink);font-size:14px}
 .note{margin:10px 0 0;color:var(--muted);font-size:13px}
 .empty{margin:0;color:var(--muted)}
-.btn{display:block;width:100%;padding:14px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font:600 16px var(--font-body);text-align:center;cursor:pointer;text-decoration:none}
-.btn.big{padding:18px 16px;font-size:18px;border-radius:12px}
-.btn.ghost{background:var(--soft);color:var(--ink);padding:10px 14px;font-size:14px;width:auto;display:inline-block}
-.btn.stop{background:var(--bad);color:var(--bad-ink)}
-.btn.link{background:none;color:var(--muted);padding:8px 0;font-size:14px;font-weight:500;text-decoration:underline;text-underline-offset:3px;width:auto;display:inline-block}
-.btn.sm{padding:7px 12px;font-size:13px;border-radius:8px;width:auto;display:inline-block}
+
+/* boutons à relief : ils s'enfoncent quand on appuie */
+.btn{display:block;width:100%;padding:14px 16px;border:0;border-radius:16px;background:var(--brand);color:var(--brand-ink);box-shadow:0 4px 0 var(--brand-deep);font:700 16px var(--font-body);text-align:center;cursor:pointer;text-decoration:none;transition:transform .07s,box-shadow .07s;margin-bottom:4px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--brand-deep)}
+.btn.big{padding:19px 16px;font:600 18px var(--font-display);border-radius:18px}
+.btn.ghost{background:var(--soft);color:var(--ink);box-shadow:0 4px 0 var(--line);padding:10px 14px;font-size:14px;width:auto;display:inline-block}
+.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.stop{background:var(--bad);color:var(--bad-ink);box-shadow:0 4px 0 var(--bad-deep)}
+.btn.stop:active{box-shadow:0 1px 0 var(--bad-deep)}
+.btn.link{background:none;box-shadow:none;color:var(--muted);padding:8px 0;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;width:auto;display:inline-block;margin:0}
+.btn.link:active{transform:none}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px;width:auto;display:inline-block;box-shadow:0 3px 0 var(--brand-deep)}
+.btn.ghost.sm{box-shadow:0 3px 0 var(--line)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .row .grow{flex:1 1 0;min-width:0}
 .row .btn.ghost,.sheet .btn.ghost{padding:14px 16px;font-size:16px}
 .go{margin-top:14px}
-.toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.tg{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--muted);font:500 13px var(--font-body);cursor:pointer}
-.tg i{width:28px;height:16px;border-radius:99px;background:var(--line);position:relative;flex:none}
-.tg i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--surface);transition:transform .15s}
-.tg[aria-pressed="true"]{color:var(--ink);border-color:var(--accent)}
-.tg[aria-pressed="true"] i{background:var(--accent)}
+
+/* accueil : bandeau de marque */
+.hero{background:var(--hero);border-color:var(--hero);color:var(--hero-ink);padding:20px}
+.hero-in{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:18px}
+.hero .eyebrow{color:var(--hero-ink);opacity:.8}
+.hero h2{font-size:23px}
+.bowl{display:block;width:96px;height:96px}
+.bowl .mb{animation:roll 6s ease-in-out infinite}
+@keyframes roll{0%,100%{transform:translate(0,0)}25%{transform:translate(5px,-3px)}50%{transform:translate(-2px,4px)}75%{transform:translate(-5px,-1px)}}
+.hero .btn{background:#FFFFFF;color:#1B2CB5;box-shadow:0 5px 0 var(--hero-deep)}
+.hero .btn:active{box-shadow:0 1px 0 var(--hero-deep)}
+.hero .hint{color:var(--hero-ink);opacity:.85}
+.toggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tg{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 8px;border:1.5px solid var(--line);border-radius:99px;background:var(--surface);color:var(--muted);font:600 13px var(--font-body);cursor:pointer}
+.tg i{width:30px;height:18px;border-radius:99px;background:var(--line);position:relative;flex:none}
+.tg i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#FFFFFF;transition:transform .15s}
+.tg[aria-pressed="true"]{color:var(--ink);border-color:var(--brand)}
+.tg[aria-pressed="true"] i{background:var(--brand)}
 .tg[aria-pressed="true"] i::after{transform:translateX(12px)}
+.hero .tg{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:var(--hero-ink)}
+.hero .tg[aria-pressed="true"]{border-color:#FFFFFF}
+.hero .tg[aria-pressed="true"] i{background:var(--pop)}
 
 /* profil / niveau */
 .hello{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
-.hello b{display:block;font:600 22px/1.15 var(--font-display)}
+.hello b{display:block;font:600 19px/1.2 var(--font-display)}
 .hello small{color:var(--muted);font-size:13px}
-.xpbar{height:8px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:8px}
-.xpbar i{display:block;height:100%;background:var(--xp);border-radius:99px;transition:width .6s ease-out}
-.xpline{display:flex;justify-content:space-between;gap:8px;margin-top:4px;font:400 12px var(--font-data);color:var(--muted)}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
-.kpi{padding:10px;border-radius:10px;background:var(--soft);min-width:0;border:0;color:inherit;text-align:left;font:inherit}
+.xpbar{height:10px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:8px}
+.xpbar i{display:block;height:100%;background:var(--pop);border-radius:99px;transition:width .6s ease-out}
+.xpline{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font:600 12px var(--font-body);color:var(--muted);font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kpi{padding:12px 10px;border-radius:14px;background:var(--soft);min-width:0;border:0;color:inherit;text-align:left;font:inherit;display:flex;flex-direction:column;gap:4px}
 button.kpi{cursor:pointer}
-.kpi small{display:block;font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.kpi b{display:block;margin-top:2px;font:700 22px/1.1 var(--font-display);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lg{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;border:1.5px solid currentColor;font:600 12px var(--font-body);letter-spacing:.04em;white-space:nowrap}
-.lg-bronze{color:var(--lg-bronze)} .lg-silver{color:var(--lg-silver)} .lg-gold{color:var(--lg-gold)} .lg-platinum{color:var(--lg-platinum)} .lg-diamond{color:var(--lg-diamond)} .lg-none{color:var(--muted)}
+.kpi small{display:block;font:700 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi b{display:flex;align-items:center;gap:6px;font:700 22px/1.1 var(--font-display);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi span{color:var(--muted);font-size:12px}
+
+/* billes : ligues et billes rares */
+.marble{display:inline-block;width:1.1em;height:1.1em;border-radius:50%;flex:none;box-shadow:inset -2px -3px 5px rgba(0,0,0,.25)}
+.m-terre{background:radial-gradient(circle at 34% 30%,#F2C2A2 0 10%,#B5653A 45%,#6E3519 100%)}
+.m-verre{background:radial-gradient(circle at 34% 30%,#FFFFFF 0 9%,rgba(255,255,255,0) 22%),radial-gradient(circle at 60% 65%,#9DEEF6 0 25%,#1BA7B8 65%,#0B6772 100%)}
+.m-agate{background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,0) 22%),conic-gradient(from 30deg,#E0562B,#F7B267,#E0562B,#9E2B12,#F7B267,#E0562B)}
+.m-oeil{background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,0) 22%),linear-gradient(115deg,rgba(0,0,0,0) 36%,#1F8A4C 39% 46%,#F2C14E 47% 53%,#1F8A4C 54% 61%,rgba(0,0,0,0) 64%),radial-gradient(circle,#E6FAEF 0 40%,#7CC79D 100%)}
+.m-galaxie{background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.95) 0 9%,rgba(255,255,255,0) 22%),radial-gradient(circle at 66% 60%,#FF7AD9 0 6%,rgba(255,122,217,0) 18%),radial-gradient(circle at 30% 70%,#7DF9FF 0 5%,rgba(125,249,255,0) 13%),radial-gradient(circle,#5B3FD6 0 45%,#1B0F5C 100%)}
+.m-none{background:var(--line);box-shadow:none}
+.lg{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 12px var(--font-body);white-space:nowrap}
+.lg .marble{width:16px;height:16px}
+.ladder{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:12px;text-align:center}
+.ladder div{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:12px;font:600 11px/1.2 var(--font-body);color:var(--muted)}
+.ladder .marble{width:28px;height:28px}
+.ladder .on{background:var(--brand-soft);color:var(--ink)}
+.ladder small{font:500 10px var(--font-body);color:var(--muted)}
 
 /* défis */
-.chal{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.chal li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
-.chal li:first-child{border-top:0}
-.ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center}
-.ck svg{width:13px;height:13px;stroke:var(--surface);stroke-width:3;fill:none;opacity:0}
+.chal{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.chal li{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--soft)}
+.ck{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.ck svg{width:13px;height:13px;stroke:#FFFFFF;stroke-width:3;fill:none;opacity:0}
 .done .ck{background:var(--good);border-color:var(--good)}
 .done .ck svg{opacity:1}
-.done span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
-.xpv{font:600 13px var(--font-data);color:var(--xp);white-space:nowrap}
-.prog{height:6px;border-radius:99px;background:var(--soft);overflow:hidden;margin-top:6px}
-.prog i{display:block;height:100%;background:var(--accent)}
-.wk{margin-top:12px;padding:12px;border-radius:10px;background:var(--soft)}
-.wk b{font-weight:600}
-.wk small{display:block;color:var(--muted);font:400 12px var(--font-data);margin-top:4px}
-.wk .prog{background:var(--surface)}
+.done span{color:var(--muted)}
+.xpv{display:inline-flex;align-items:center;gap:4px;font:700 13px var(--font-body);color:var(--coin-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.prog{height:8px;border-radius:99px;background:var(--surface);overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--brand);border-radius:99px}
+.wk{margin-top:12px;padding:12px;border-radius:14px;background:var(--soft)}
+.wk b{font-weight:700}
+.wk small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
 
 /* coach */
-.coach{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center}
-.coach .n{display:grid;place-items:center;height:52px;border-radius:10px;background:var(--soft);font:700 26px var(--font-display);font-variant-numeric:tabular-nums}
-.coach b{display:block;font-weight:600}
+.coach{display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:center}
+.coach .n{display:grid;place-items:center;height:56px;border-radius:50%;background:var(--soft);font:700 20px var(--font-display);font-variant-numeric:tabular-nums}
+.coach b{display:block;font-weight:700}
 .coach span{color:var(--muted);font-size:14px}
-.trend{font:500 12px var(--font-data);margin-left:6px}
+.trend{font:700 12px var(--font-body);margin-left:6px}
 .up{color:var(--good)} .dn{color:var(--bad)} .eq{color:var(--muted)}
 
 /* score */
@@ -127,44 +179,44 @@ button.kpi{cursor:pointer}
 .ring svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
 .ring .tr{stroke:var(--soft)}
 .ring .pg{transition:stroke-dashoffset .25s}
-.rc-good{stroke:var(--good)} .rc-warn{stroke:var(--warn)} .rc-bad{stroke:var(--bad)} .rc-xp{stroke:var(--xp)}
-.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 calc(var(--s) * .45)/1 var(--font-display);font-variant-numeric:tabular-nums}
+.rc-good{stroke:var(--good)} .rc-warn{stroke:var(--warn)} .rc-bad{stroke:var(--bad)} .rc-xp{stroke:var(--pop)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 calc(var(--s) * .34)/1 var(--font-display);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
 .ring.sm{--s:92px}
 .ring.xs{--s:72px}
 .b-meta{flex:1;min-width:170px}
-.eyebrow{margin:0 0 4px;color:var(--muted);font:400 12px var(--font-data)}
-.delta{display:inline-block;margin-top:6px;margin-right:8px;font:500 13px var(--font-data)}
+.eyebrow{margin:0 0 4px;color:var(--muted);font:600 12px var(--font-body);letter-spacing:.02em}
+.delta{display:inline-block;margin-top:6px;margin-right:8px;font:700 13px var(--font-body)}
 .stats{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 0}
-.stats dt{font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.stats dd{margin:0;font:500 14px var(--font-data);font-variant-numeric:tabular-nums}
+.stats dt{font:700 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.stats dd{margin:0;font:600 15px var(--font-body);font-variant-numeric:tabular-nums}
 .sec{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .focus{display:flex;flex-direction:column;gap:8px}
-.fo{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:center;padding:10px 12px;background:var(--soft);border-radius:10px}
-.fo .n{display:grid;place-items:center;height:36px;border-radius:8px;background:var(--surface);font:700 20px var(--font-display);font-variant-numeric:tabular-nums}
-.fo b{display:block;font-weight:600}
+.fo{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:center;padding:10px 12px;background:var(--soft);border-radius:14px}
+.fo .n{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--surface);font:700 15px var(--font-display);font-variant-numeric:tabular-nums}
+.fo b{display:block;font-weight:700}
 .fo span{color:var(--muted);font-size:14px}
 .fo.good{grid-template-columns:minmax(0,1fr)}
-.pen{margin:12px 0 0;padding:9px 12px;border-radius:10px;background:var(--soft);border-left:4px solid var(--bad);font-size:14px}
-.xpchip{display:inline-block;margin-top:6px;padding:2px 9px;border-radius:99px;background:var(--soft);color:var(--xp);font:600 13px var(--font-data)}
+.pen{margin:12px 0 0;padding:10px 12px;border-radius:12px;background:var(--soft);border-left:4px solid var(--bad);font-size:14px}
+.xpchip{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:3px 10px 3px 6px;border-radius:99px;background:var(--soft);color:var(--coin-ink);font:700 13px var(--font-body)}
 
 /* axes */
 .axis{display:grid;grid-template-columns:minmax(92px,112px) 1fr 34px;grid-template-areas:"l b v" ". d d";align-items:center;column-gap:10px;padding:5px 0}
-.axis>span:first-child{grid-area:l}
-.axis .bar{grid-area:b;height:8px;border-radius:4px;background:var(--soft);overflow:hidden}
-.axis .bar i{display:block;height:100%;border-radius:4px;transition:width .2s}
-.axis .v{grid-area:v;text-align:right;font:500 14px var(--font-data);font-variant-numeric:tabular-nums}
+.axis>span:first-child{grid-area:l;font-weight:500}
+.axis .bar{grid-area:b;height:10px;border-radius:99px;background:var(--soft);overflow:hidden}
+.axis .bar i{display:block;height:100%;border-radius:99px;transition:width .2s}
+.axis .v{grid-area:v;text-align:right;font:700 14px var(--font-body);font-variant-numeric:tabular-nums}
 .axis small{grid-area:d;color:var(--muted);font-size:12px;margin-top:2px}
 .live .axis{grid-template-areas:"l b v"}
 .g-good{background:var(--good)} .g-warn{background:var(--warn)} .g-bad{background:var(--bad)} .g-none{background:transparent}
 
 /* événements */
 .evs{list-style:none;margin:0;padding:0}
-.ev{display:grid;grid-template-columns:14px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:14px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .ev:first-child{border-top:0}
-.ev b{display:block;font-weight:600}
-.ev small{color:var(--muted);font:400 12px var(--font-data)}
-.ev time{color:var(--muted);font:400 12px var(--font-data);font-variant-numeric:tabular-nums}
-.sev{padding:2px 7px;border:1px solid;border-radius:99px;font:600 11px var(--font-body);letter-spacing:.06em;text-transform:uppercase}
+.ev b{display:block;font-weight:700}
+.ev small{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.ev time{color:var(--muted);font:600 12px var(--font-body);font-variant-numeric:tabular-nums}
+.sev{padding:2px 8px;border:1.5px solid;border-radius:99px;font:700 10px var(--font-body);letter-spacing:.06em;text-transform:uppercase}
 .sev1{color:var(--warn)} .sev2{color:var(--bad)} .sev0{color:var(--muted)}
 .mk{display:inline-block;width:12px;height:12px;justify-self:center;flex:none}
 .mk.brake{background:var(--k-brake);border-radius:50%}
@@ -178,158 +230,167 @@ button.kpi{cursor:pointer}
 .mk.phone{background:var(--k-phone);border-radius:2px;width:8px;height:13px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
 .chips:empty{display:none}
-.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px 4px 8px;border-radius:99px;background:var(--soft);font-size:13px}
-.chip b{font:600 13px var(--font-data);font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:5px 11px 5px 9px;border-radius:99px;background:var(--soft);font-size:13px;font-weight:500}
+.chip b{font-weight:700;font-variant-numeric:tabular-nums}
 .legend{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:12px}
 .legend span{display:inline-flex;gap:6px;align-items:center}
 
 /* graphiques et carte */
 .chart{display:block;width:100%;height:auto;overflow:visible}
-.chart text{font:400 11px var(--font-data);fill:var(--muted)}
+.chart text{font:500 11px var(--font-body);fill:var(--muted)}
 .chart .gl{stroke:var(--line);stroke-width:1}
-.chart .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
-.chart .ar{fill:var(--accent);opacity:.12}
+.chart .ln{fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linejoin:round}
+.chart .ar{fill:var(--brand);opacity:.12}
 .chart .m{stroke:var(--surface);stroke-width:1.5}
 .chart .m-brake{fill:var(--k-brake)} .chart .m-accel{fill:var(--k-accel)} .chart .m-corner{fill:var(--k-corner)}
 .chart .m-swerve{fill:var(--k-swerve)} .chart .m-fix{fill:var(--k-fix)} .chart .m-shift{fill:var(--k-shift)} .chart .m-phone{fill:var(--k-phone)}
 .chart .m-shock{fill:var(--surface);stroke:var(--k-shock);stroke-width:2}
 .chart .m-speed{fill:var(--sign-bg);stroke:var(--k-speed);stroke-width:2.5}
-.chart .route{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
-.chart .route-bg{fill:none;stroke:var(--surface);stroke-width:8;stroke-linejoin:round;stroke-linecap:round}
-.chart .st{fill:var(--accent);stroke:var(--surface);stroke-width:2}
+.chart .route{fill:none;stroke:var(--brand);stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}
+.chart .route-bg{fill:none;stroke:var(--surface);stroke-width:9;stroke-linejoin:round;stroke-linecap:round}
+.chart .st{fill:var(--pop);stroke:var(--surface);stroke-width:2}
 .chart .en{fill:var(--ink);stroke:var(--surface);stroke-width:2}
 .chart .lim{fill:none;stroke:var(--k-speed);stroke-width:1.5;stroke-dasharray:4 3}
-.mapbox{border-radius:10px;background:var(--soft);padding:8px}
+.mapbox{border-radius:14px;background:var(--soft);padding:8px}
 .eco{display:grid;gap:6px}
 .eco-bar{position:relative;height:10px;border-radius:99px;background:var(--soft);margin-top:6px}
 .eco-bar span{position:absolute;top:0;bottom:0;border-radius:99px}
 .eco-bar i{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
-.eco-sc{position:relative;height:16px;font:400 11px var(--font-data);color:var(--muted)}
+.eco-sc{position:relative;height:16px;font:500 11px var(--font-body);color:var(--muted)}
 .eco-sc span{position:absolute;top:0;white-space:nowrap}
 
 /* direct : cockpit */
 .live{padding:14px}
 .l-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.status{display:inline-flex;gap:8px;align-items:center;padding:4px 11px;border-radius:99px;background:var(--soft);font-size:13px}
+.status{display:inline-flex;gap:8px;align-items:center;padding:5px 12px;border-radius:99px;background:var(--soft);font-size:13px;font-weight:600}
 .status i{width:8px;height:8px;border-radius:50%;background:var(--warn)}
 .status.ok i{background:var(--good)}
-.trip-line{font:400 13px var(--font-data);color:var(--muted)}
+.trip-line{font:600 13px var(--font-body);color:var(--muted);font-variant-numeric:tabular-nums}
 .l-hero{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:12px}
 .spd{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0}
-.speed{font:700 54px/1 var(--font-display);font-variant-numeric:tabular-nums;text-align:center}
-.speed small{display:block;font:500 13px var(--font-data);color:var(--muted)}
+.speed{font:700 46px/1 var(--font-display);font-variant-numeric:tabular-nums;text-align:center;letter-spacing:-.03em}
+.speed small{display:block;margin-top:4px;font:600 12px var(--font-body);color:var(--muted);letter-spacing:0}
 .speed.over{color:var(--bad)}
-.sign{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--sign-bg);border:6px solid var(--sign-ring);color:var(--sign-ink);font:700 18px/1 var(--font-display);font-variant-numeric:tabular-nums;flex:none}
-.sign.unk{border-color:var(--line);color:var(--muted);background:var(--soft);font-size:14px}
+.sign{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--sign-bg);border:6px solid var(--sign-ring);color:var(--sign-ink);font:700 15px/1 var(--font-display);font-variant-numeric:tabular-nums;flex:none}
+.sign.unk{border-color:var(--line);color:var(--muted);background:var(--soft);font-size:13px}
 .streak{text-align:right}
-.streak b{display:block;font:700 28px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--good)}
-.streak small{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.streak b{display:block;font:700 24px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--good)}
+.streak small{display:block;margin-top:4px;color:var(--muted);font-size:12px;font-weight:600}
 .gg{display:block;width:100%;max-width:460px;aspect-ratio:10/9;margin:10px auto 6px}
-.toast{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:60px;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--good);border-radius:10px;background:var(--soft)}
+.toast{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:62px;padding:10px 14px;border-radius:16px;border-left:6px solid var(--good);background:var(--soft)}
 .toast.w{border-left-color:var(--warn)} .toast.b{border-left-color:var(--bad)} .toast.i{border-left-color:var(--k-shock)}
-.toast b{display:block;font:600 17px/1.2 var(--font-body)}
-.toast small{color:var(--muted);font:400 12px var(--font-data)}
-.toast .pts{font:700 26px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--bad)}
+.toast b{display:block;font:700 17px/1.2 var(--font-body)}
+.toast small{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.toast .pts{font:700 24px/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--bad)}
 .toast.pop{animation:pop .35s ease-out}
 @keyframes pop{from{transform:scale(1.03)}to{transform:none}}
-.banner{margin:10px 0 0;padding:9px 12px;border:1px solid var(--warn);border-radius:10px;background:var(--soft);font-size:14px}
+.banner{margin:10px 0 0;padding:10px 12px;border:1.5px solid var(--warn);border-radius:12px;background:var(--soft);font-size:14px}
 
 /* fin de trajet */
-.cele{text-align:center}
+.cele{text-align:center;position:relative;overflow:hidden}
 .cele .ring{margin-inline:auto}
 .cele h2{margin-top:10px}
-.xp-big{margin-top:6px;font:700 34px/1 var(--font-display);color:var(--xp);font-variant-numeric:tabular-nums}
-.gains{list-style:none;margin:14px 0 0;padding:0;text-align:left}
-.gains li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.rain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.xp-big{display:inline-flex;align-items:center;gap:10px;margin-top:8px;font:700 30px/1 var(--font-display);color:var(--coin-ink);font-variant-numeric:tabular-nums}
+.xp-big .coin{width:28px;height:28px}
+.gains{list-style:none;margin:16px 0 0;padding:0;text-align:left}
+.gains li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
 .gains li:first-child{border-top:0}
-.lvup{margin-top:12px;padding:10px;border-radius:10px;background:var(--soft);font-weight:600}
-.medals{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.lvup{margin-top:12px;padding:10px 12px;border-radius:14px;background:var(--brand-soft);font-weight:700}
+.medals{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .cele .medals .bdg{animation:medal .5s cubic-bezier(.3,1.6,.5,1) both}
 .cele .medals .bdg:nth-child(2){animation-delay:.12s} .cele .medals .bdg:nth-child(3){animation-delay:.24s} .cele .medals .bdg:nth-child(4){animation-delay:.36s}
 @keyframes medal{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
 
-/* badges */
-.badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 8px}
-.bdg{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:none;border:0;padding:0;color:inherit;cursor:pointer;min-width:0}
-.medal{display:grid;place-items:center;width:58px;height:64px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--xp);font-size:27px;line-height:1}
-.medal span{display:grid;place-items:center;width:51px;height:57px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--surface)}
-.bdg small{font:500 11px/1.2 var(--font-body);color:var(--ink)}
-.bdg.off .medal{background:var(--line)}
-.bdg.off .medal span{filter:grayscale(1);opacity:.35}
+/* billes rares (badges) */
+.badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 8px}
+.bdg{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;background:none;border:0;padding:0;color:inherit;cursor:pointer;min-width:0}
+.medal{--h:225;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;font-size:24px;line-height:1;
+  background:radial-gradient(circle at 32% 27%,rgba(255,255,255,.95) 0 8%,rgba(255,255,255,0) 21%),radial-gradient(circle at 50% 55%,hsl(var(--h) 88% 66%) 0 40%,hsl(var(--h) 75% 36%) 100%);
+  box-shadow:inset -4px -6px 10px rgba(0,0,0,.25),0 3px 0 rgba(0,0,0,.08)}
+.medal span{filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
+.bdg small{font:600 11px/1.2 var(--font-body);color:var(--ink)}
+.bdg.off .medal{background:radial-gradient(circle at 32% 27%,rgba(255,255,255,.7) 0 8%,rgba(255,255,255,0) 21%),var(--soft);box-shadow:inset -3px -5px 8px rgba(0,0,0,.08)}
+.bdg.off .medal span{filter:grayscale(1);opacity:.28}
 .bdg.off small{color:var(--muted)}
 
-/* listes : trajets, amis, fil */
+/* listes : trajets, bande, fil */
 .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .list>li{border-top:1px solid var(--line)}
 .list>li:first-child{border-top:0}
-.item{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:11px 0;background:none;border:0;color:inherit;text-align:left;font:inherit}
+.item{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:11px 0;background:none;border:0;color:inherit;text-align:left;font:inherit}
 button.item{cursor:pointer}
-.item b{display:block;font-weight:600;overflow-wrap:anywhere}
-.item small{color:var(--muted);font:400 12px var(--font-data)}
-.badge{display:grid;place-items:center;height:46px;border:2px solid;border-radius:10px;font:700 22px var(--font-display);font-variant-numeric:tabular-nums}
+.item b{display:block;font-weight:700;overflow-wrap:anywhere}
+.item small{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.badge{display:grid;place-items:center;width:48px;height:48px;border:3px solid;border-radius:50%;font:700 15px var(--font-display);font-variant-numeric:tabular-nums}
 .bd-good{color:var(--good)} .bd-warn{color:var(--warn)} .bd-bad{color:var(--bad)} .bd-none{color:var(--muted)}
-.chev{color:var(--muted);font-size:20px}
-.rank{display:grid;grid-template-columns:22px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0}
-.rank .pos{font:700 18px var(--font-display);color:var(--muted);text-align:center}
-.rank.me{background:var(--accent-soft);margin-inline:-10px;padding-inline:10px;border-radius:10px;width:calc(100% + 20px)}
-.rank .sc{text-align:right;font:700 24px/1 var(--font-display);font-variant-numeric:tabular-nums}
-.rank .sc small{display:block;font:400 11px var(--font-data);color:var(--muted)}
-.rank b{display:block;font-weight:600;overflow-wrap:anywhere}
-.rank small{color:var(--muted);font:400 12px var(--font-data)}
+.chev{color:var(--muted);font-size:22px}
+.rank{display:grid;grid-template-columns:24px 40px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0}
+.rank .pos{font:700 15px var(--font-display);color:var(--muted);text-align:center}
+.rank.me{background:var(--brand-soft);margin-inline:-10px;padding-inline:10px;border-radius:14px;width:calc(100% + 20px)}
+.rank .sc{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font:700 20px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.rank .sc small{display:inline-flex;align-items:center;gap:4px;font:600 11px var(--font-body);color:var(--muted)}
+.rank .sc .marble{width:12px;height:12px}
+.rank b{display:block;font-weight:700;overflow-wrap:anywhere}
+.rank small{color:var(--muted);font-size:12px}
 .feed .item{grid-template-columns:40px minmax(0,1fr) auto}
-.pill{display:inline-block;padding:2px 8px;border-radius:99px;font:600 11px var(--font-body);letter-spacing:.05em;text-transform:uppercase;background:var(--soft);color:var(--muted);white-space:nowrap}
-.pill.ok{color:var(--good)} .pill.ko{color:var(--bad)} .pill.on{color:var(--accent)}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font:700 11px var(--font-body);letter-spacing:.05em;text-transform:uppercase;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill.ok{color:var(--good)} .pill.ko{color:var(--bad)} .pill.on{color:var(--brand)}
 .back{align-self:flex-start;padding:4px 0}
 .spark{display:block;width:100%;height:auto;overflow:visible}
-.spark .ln{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
-.spark .dt{fill:var(--accent)}
-.spark text{font:400 11px var(--font-data);fill:var(--muted)}
+.spark .ln{fill:none;stroke:var(--brand);stroke-width:2.5;stroke-linejoin:round}
+.spark .dt{fill:var(--brand)}
+.spark text{font:500 11px var(--font-body);fill:var(--muted)}
 .spark .gl{stroke:var(--line)}
-.f-bronze{fill:var(--lg-bronze)} .f-silver{fill:var(--lg-silver)} .f-gold{fill:var(--lg-gold)} .f-platinum{fill:var(--lg-platinum)} .f-diamond{fill:var(--lg-diamond)} .f-none{fill:var(--line)}
+.f-terre{fill:var(--lg-terre)} .f-verre{fill:var(--lg-verre)} .f-agate{fill:var(--lg-agate)} .f-oeil{fill:var(--lg-oeil)} .f-galaxie{fill:var(--lg-galaxie)} .f-none{fill:var(--line)}
 .recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.how{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+.how{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:6px}
 
 /* feuille modale */
-.sheet-wrap{position:fixed;inset:0;z-index:40;background:rgba(5,12,18,.55);display:flex;align-items:flex-end;justify-content:center}
-.sheet{width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--surface);border-radius:16px 16px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;animation:up .22s ease-out}
+.sheet-wrap{position:fixed;inset:0;z-index:40;background:rgba(8,10,30,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:88vh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
-.sheet h2{font-size:24px;padding-right:44px}
-.sheet .x{position:absolute;right:12px;top:10px}
+.sheet h2{padding-right:64px}
+.sheet .x{position:absolute;right:0;top:-4px}
 .sheet-in{position:relative;display:flex;flex-direction:column;gap:12px}
+.concept{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;align-items:center;padding:12px;border-radius:16px;background:var(--brand-soft)}
+.concept .bowl{width:72px;height:72px}
+.concept p{margin:0;font-size:14px}
 .avs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
-.avs button{aspect-ratio:1;border-radius:12px;border:2px solid transparent;background:var(--soft);font-size:26px;cursor:pointer;padding:0}
-.avs button[aria-pressed="true"]{border-color:var(--accent)}
+.avs button{aspect-ratio:1;border-radius:50%;border:3px solid transparent;background:var(--soft);font-size:26px;cursor:pointer;padding:0}
+.avs button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
 .field{display:flex;flex-direction:column;gap:6px}
-.field label,.field .lbl{font:600 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.field input{padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:16px}
+.field label,.field .lbl{font:700 12px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.field input{padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font-size:16px}
+.field input:focus{border-color:var(--brand);outline:none}
 .opts{display:flex;gap:8px;flex-wrap:wrap}
-.opts button{padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 15px var(--font-body);cursor:pointer}
-.opts button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
-.preview{display:block;width:100%;max-width:280px;margin-inline:auto;border-radius:12px;border:1px solid var(--line)}
-.snack{position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;max-width:calc(100% - 32px)}
-.linkbox{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:400 12px var(--font-data);overflow-wrap:anywhere;user-select:all;max-height:84px;overflow:auto}
+.opts button{padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 15px var(--font-body);cursor:pointer}
+.opts button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.preview{display:block;width:100%;max-width:280px;margin-inline:auto;border-radius:18px}
+.snack{position:fixed;left:50%;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;padding:11px 16px;border-radius:14px;background:var(--ink);color:var(--bg);font-size:14px;font-weight:600;max-width:calc(100% - 32px)}
+.linkbox{width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--muted);font:500 12px var(--font-body);overflow-wrap:anywhere;user-select:all;max-height:72px;overflow:auto}
 
-@media (prefers-reduced-motion: reduce){.ring .pg,.axis .bar i,.xpbar i{transition:none}.toast.pop,.cele .medals .bdg,.sheet{animation:none}}
+@media (prefers-reduced-motion: reduce){.ring .pg,.axis .bar i,.xpbar i,.btn{transition:none}.toast.pop,.cele .medals .bdg,.sheet,.bowl .mb{animation:none}}
 </style>
 
 <main class="app" id="app">
   <header class="top" id="top"></header>
-  <section id="view-drive" class="stack" aria-label="Conduire"></section>
+  <section id="view-drive" class="stack" aria-label="Rouler"></section>
   <section id="view-progress" class="stack" aria-label="Progrès" hidden></section>
-  <section id="view-friends" class="stack" aria-label="Amis" hidden></section>
+  <section id="view-friends" class="stack" aria-label="Ta bande" hidden></section>
   <section id="view-trips" class="stack" aria-label="Trajets" hidden></section>
 </main>
 <nav class="nav" id="nav" aria-label="Sections"><div class="nav-in" role="tablist">
-  <button role="tab" data-tab="drive" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M3.5 10.5c5-1.8 12-1.8 17 0M12 14.2V21M9.9 13l-5.6 4.6M14.1 13l5.6 4.6"/></svg>Conduire</button>
+  <button role="tab" data-tab="drive" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/><path d="M3.6 10.4c5-1.7 11.8-1.7 16.8 0M12 14.4V21M9.8 13.2l-5.3 4.4M14.2 13.2l5.3 4.4"/></svg>Rouler</button>
   <button role="tab" data-tab="progress" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9.5 17h5"/></svg>Progrès</button>
-  <button role="tab" data-tab="friends" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c.6-3.6 3-5.6 6.2-5.6s5.6 2 6.2 5.6"/><circle cx="17.2" cy="9" r="2.6"/><path d="M16.6 14.3c2.5.2 4.2 1.9 4.6 4.7"/></svg>Amis<span class="dot" id="nav-dot" hidden></span></button>
+  <button role="tab" data-tab="friends" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.8 20c.6-3.6 3-5.6 6.2-5.6s5.6 2 6.2 5.6"/><circle cx="17.2" cy="9" r="2.6"/><path d="M16.6 14.3c2.5.2 4.2 1.9 4.6 4.7"/></svg>Bande<span class="dot" id="nav-dot" hidden></span></button>
   <button role="tab" data-tab="trips" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.8"/></svg>Trajets</button>
 </div></nav>
 <div id="sheet"></div>
 <div class="snack" id="snack" role="status" hidden></div>
 
 <script>
-/* Pied Léger — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
+/* Bille — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
 const PL = (() => {
   'use strict';
   const G = 9.81, D2R = Math.PI / 180;
@@ -1074,7 +1135,7 @@ if (typeof module !== 'undefined') module.exports = PL;
 
 </script>
 <script>
-/* Pied Léger — jeu et social sans serveur (pur, sans DOM) : XP, niveaux, badges, défis, ligues, amis par liens. */
+/* Bille — jeu et social sans serveur (pur, sans DOM) : billes (XP), niveaux, billes rares (badges), défis, ligues, amis par liens. */
 const PG = (() => {
   'use strict';
   const DAY = 86400000;
@@ -1094,7 +1155,7 @@ const PG = (() => {
   /* ---------- Niveaux ---------- */
   // XP cumulée pour atteindre le niveau L : 60 × (L−1)^1,6. Un bon trajet rapporte 40 à 80 XP.
   const need = L => Math.round(60 * Math.pow(Math.max(0, L - 1), 1.6));
-  const TITLES = [[1, 'Apprenti'], [3, 'Conducteur attentif'], [6, 'Pied léger'], [10, 'Velours'], [15, 'Maître de la fluidité'], [20, 'Légende']];
+  const TITLES = [[1, 'Petite bille'], [3, 'Joueur de cour'], [6, 'Pointeur'], [10, 'Tireur d’élite'], [15, 'Maître du calot'], [20, 'Légende de la cour']];
   function levelOf(xp) {
     let L = 1; while (need(L + 1) <= xp) L++;
     const a = need(L), b = need(L + 1);
@@ -1102,7 +1163,8 @@ const PG = (() => {
   }
 
   /* ---------- Ligues (score pondéré par les km de la semaine) ---------- */
-  const LEAGUES = [[90, 'Diamant', 'diamond'], [80, 'Platine', 'platinum'], [70, 'Or', 'gold'], [60, 'Argent', 'silver'], [0, 'Bronze', 'bronze']];
+  // Ligues = les billes de la cour d'école, de la plus commune à la plus rare.
+  const LEAGUES = [[90, 'Galaxie', 'galaxie'], [80, 'Œil-de-chat', 'oeil'], [70, 'Agate', 'agate'], [60, 'Verre', 'verre'], [0, 'Terre', 'terre']];
   const league = s => { if (s === null || s === undefined) return null; const l = LEAGUES.find(x => s >= x[0]); return { name: l[1], id: l[2], min: l[0] }; };
   function weekStats(trips, wk) {
     const ts = trips.filter(t => weekKey(t.ts) === wk && t.sum);
@@ -1463,8 +1525,22 @@ const evSub = e => e.kind === 'shock' ? `${fmt(e.peak, 1)} m/s² vertical · ${f
   : `${fmt(e.peak, 1)} m/s² · ${fmt(e.v)} km/h${e.late ? ' · sans anticipation' : ''}`;
 const sevChip = e => scoring(e) ? `<span class="sev sev${e.sev}">${e.sev === 2 ? 'sévère' : 'modéré'}</span>` : `<span class="sev sev0">hors score</span>`;
 const evRow = e => `<li class="ev"><span class="mk ${e.kind}" aria-hidden="true"></span><div><b>${evName(e)}</b><small>${evSub(e)}</small></div>${sevChip(e)}<time>${clock(e.t)}</time></li>`;
-const lgChip = (lg, score) => lg ? `<span class="lg lg-${lg.id}">${lg.name}${has(score) ? ' · ' + score : ''}</span>` : `<span class="lg lg-none">Sans ligue</span>`;
-const medal = (id, off, small) => { const b = PG.badge(id); return b ? `<button class="bdg${off ? ' off' : ''}" data-act="badge" data-id="${id}" aria-label="${esc(b.name)} : ${esc(b.desc)}${off ? ' (à débloquer)' : ''}"><span class="medal"><span>${b.icon}</span></span>${small === false ? '' : `<small>${esc(b.name)}</small>`}</button>` : ''; };
+const COIN = '<i class="coin" aria-hidden="true"></i>';
+const billes = n => `${COIN}&nbsp;${fmt(n)} bille${n > 1 ? 's' : ''}`;
+const gain = n => `+${fmt(n)}${COIN}`;
+const rares = n => `${n} bille${n > 1 ? 's' : ''} rare${n > 1 ? 's' : ''}`;
+const marble = id => `<i class="marble m-${id || 'none'}" aria-hidden="true"></i>`;
+const lgChip = (lg, score) => lg ? `<span class="lg">${marble(lg.id)}${lg.name}${has(score) ? ' · ' + score : ''}</span>` : `<span class="lg">${marble()}Pas encore classé</span>`;
+const LOGO = '<span class="logo" aria-label="Bille">b<span class="i">ı<b></b></span>lle</span>';
+// Le bol et sa bille : le motif de la marque (accueil, bienvenue).
+const bowlSVG = (id = 'bw') => `<svg class="bowl" viewBox="0 0 120 120" aria-hidden="true"><defs>
+  <radialGradient id="${id}a" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".06"/></radialGradient>
+  <radialGradient id="${id}b" cx="34%" cy="30%" r="70%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".16" stop-color="#FFB089"/><stop offset=".45" stop-color="#FF6B2C"/><stop offset="1" stop-color="#B83E0C"/></radialGradient></defs>
+  <circle cx="60" cy="60" r="56" fill="url(#${id}a)" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="2"/>
+  <circle cx="60" cy="60" r="36" fill="none" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <g class="mb"><ellipse cx="62" cy="70" rx="13" ry="4" fill="#000000" opacity=".18"/><circle cx="60" cy="60" r="14" fill="url(#${id}b)"/></g></svg>`;
+const hue = id => (PG.BADGES.findIndex(b => b.id === id) * 47 + 215) % 360;
+const medal = (id, off, small) => { const b = PG.badge(id); return b ? `<button class="bdg${off ? ' off' : ''}" data-act="badge" data-id="${id}" aria-label="${esc(b.name)} : ${esc(b.desc)}${off ? ' (à gagner)' : ''}"><span class="medal" style="--h:${hue(id)}"><span>${b.icon}</span></span>${small === false ? '' : `<small>${esc(b.name)}</small>`}</button>` : ''; };
 const avatar = (a, cls = '') => `<span class="av ${cls}" aria-hidden="true">${esc(a || '🚗')}</span>`;
 const tgl = (key, label) => `<button class="tg" data-act="tg" data-key="${key}" aria-pressed="${!!SET[key]}"><i></i>${label}</button>`;
 const contentWidth = () => Math.max(260, Math.min($('#app').clientWidth || 360, 560) - 64);
@@ -1544,7 +1620,7 @@ function bilanHTML(trip) {
   const dl = prev ? s.score - prev.sum.score : null, W = contentWidth();
   const weak = AXES.map(([k, l]) => [k, l, s.axes[k]]).filter(a => has(a[2]) && a[2] < 85).sort((a, b) => a[2] - b[2]).slice(0, 2);
   const focus = weak.length ? weak.map(([k, l, v]) => `<div class="fo"><span class="n">${v}</span><div><b>${l}</b><span>${esc(axisInfo(k, s).advice)}</span></div></div>`).join('')
-    : `<div class="fo good"><div><b>Rien à corriger</b><span>Conduite fluide sur tous les axes.</span></div></div>`;
+    : `<div class="fo good"><div><b>Rien à corriger</b><span>La bille est restée au centre sur tous les axes.</span></div></div>`;
   const same = PG.sameRoute(trips, trip), sameAvg = same.length ? Math.round(same.reduce((a, t) => a + t.sum.score, 0) / same.length) : null;
   const evs = trip.events.length ? `<ul class="evs">${trip.events.map(evRow).join('')}</ul>` : '<p class="empty">Aucun événement.</p>';
   const cov = has(s.coverage) ? s.coverage : 1;
@@ -1552,7 +1628,7 @@ function bilanHTML(trip) {
     <div class="b-head">${ring(s.score)}<div class="b-meta">
       <p class="eyebrow">${esc(dateLabel(trip.ts) + (trip.recovered ? ' · récupéré après interruption' : ''))}</p>
       <h2>${grade(s.score)}</h2>
-      ${dl === null ? '' : `<span class="delta ${dl > 0 ? 'up' : dl < 0 ? 'dn' : 'eq'}">${dl > 0 ? '▲ +' : dl < 0 ? '▼ ' : '= '}${dl} vs précédent</span>`}${trip.xp ? `<span class="xpchip">+${trip.xp} XP</span>` : ''}
+      ${dl === null ? '' : `<span class="delta ${dl > 0 ? 'up' : dl < 0 ? 'dn' : 'eq'}">${dl > 0 ? '▲ +' : dl < 0 ? '▼ ' : '= '}${dl} vs précédent</span>`}${trip.xp ? `<span class="xpchip">+${billes(trip.xp)}</span>` : ''}
       <dl class="stats"><div><dt>Distance</dt><dd>${fmt(s.km, 1)} km</dd></div><div><dt>Durée</dt><dd>${clock(s.durationS)}</dd></div><div><dt>Moy.</dt><dd>${fmt(s.avgKmh)} km/h</dd></div><div><dt>Série max</dt><dd>${clock(s.streakBest || 0)}</dd></div></dl>
     </div></div>
     ${s.phonePen ? `<p class="pen">Téléphone manipulé ${c.phone} fois en roulant : −${s.phonePen} points sur le score.</p>` : ''}
@@ -1571,54 +1647,55 @@ function bilanHTML(trip) {
 /* ---------- En-tête ---------- */
 function renderTop() {
   const lv = PG.levelOf(G.xp);
-  $('#top').innerHTML = `<h1>Pied Léger</h1>${S.run ? '' : `<button class="me-chip" data-act="profile" aria-label="Profil : ${esc(me().n)}, niveau ${lv.level}">${avatar(P.a)}<span>${esc(P.n || 'Profil')}</span><small>Niv. ${lv.level}</small></button>`}`;
+  $('#top').innerHTML = `<h1 style="margin:0">${LOGO}</h1>${S.run ? '' : `<div class="top-r"><span class="coinchip" aria-label="${fmt(G.xp)} billes">${COIN}${fmt(G.xp)}</span><button class="me-chip" data-act="profile" aria-label="Profil : ${esc(me().n)}, niveau ${lv.level}">${avatar(P.a)}<small>Niv. ${lv.level}</small></button></div>`}`;
 }
 
 /* ---------- Conduire ---------- */
 function homeHTML() {
-  const now = Date.now(), lv = PG.levelOf(G.xp), wk = PG.weekStats(trips, PG.weekKey(now)), st = PG.streak(trips), nb = Object.keys(G.badges).length;
+  const now = Date.now(), lv = PG.levelOf(G.xp), wk = PG.weekStats(trips, PG.weekKey(now)), st = PG.streak(trips);
   const day = PG.dayKey(now), done = G.daily[day] || [], ch = PG.dailyChallenges(day), wg = PG.weeklyGoal(trips, now), wdone = !!G.weekly[wg.wk];
   const fo = PG.focus(trips), last = trips[0];
   const open = G.defis.filter(d => !d.mine && d.status === 'open' && d.until > now);
-  return `<div class="card">
-      <div class="hello">${avatar(P.a, 'big')}<div><b>${P.n ? 'Salut ' + esc(P.n) : 'Bienvenue'}</b><small>Niveau ${lv.level} · ${lv.title}</small>
-        <div class="xpbar" role="img" aria-label="${lv.cur} XP sur ${lv.span} pour le niveau suivant"><i style="width:${Math.round(lv.pct * 100)}%"></i></div>
-        <div class="xpline"><span>${fmt(lv.cur)} / ${fmt(lv.span)} XP</span><span>niveau ${lv.level + 1}</span></div></div></div>
-      <div class="kpis">
-        <button class="kpi" data-act="tab" data-tab="friends"><small>Semaine</small><b>${has(wk.score) ? wk.score : '—'}</b>${lgChip(wk.league)}</button>
-        <button class="kpi" data-act="tab" data-tab="progress"><small>Série ≥ 70</small><b>${st}</b><span class="hint" style="margin:0">trajet${st > 1 ? 's' : ''}</span></button>
-        <button class="kpi" data-act="tab" data-tab="progress"><small>Badges</small><b>${nb}<span style="color:var(--muted);font-size:15px"> / ${PG.BADGES.length}</span></b></button>
-      </div>
-    </div>
-    <div class="card">
-      <button class="btn big" data-act="go">Démarrer le trajet</button>
-      <div class="toggles">${tgl('voice', 'Coach vocal')}${tgl('limits', 'Limitations de vitesse')}</div>
-      <p class="hint">Téléphone sur un support, écran vers toi. Accélère doucement en ligne droite au départ : le calage est automatique. Toucher l’écran en roulant coûte 8 points.</p>
+  return `<div class="card hero">
+      <div class="hero-in">${bowlSVG('hb')}<div><p class="eyebrow">${P.n ? 'Salut ' + esc(P.n) : 'Salut'}</p><h2>Garde la bille au centre.</h2></div></div>
+      <button class="btn big" data-act="go">Démarrer</button>
+      <div class="toggles">${tgl('voice', 'Coach vocal')}${tgl('limits', 'Limitations')}</div>
+      <p class="hint">Téléphone sur un support. Accélère doucement en ligne droite au départ : le calage est automatique. Toucher l’écran en roulant coûte 8 points.</p>
       ${S.error ? `<div class="err" role="alert">${esc(S.error)}</div>` : ''}
     </div>
-    ${open.length ? `<div class="card"><h3>Défis d’amis</h3><ul class="list">${open.map(d => `<li><div class="item">${avatar(d.from.a)}<div><b>${esc(d.from.n)} te défie</b><small>plus de ${d.target} sur un trajet de ${d.km} km · avant ${dayShort(d.until)}</small></div><span class="xpv">+100 XP</span></div></li>`).join('')}</ul></div>` : ''}
-    <div class="card"><div class="h3row"><h3>Défis du jour</h3><span class="eyebrow">${done.length}/3</span></div>
-      <ul class="chal">${ch.map(c => `<li class="${done.includes(c.id) ? 'done' : ''}"><span class="ck">${CHECK}</span><span>${esc(c.text)}</span><span class="xpv">+${c.xp} XP</span></li>`).join('')}</ul>
-      <div class="wk"><div class="h3row" style="align-items:center"><b>${wdone ? '✓ ' : ''}Semaine : ${wg.target}+ sur ${wg.minKm} km</b><span class="xpv">+${wg.xp} XP</span></div>
+    <div class="card">
+      <div class="h3row"><h3>Ta semaine</h3>${lgChip(wk.league, wk.score)}</div>
+      <div class="kpis">
+        <button class="kpi" data-act="tab" data-tab="progress"><small>Niveau</small><b>${lv.level}</b><span>${esc(lv.title)}</span></button>
+        <button class="kpi" data-act="tab" data-tab="progress"><small>Série ≥ 70</small><b>${st}</b><span>trajet${st > 1 ? 's' : ''} d’affilée</span></button>
+        <button class="kpi" data-act="tab" data-tab="friends"><small>Classement</small><b>${(() => { const b = PG.board(me(), G, trips, now).filter(r => has(r.ws)); const i = b.findIndex(r => r.me); return i < 0 ? '—' : (i + 1) + '<span style="font-size:13px">/' + b.length + '</span>'; })()}</b><span>dans ta bande</span></button>
+      </div>
+      <div class="xpbar" role="img" aria-label="${lv.cur} billes sur ${lv.span} pour le niveau suivant"><i style="width:${Math.round(lv.pct * 100)}%"></i></div>
+      <div class="xpline"><span>${fmt(lv.cur)} / ${fmt(lv.span)} billes</span><span>niveau ${lv.level + 1}</span></div>
+      <div class="wk"><div class="h3row" style="margin:0"><b>${wdone ? '✓ ' : ''}Défi de la semaine : ${wg.target}+ sur ${wg.minKm} km</b><span class="xpv">${gain(wg.xp)}</span></div>
         <div class="prog"><i style="width:${Math.min(100, Math.round(wk.km / wg.minKm * 100))}%"></i></div>
-        <small>${fmt(wk.km, 1)} / ${wg.minKm} km · ${plural(wk.n, 'trajet')} (3 min.) · score ${has(wk.score) ? wk.score : '—'} · objectif = semaine passée + 3</small></div>
+        <small>${fmt(wk.km, 1)} / ${wg.minKm} km · ${plural(wk.n, 'trajet')} sur 3 · score ${has(wk.score) ? wk.score : '—'} · objectif : semaine passée + 3</small></div>
     </div>
-    ${fo ? `<div class="card"><h3>${fo.ok ? 'Ton point fort à garder' : 'Ton point à travailler'}</h3><div class="coach"><span class="n">${fo.value}</span><div><b>${fo.label}${has(fo.trend) ? `<span class="trend ${fo.trend > 0 ? 'up' : fo.trend < 0 ? 'dn' : 'eq'}">${fo.trend > 0 ? '▲ +' : fo.trend < 0 ? '▼ ' : '= '}${fo.trend}</span>` : ''}</b><span>${esc(fo.tip)}</span></div></div><p class="note">Moyenne de tes 5 derniers trajets, comparée aux 5 d’avant.</p></div>` : ''}
-    ${last ? `<div class="card"><h3>Dernier trajet</h3><button class="item" data-act="open" data-id="${last.id}"><span class="badge bd-${tone(last.sum.score)}">${last.sum.score}</span><span><b>${esc(dateLabel(last.ts))}</b><small>${fmt(last.sum.km, 1)} km · ${clock(last.sum.durationS)}${last.xp ? ' · +' + last.xp + ' XP' : ''}</small></span><span class="chev" aria-hidden="true">›</span></button></div>` : ''}`;
+    ${open.length ? `<div class="card"><h3>Défis de ta bande</h3><ul class="list">${open.map(d => `<li><div class="item">${avatar(d.from.a)}<div><b>${esc(d.from.n)} te défie</b><small>plus de ${d.target} sur un trajet de ${d.km} km · avant ${dayShort(d.until)}</small></div><span class="xpv">${gain(100)}</span></div></li>`).join('')}</ul></div>` : ''}
+    <div class="card"><div class="h3row"><h3>Défis du jour</h3><span class="eyebrow" style="margin:0">${done.length} / 3</span></div>
+      <ul class="chal">${ch.map(c => `<li class="${done.includes(c.id) ? 'done' : ''}"><span class="ck">${CHECK}</span><span>${esc(c.text)}</span><span class="xpv">${gain(c.xp)}</span></li>`).join('')}</ul>
+    </div>
+    ${fo ? `<div class="card"><h3>${fo.ok ? 'Ton point fort' : 'Ton point à travailler'}</h3><div class="coach"><span class="n">${fo.value}</span><div><b>${fo.label}${has(fo.trend) ? `<span class="trend ${fo.trend > 0 ? 'up' : fo.trend < 0 ? 'dn' : 'eq'}">${fo.trend > 0 ? '▲ +' : fo.trend < 0 ? '▼ ' : '= '}${fo.trend}</span>` : ''}</b><span>${esc(fo.tip)}</span></div></div><p class="note">Moyenne de tes 5 derniers trajets, comparée aux 5 d’avant.</p></div>` : ''}
+    ${last ? `<div class="card"><h3>Dernier trajet</h3><button class="item" data-act="open" data-id="${last.id}"><span class="badge bd-${tone(last.sum.score)}">${last.sum.score}</span><span><b>${esc(dateLabel(last.ts))}</b><small>${fmt(last.sum.km, 1)} km · ${clock(last.sum.durationS)}${last.xp ? ' · +' + fmt(last.xp) + ' billes' : ''}</small></span><span class="chev" aria-hidden="true">›</span></button></div>` : ''}`;
 }
 
 function celeHTML() {
   const c = S.cele, t = c && trips.find(x => x.id === c.id); if (!t) return '';
   const a = c.award, s = t.sum;
-  return `<div class="card cele" aria-label="Trajet terminé">
+  return `<div class="card cele" aria-label="Trajet terminé"><canvas class="rain" id="rain" aria-hidden="true"></canvas>
     <p class="eyebrow">Trajet terminé · ${fmt(s.km, 1)} km</p>
     ${ring(s.score)}
     <h2>${grade(s.score)}</h2>
-    <div class="xp-big">+${a.xp} XP</div>
-    ${a.levelUp ? `<div class="lvup">Niveau ${a.levelUp.to} atteint · ${esc(PG.levelOf(G.xp).title)}</div>` : ''}
+    <div class="xp-big"><span>+<span id="xp-count">${fmt(a.xp)}</span></span>${COIN}</div>
+    ${a.levelUp ? `<div class="lvup">Niveau ${a.levelUp.to} : ${esc(PG.levelOf(G.xp).title)}</div>` : ''}
     ${a.badges.length ? `<div class="medals">${a.badges.map(id => medal(id)).join('')}</div>` : ''}
-    ${a.items.length ? `<ul class="gains">${a.items.map(i => `<li><span>${esc(i.label)}</span><span class="xpv">+${i.xp}</span></li>`).join('')}</ul>` : `<p class="note">Pas d’XP sous 40 : vise un trajet plus doux.</p>`}
-    <div class="row go"><button class="btn grow" data-act="share-trip" data-id="${t.id}">Partager</button><button class="btn ghost grow" data-act="defi-new" data-score="${s.score}">Défier un ami</button></div>
+    ${a.items.length ? `<ul class="gains">${a.items.map(i => `<li><span>${esc(i.label.replace(/^Badge /, 'Bille rare : '))}</span><span class="xpv">${gain(i.xp)}</span></li>`).join('')}</ul>` : `<p class="note">Aucune bille sous 40 : la prochaine fois, garde-la au centre.</p>`}
+    <div class="row go"><button class="btn grow" data-act="share-trip" data-id="${t.id}">Partager</button><button class="btn ghost grow" data-act="defi-new" data-score="${s.score}">Défier</button></div>
     <button class="btn link" data-act="cele-close">Fermer</button>
   </div>${bilanHTML(t)}`;
 }
@@ -1628,9 +1705,9 @@ function liveHTML() {
     <div class="l-top"><div class="status" id="l-status"><i></i><span>Mesure…</span></div><span class="trip-line" id="l-line">0,0 km · 00:00</span></div>
     <div class="banner" id="l-banner" role="alert" hidden></div>
     <div class="banner" id="l-fatigue" role="alert" hidden></div>
-    <div class="l-hero">${ring(100, 'l-score', 'sm')}<div class="spd"><span class="sign unk" id="l-sign" ${SET.limits ? '' : 'hidden'} aria-label="Limitation de vitesse">?</span><div class="speed" id="l-speedw"><span id="l-speed">0</span><small>km/h</small></div></div><div class="streak"><b id="l-streak">0:00</b><small>sans à-coup</small></div></div>
+    <div class="l-hero">${ring(100, 'l-score', 'sm')}<div class="spd"><span class="sign unk" id="l-sign" ${SET.limits ? '' : 'hidden'} aria-label="Limitation de vitesse">?</span><div class="speed" id="l-speedw"><span id="l-speed">0</span><small>km/h</small></div></div><div class="streak"><b id="l-streak">0:00</b><small>bille au centre</small></div></div>
     <canvas class="gg" id="gg" aria-label="Instruments : à gauche, secousses verticales des roues gauches et droites ; à droite, disque des forces ressenties (avant au freinage, arrière à l’accélération, côté en virage) ; en bas, barre de direction : de quel côté la voiture tourne, colorée quand un coup de volant ou un redressement est compté"></canvas>
-    <div class="toast" id="l-toast" role="status"><span class="mk" id="l-tmk"></span><div><b id="l-tt">Conduite fluide</b><small id="l-ts">Rien à signaler</small></div><span class="pts" id="l-tp"></span></div>
+    <div class="toast" id="l-toast" role="status"><span class="mk" id="l-tmk"></span><div><b id="l-tt">Bille au centre</b><small id="l-ts">Continue comme ça</small></div><span class="pts" id="l-tp"></span></div>
     <div class="chips" id="l-chips"></div>
     <div class="sec" style="margin-top:12px;padding-top:8px">${AXES.map(([k, l]) => axisRow(l, k === 'vitesse' ? null : 100, '', 'ax-' + k)).join('')}</div>
     <div class="go row"><button class="btn ghost" data-act="recal">Recaler</button><button class="btn stop grow" data-act="stop">Terminer le trajet</button></div>
@@ -1673,13 +1750,15 @@ function renderProgress() {
   for (const t of trips) { if (seen.has(t.id) || !t.from) continue; const g = [t, ...PG.sameRoute(trips, t).filter(x => !seen.has(x.id))]; if (g.length >= 2) { g.forEach(x => seen.add(x.id)); groups.push(g); } }
   const spark = (g) => { const v = g.slice().reverse().map(t => t.sum.score), w = 120, h = 30, x = i => 4 + (w - 8) * i / Math.max(1, v.length - 1), yy = s => 4 + (h - 8) * (1 - s / 100); return `<svg class="spark" viewBox="0 0 ${w} ${h}" style="width:${w}px" aria-hidden="true"><path class="ln" d="${v.map((s, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + yy(s).toFixed(1)).join('')}"/><circle class="dt" cx="${x(v.length - 1).toFixed(1)}" cy="${yy(v[v.length - 1]).toFixed(1)}" r="3"/></svg>`; };
   $('#view-progress').innerHTML = `
-    <div class="card"><div class="b-head">${ring(Math.round(lv.pct * 100), '', 'sm', 'xp').replace(/>\d+<\/b>/, `>${lv.level}</b>`).replace(/aria-label="Score \d+ sur 100"/, `aria-label="Niveau ${lv.level}"`)}<div class="b-meta"><p class="eyebrow">Niveau ${lv.level}</p><h2>${lv.title}</h2><p class="note">${fmt(G.xp)} XP · encore ${fmt(lv.next - G.xp)} XP pour le niveau ${lv.level + 1}</p></div></div>
-      <p class="note">L’XP vient de la qualité : un trajet sous 40 ne rapporte rien et la distance compte jusqu’à 20 km seulement. Rouler plus ne sert à rien, rouler mieux, si.</p></div>
-    <div class="card"><div class="h3row"><h3>Ligue de la semaine</h3>${lgChip(weeks[7].league, weeks[7].score)}</div>${wsvg}
-      <p class="note">Score de la semaine = moyenne de tes trajets pondérée par les km. Bronze &lt; 60 · Argent 60 · Or 70 · Platine 80 · Diamant 90.</p></div>
-    <div class="card"><div class="h3row"><h3>Badges</h3><span class="eyebrow">${Object.keys(G.badges).length} / ${PG.BADGES.length}</span></div>
+    <div class="card"><div class="b-head">${ring(Math.round(lv.pct * 100), '', 'sm', 'xp').replace(/>\d+<\/b>/, `>${lv.level}</b>`).replace(/aria-label="Score \d+ sur 100"/, `aria-label="Niveau ${lv.level}"`)}<div class="b-meta"><p class="eyebrow">Niveau ${lv.level}</p><h2>${lv.title}</h2><p class="note">${billes(G.xp)} · encore ${fmt(lv.next - G.xp)} pour le niveau ${lv.level + 1}</p></div></div>
+      <p class="note">Les billes se gagnent à la qualité : rien sous 40, et la distance ne compte que jusqu’à 20 km. Rouler plus ne sert à rien, rouler mieux, si.</p></div>
+    <div class="card"><div class="h3row"><h3>Ta ligue</h3>${lgChip(weeks[7].league, weeks[7].score)}</div>
+      <div class="ladder">${PG.LEAGUES.slice().reverse().map(([min, name, id]) => `<div class="${weeks[7].league && weeks[7].league.id === id ? 'on' : ''}">${marble(id)}${name}<small>${min ? min + '+' : '< 60'}</small></div>`).join('')}</div>
+      <div class="sec" style="margin-top:14px;padding-top:12px">${wsvg}</div>
+      <p class="note">Score de la semaine = moyenne de tes trajets pondérée par les km. Chaque lundi, tout repart à zéro.</p></div>
+    <div class="card"><div class="h3row"><h3>Billes rares</h3><span class="eyebrow" style="margin:0">${Object.keys(G.badges).length} / ${PG.BADGES.length}</span></div>
       <div class="badges">${PG.BADGES.map(b => medal(b.id, !G.badges[b.id])).join('')}</div></div>
-    <div class="card"><h3>Tes 6 axes · 10 derniers trajets</h3>${trips.length ? axes : '<p class="empty">Fais un premier trajet.</p>'}</div>
+    <div class="card"><h3>Tes 6 axes · 10 derniers trajets</h3>${trips.length ? axes : '<p class="empty">Tes axes apparaissent après ton premier trajet.</p>'}</div>
     <div class="card"><h3>Points noirs</h3>${hs.length ? `<ul class="list">${hs.map(h => `<li><div class="item"><span class="av"><i class="mk ${h.kind}"></i></span><div><b>${h.n} ${HOT[h.kind] || 'événements'}</b><small>au même endroit, sur ${h.trips} trajets différents</small></div><a class="btn sm ghost" href="https://www.openstreetmap.org/?mlat=${h.ll[0]}&amp;mlon=${h.ll[1]}#map=18/${h.ll[0]}/${h.ll[1]}" target="_blank" rel="noopener">Voir</a></div></li>`).join('')}</ul><p class="note">Les endroits où tu reproduis le même défaut. Anticipe-les la prochaine fois.</p>` : '<p class="empty">Aucun pour l’instant : il faut le même défaut au même endroit (70 m) sur deux trajets.</p>'}</div>
     ${groups.length ? `<div class="card"><h3>Trajets habituels</h3><ul class="list">${groups.slice(0, 5).map(g => { const v = g.map(t => t.sum.score), d = v[0] - v[v.length - 1]; return `<li><div class="item"><span class="badge bd-${tone(v[0])}">${v[0]}</span><div><b>${fmt(g[0].sum.km, 1)} km · ${g.length} fois</b><small>${d > 0 ? '▲ +' : d < 0 ? '▼ ' : '= '}${d} depuis la première fois</small></div>${spark(g)}</div></li>`; }).join('')}</ul></div>` : ''}
     <div class="card"><h3>Records</h3><div class="recs">
@@ -1695,7 +1774,7 @@ function renderFriends() {
   const now = Date.now(), M = me(), wk = PG.weekStats(trips, PG.weekKey(now)), lv = PG.levelOf(G.xp);
   const rows = PG.board(M, G, trips, now), nF = Object.keys(G.friends).length;
   let pos = 0;
-  const board = rows.map(r => { if (has(r.ws)) pos++; const lg = PG.league(r.ws); return `<li><${r.me ? 'div' : 'button'} class="rank item${r.me ? ' me' : ''}" ${r.me ? '' : `data-act="friend" data-id="${esc(r.id)}"`}><span class="pos">${has(r.ws) ? pos : '–'}</span>${avatar(r.a)}<span><b>${esc(r.n)}${r.me ? ' (toi)' : ''}</b><small>${has(r.ws) ? `${fmt(r.wk, 1)} km · ` : ''}niv. ${r.lv}${r.stale ? ' · pas de carte cette semaine' : ''}</small></span><span class="sc">${has(r.ws) ? r.ws : '—'}<small>${lg ? lg.name : ''}</small></span></${r.me ? 'div' : 'button'}></li>`; }).join('');
+  const board = rows.map(r => { if (has(r.ws)) pos++; const lg = PG.league(r.ws); return `<li><${r.me ? 'div' : 'button'} class="rank item${r.me ? ' me' : ''}" ${r.me ? '' : `data-act="friend" data-id="${esc(r.id)}"`}><span class="pos">${has(r.ws) ? pos : '–'}</span>${avatar(r.a)}<span><b>${esc(r.n)}${r.me ? ' (toi)' : ''}</b><small>${has(r.ws) ? `${fmt(r.wk, 1)} km · ` : ''}niv. ${r.lv}${r.stale ? ' · pas de carte cette semaine' : ''}</small></span><span class="sc">${has(r.ws) ? r.ws : '—'}<small>${lg ? marble(lg.id) + lg.name : ''}</small></span></${r.me ? 'div' : 'button'}></li>`; }).join('');
   const defis = G.defis.slice(0, 12).map(d => {
     const st = d.status === 'open' && d.until < now ? 'expired' : d.status;
     const pill = { open: ['En cours', 'on'], won: ['Gagné', 'ok'], expired: ['Expiré', ''], answered: ['Relevé', 'ok'] }[st] || ['', ''];
@@ -1705,20 +1784,20 @@ function renderFriends() {
     return `<li><div class="item">${avatar(d.from.a)}<div><b>${who}</b><small>${sub}</small></div>${act}</div></li>`;
   }).join('');
   const feed = G.feed.slice(0, 30).map(f => {
-    if (f.type === 'trip') return `<li><div class="item">${avatar(P.a)}<div><b>Tu as fait ${f.score} sur ${fmt(f.km, 1)} km</b><small>${ago(f.ts)}${f.xp ? ' · +' + f.xp + ' XP' : ''}${f.levelUp ? ' · niveau ' + f.levelUp : ''}</small></div><span>${(f.badges || []).map(id => (PG.badge(id) || {}).icon || '').join(' ')}</span></div></li>`;
+    if (f.type === 'trip') return `<li><div class="item">${avatar(P.a)}<div><b>Tu as fait ${f.score} sur ${fmt(f.km, 1)} km</b><small>${ago(f.ts)}${f.xp ? ' · +' + fmt(f.xp) + ' billes' : ''}${f.levelUp ? ' · niveau ' + f.levelUp : ''}</small></div><span>${(f.badges || []).map(id => (PG.badge(id) || {}).icon || '').join(' ')}</span></div></li>`;
     if (f.type === 'friend') return `<li><div class="item">${avatar(f.a)}<div><b>${esc(f.n)} ${f.isNew ? 'a rejoint ta bande' : f.r ? 'a relevé ton défi' : 'a partagé sa carte'}</b><small>${ago(f.ts)}${has(f.score) ? ' · dernier trajet ' + f.score : ''}${has(f.ws) ? ' · semaine ' + f.ws : ''}</small></div>${G.friends[f.id] ? `<button class="btn sm ghost" data-act="kudos" data-id="${esc(f.id)}">Bravo</button>` : ''}</div></li>`;
     if (f.type === 'defi') return `<li><div class="item">${avatar(f.a)}<div><b>${esc(f.n)} te défie</b><small>${ago(f.ts)} · plus de ${f.target} sur ${f.km} km</small></div></div></li>`;
     if (f.type === 'kudos') return `<li><div class="item">${avatar(f.a)}<div><b>${esc(f.n)} t’applaudit ${esc(f.e)}</b><small>${ago(f.ts)}${has(f.s) ? ' · pour ton ' + f.s : ''}</small></div></div></li>`;
     return '';
   }).join('');
   $('#view-friends').innerHTML = `
-    <div class="card"><div class="hello">${avatar(P.a, 'big')}<div><b>${esc(M.n)}</b><small>Niveau ${lv.level} · ${plural(Object.keys(G.badges).length, 'badge')} · série ${PG.streak(trips)}</small><div style="margin-top:6px">${lgChip(wk.league, wk.score)}</div></div></div>
+    <div class="card"><div class="hello">${avatar(P.a, 'big')}<div><b>${esc(M.n)}</b><small>Niveau ${lv.level} · ${rares(Object.keys(G.badges).length)} · série ${PG.streak(trips)}</small><div style="margin-top:6px">${lgChip(wk.league, wk.score)}</div></div></div>
       <div class="row go"><button class="btn grow" data-act="share-card">Partager ma carte</button><button class="btn ghost" data-act="defi-new" data-score="${trips[0] ? trips[0].sum.score : 80}">Défier</button></div></div>
-    <div class="card"><div class="h3row"><h3>Classement de la semaine</h3><span class="eyebrow">${PG.weekKey(now).replace('-W', ' · S')}</span></div><ul class="list">${board}</ul>
+    <div class="card"><div class="h3row"><h3>Classement de la semaine</h3><span class="eyebrow" style="margin:0">Semaine ${+PG.weekKey(now).slice(-2)}</span></div><ul class="list">${board}</ul>
       ${nF ? '<p class="note">Le score d’un ami se met à jour quand il t’envoie sa carte.</p>' : ''}</div>
-    ${!nF ? `<div class="card"><h3>Comment ajouter des amis</h3><ol class="how"><li>Touche « Partager ma carte » et envoie le lien (WhatsApp, SMS…).</li><li>Ton ami ouvre le lien : tu apparais dans son classement.</li><li>Il t’envoie sa carte en retour : il apparaît ici.</li></ol><p class="note">Aucun compte, aucun serveur : seuls ton pseudo, ton niveau et tes scores voyagent dans le lien. Jamais tes trajets ni tes positions.</p></div>` : ''}
+    ${!nF ? `<div class="card"><h3>Monte ta bande</h3><ol class="how"><li>Touche « Partager ma carte » et envoie le lien (WhatsApp, SMS…).</li><li>Ton ami ouvre le lien : tu apparais dans son classement.</li><li>Il t’envoie sa carte en retour : il apparaît ici.</li></ol><p class="note">Aucun compte, aucun serveur : seuls ton pseudo, ton niveau et tes scores voyagent dans le lien. Jamais tes trajets ni tes positions.</p></div>` : ''}
     ${defis ? `<div class="card"><h3>Défis</h3><ul class="list">${defis}</ul></div>` : ''}
-    <div class="card"><h3>Fil d’activité</h3>${feed ? `<ul class="list feed">${feed}</ul>` : '<p class="empty">Tes trajets, les cartes de tes amis et leurs bravos s’affichent ici.</p>'}</div>`;
+    <div class="card"><h3>Fil d’activité</h3>${feed ? `<ul class="list feed">${feed}</ul>` : '<p class="empty">Tes trajets, les cartes de ta bande et leurs bravos s’affichent ici.</p>'}</div>`;
   G.lastFriendsView = now; save(K.game, G);
 }
 
@@ -1732,7 +1811,7 @@ function renderTrips() {
       <div class="row"><button class="btn grow" data-act="share-trip" data-id="${t.id}">Partager</button><button class="btn ghost" data-act="del" data-id="${t.id}">${S.confirm === 'del' + t.id ? 'Confirmer la suppression' : 'Supprimer'}</button></div>`;
     return;
   }
-  if (!trips.length) { el.innerHTML = `<div class="card"><h2>Aucun trajet</h2><p class="empty" style="margin-top:8px">Le bilan de chaque trajet s’enregistre ici, événement par événement, comme affiché en direct.</p></div>`; return; }
+  if (!trips.length) { el.innerHTML = `<div class="card"><h2>Aucun trajet pour l’instant</h2><p class="empty" style="margin-top:8px">Chaque trajet s’enregistre ici avec son score, sa carte et chaque secousse de la bille, comme en direct.</p><div class="go"><button class="btn" data-act="tab" data-tab="drive">Faire un premier trajet</button></div></div>`; return; }
   const W = contentWidth(), last = trips.slice(0, 12).reverse();
   let spark = '';
   if (last.length > 1) {
@@ -1744,11 +1823,11 @@ function renderTrips() {
   }
   el.innerHTML = spark + `<div class="card"><ul class="list">${trips.map(t => `<li><button class="item" data-act="open" data-id="${t.id}">
     <span class="badge bd-${tone(t.sum.score)}">${t.sum.score}</span>
-    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${plural(t.events.length, 'événement')}${t.xp ? ' · +' + t.xp + ' XP' : ''}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
+    <span><b>${esc(dateLabel(t.ts))}</b><small>${fmt(t.sum.km, 1)} km · ${clock(t.sum.durationS)} · ${plural(t.events.length, 'événement')}${t.xp ? ' · +' + fmt(t.xp) + ' billes' : ''}</small></span><span class="chev" aria-hidden="true">›</span></button></li>`).join('')}</ul></div>
     <button class="btn ghost" data-act="clear" style="align-self:flex-start">${S.confirm === 'clear' ? 'Confirmer l’effacement' : 'Effacer l’historique'}</button>`;
 }
 
-/* ---------- Cockpit : jauge verticale, disque, barre de volant ---------- */
+/* ---------- Cockpit : le bol et sa bille, jauge verticale, barre de direction ---------- */
 function drawCockpit(canvas, e, ready) {
   const W = canvas.clientWidth; if (!W) return;
   const H = Math.round(W * 0.9), dpr = window.devicePixelRatio || 1, pw = Math.round(W * dpr), ph = Math.round(H * dpr);
@@ -1761,8 +1840,10 @@ function drawCockpit(canvas, e, ready) {
   const ring = (r, style, w, dash) => { ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.strokeStyle = style; ctx.lineWidth = w; ctx.setLineDash(dash || []); ctx.stroke(); };
   ctx.font = '600 11px ' + col('--font-body'); ctx.textAlign = 'center';
 
-  // Disque : bord à 6 m/s², repères à 2 et 4, seuils modéré et sévère en pointillés.
-  ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fillStyle = col('--soft'); ctx.fill();
+  // Le bol : bord à 6 m/s², repères à 2 et 4, seuils modéré et sévère en pointillés.
+  const bowl = ctx.createRadialGradient(cx, cy - R * 0.15, R * 0.1, cx, cy, R);
+  bowl.addColorStop(0, col('--bowl-in')); bowl.addColorStop(1, col('--bowl-out'));
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, TAU); ctx.fillStyle = bowl; ctx.fill();
   ring(R, col('--line'), 1.5); ring(2 * sc, col('--line'), 1); ring(4 * sc, col('--line'), 1);
   ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R);
   ctx.strokeStyle = col('--line'); ctx.lineWidth = 1; ctx.setLineDash([]); ctx.stroke();
@@ -1771,17 +1852,23 @@ function drawCockpit(canvas, e, ready) {
   ctx.fillText('AVANT', cx, 14); ctx.fillText('ARRIÈRE', cx, cy + R + 14);
   // Le point est la force ressentie : freinage → avant (haut), accélération → arrière (bas), virage → côté extérieur.
   const pos = p => { const m = Math.hypot(p[0], p[1]), k = m > MAX ? MAX / m : 1; return [cx + p[0] * k * sc, cy + p[1] * k * sc]; };
-  const tr = e.trail; ctx.strokeStyle = col('--accent'); ctx.lineCap = 'round'; ctx.setLineDash([]);
-  for (let i = 1; i < tr.length; i++) { const a = pos(tr[i - 1]), b = pos(tr[i]); ctx.globalAlpha = i / tr.length * 0.55; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  // Sillage de la bille : ses dernières positions, de plus en plus pâles.
+  const tr = e.trail; ctx.fillStyle = col('--brand'); ctx.setLineDash([]);
+  for (let i = 0; i < tr.length; i += 2) { const a = pos(tr[i]); ctx.globalAlpha = i / tr.length * 0.35; ctx.beginPath(); ctx.arc(a[0], a[1], 3 + 5 * i / tr.length, 0, TAU); ctx.fill(); }
   ctx.globalAlpha = 1;
   if (!ready) {
-    ring(Math.min(MAX, e.liveMag) * sc, col('--accent'), 2, [3, 4]);
+    ring(Math.min(MAX, e.liveMag) * sc, col('--brand'), 2, [3, 4]);
     ctx.fillStyle = col('--muted'); ctx.font = '12px ' + col('--font-body'); ctx.fillText('Accélère doucement', cx, cy + R * 0.55);
   }
-  const p = pos([e.dLat, e.dLong]);
+  // La bille : bleue au calme, orange quand elle s'écarte, rouge quand un événement est compté.
+  const p = pos([e.dLat, e.dLong]), mag = Math.hypot(e.dLat, e.dLong);
   const hot = e.dLong >= CF.accel.mod || -e.dLong >= CF.brake.mod || Math.abs(e.dLat) >= CF.corner.mod;
-  ctx.beginPath(); ctx.arc(p[0], p[1], 11, 0, TAU); ctx.fillStyle = col('--surface'); ctx.fill();
-  ctx.beginPath(); ctx.arc(p[0], p[1], 8, 0, TAU); ctx.fillStyle = hot ? col('--bad') : col('--accent'); ctx.fill();
+  const base = hot ? col('--bad') : mag >= 1.5 ? col('--pop') : col('--brand'), mr = Math.max(9, R * 0.085);
+  ctx.globalAlpha = 0.22; ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(p[0] + mr * 0.25, p[1] + mr * 0.75, mr * 0.95, mr * 0.38, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
+  const g = ctx.createRadialGradient(p[0] - mr * 0.35, p[1] - mr * 0.4, mr * 0.08, p[0], p[1], mr);
+  g.addColorStop(0, '#FFFFFF'); g.addColorStop(0.22, base); g.addColorStop(1, base);
+  ctx.beginPath(); ctx.arc(p[0], p[1], mr, 0, TAU); ctx.fillStyle = g; ctx.fill();
+  ctx.globalAlpha = 0.25; ctx.strokeStyle = '#000000'; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1;
 
   // Jauge verticale : roues gauches (G) et droites (D), échelle ±8 m/s², haut = poussée vers le haut.
   const gx0 = 4, gx1 = cx - R - 16, gw = gx1 - gx0;
@@ -1793,7 +1880,7 @@ function drawCockpit(canvas, e, ready) {
     for (let i = 0; i < 2; i++) {
       const x = xs[i], v = Math.max(-VMAX, Math.min(VMAX, i ? e.zR : e.zL)), hotG = Math.abs(v) >= thr;
       ctx.fillStyle = col('--soft'); ctx.fillRect(x, cy - gh, cw, 2 * gh);
-      ctx.fillStyle = hotG ? col('--bad') : col('--accent'); ctx.globalAlpha = hotG ? 1 : 0.85;
+      ctx.fillStyle = hotG ? col('--bad') : col('--brand'); ctx.globalAlpha = hotG ? 1 : 0.85;
       ctx.fillRect(x, v >= 0 ? cy - v * ys : cy, cw, Math.abs(v) * ys); ctx.globalAlpha = 1;
       const pk = Math.min(VMAX, e.pk[i]);
       if (pk > 0.4) { ctx.fillStyle = col('--ink'); ctx.fillRect(x - 3, cy - pk * ys - 1, cw + 6, 2); ctx.fillRect(x - 3, cy + pk * ys - 1, cw + 6, 2); }
@@ -1813,7 +1900,7 @@ function drawCockpit(canvas, e, ready) {
   if (e.gyroOn) {
     const y = e.yawShow, v = Math.sign(y) * Math.min(1, Math.abs(y) / 20);
     const le = e.lastEvent, lit = le && (le.kind === 'swerve' || le.kind === 'fix') && e.t - le.t < 3;
-    ctx.fillStyle = lit ? col(le.kind === 'swerve' ? '--k-swerve' : '--k-fix') : col('--accent'); ctx.fillRect(v >= 0 ? mid : mid + v * bw / 2, by + 2, Math.abs(v) * bw / 2, bh - 4);
+    ctx.fillStyle = lit ? col(le.kind === 'swerve' ? '--k-swerve' : '--k-fix') : col('--brand'); ctx.fillRect(v >= 0 ? mid : mid + v * bw / 2, by + 2, Math.abs(v) * bw / 2, bh - 4);
     ctx.strokeStyle = col('--line'); ctx.lineWidth = 1;
     for (const k of [-1, 1]) for (const d of [5, 10, 15]) { const xx = mid + k * d / 20 * bw / 2; ctx.beginPath(); ctx.moveTo(xx, by + 1); ctx.lineTo(xx, by + bh - 1); ctx.stroke(); }
     ctx.strokeStyle = col('--ink'); ctx.beginPath(); ctx.moveTo(mid, by - 2); ctx.lineTo(mid, by + bh + 2); ctx.stroke();
@@ -1862,7 +1949,7 @@ function updateLive() {
   for (const [k] of AXES) { const row = $('#ax-' + k), v = s.axes[k]; row.querySelector('i').style.width = (has(v) ? v : 0) + '%'; row.querySelector('i').className = 'g-' + (has(v) ? tone(v) : 'none'); row.querySelector('.v').textContent = has(v) ? v : '—'; }
   if (r.chipN !== e.events.length) { r.chipN = e.events.length; $('#l-chips').innerHTML = chipsHTML(e.events); }
   // encouragement vocal toutes les 10 min sans à-coup
-  const flow = Math.floor(e.streak / 600); if (flow > (r.flowSaid || 0)) { r.flowSaid = flow; say(`${flow * 10} minutes sans à-coup. Bravo.`); } else if (flow < (r.flowSaid || 0)) r.flowSaid = flow;
+  const flow = Math.floor(e.streak / 600); if (flow > (r.flowSaid || 0)) { r.flowSaid = flow; say(`${flow * 10} minutes, bille au centre. Bravo.`); } else if (flow < (r.flowSaid || 0)) r.flowSaid = flow;
 
   // Bandeau : dernier événement pendant 6 s, avec les points perdus ; sinon « conduite fluide ».
   const tb = $('#l-toast');
@@ -1877,8 +1964,8 @@ function updateLive() {
     r.toastKey = key;
     tb.className = 'toast ' + (!T ? 'ok' : !scoring(T.ev) ? 'i' : T.ev.sev === 2 ? 'b' : 'w') + (T ? ' pop' : '');
     $('#l-tmk').className = 'mk ' + (T ? T.ev.kind : '');
-    $('#l-tt').textContent = T ? evName(T.ev) : 'Conduite fluide';
-    $('#l-ts').textContent = T ? evSub(T.ev) : e.events.some(scoring) ? `Record ${clock(s.streakBest)}` : 'Rien à signaler';
+    $('#l-tt').textContent = T ? evName(T.ev) : 'Bille au centre';
+    $('#l-ts').textContent = T ? evSub(T.ev) : e.events.some(scoring) ? `Record ${clock(s.streakBest)}` : 'Continue comme ça';
     $('#l-tp').textContent = T && T.d < 0 ? T.d : '';
   }
 }
@@ -2011,59 +2098,90 @@ function finishRun() {
   if (engine.status !== 'ready') { S.run = null; clearDraft(); S.error = 'Calage impossible : aucune accélération franche en ligne droite. Redémarre et accélère doucement.'; return render(); }
   const t = makeTrip(engine, r), a = PG.award(G, trips, t, Date.now());
   trips = [t, ...trips].slice(0, 60); saveAll(); clearDraft();
-  S.run = null; S.error = ''; S.cele = { id: t.id, award: a }; S.tab = 'drive'; render();
-  say(`Trajet terminé : ${t.sum.score} sur 100. Plus ${a.xp} points d’expérience.`);
+  S.run = null; S.error = ''; S.cele = { id: t.id, award: a }; S.tab = 'drive'; render(); celebrate(a.xp);
+  say(`Trajet terminé : ${t.sum.score} sur 100. Plus ${a.xp} billes.`);
   window.scrollTo && window.scrollTo(0, 0);
 }
 
 /* ---------- Partage : carte image + lien ---------- */
 const host = APP_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
+// Pluie de billes et compteur : le moment de récompense, une seule fois par trajet.
+function celebrate(xp) {
+  const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const n = $('#xp-count'); if (!n) return;
+  if (!still) { let t0 = null; const step = now => { if (t0 === null) t0 = now; const k = Math.max(0, Math.min(1, (now - t0) / 900)); n.textContent = fmt(Math.round(xp * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }; n.textContent = '0'; requestAnimationFrame(step); }
+  const c = $('#rain'); if (!c || still || !xp) return;
+  const W = c.clientWidth, H = c.clientHeight, dpr = window.devicePixelRatio || 1; if (!W || !H) return;
+  c.width = W * dpr; c.height = H * dpr; const x = c.getContext('2d'); if (!x) return; x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cols = ['#2D46F5', '#FF6B2C', '#12A765', '#1797A7', '#E0562B', '#5B3FD6', '#F2B400'];
+  const bs = Array.from({ length: 28 }, (_, i) => ({ x: Math.random() * W, y: -20 - Math.random() * H * 0.6, vx: (Math.random() - 0.5) * 60, vy: 60 + Math.random() * 120, r: 5 + Math.random() * 6, c: cols[i % cols.length], b: 0 }));
+  const floor = Math.min(H - 10, 260); let t0 = null, last = null;
+  const frame = now => {
+    if (t0 === null) { t0 = now; last = now; }
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)), age = (now - t0) / 1000; last = now;
+    x.clearRect(0, 0, W, H); x.globalAlpha = Math.max(0, Math.min(1, 2.6 - age));
+    for (const m of bs) {
+      m.vy += 900 * dt; m.x += m.vx * dt; m.y += m.vy * dt;
+      if (m.y > floor - m.r && m.b < 2) { m.y = floor - m.r; m.vy *= -0.45; m.b++; }
+      const g = x.createRadialGradient(m.x - m.r * .35, m.y - m.r * .4, m.r * .1, m.x, m.y, m.r);
+      g.addColorStop(0, '#FFFFFF'); g.addColorStop(0.25, m.c); g.addColorStop(1, m.c);
+      x.fillStyle = g; x.beginPath(); x.arc(m.x, m.y, m.r, 0, Math.PI * 2); x.fill();
+    }
+    if (age < 2.6 && $('#rain') === c) requestAnimationFrame(frame); else x.clearRect(0, 0, W, H);
+  };
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Partage : carte image + lien ---------- */
 async function cardImage(kind, d) {
   try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
   const c = document.createElement('canvas'); c.width = 1080; c.height = 1350;
   const x = c.getContext('2d'); if (!x) throw new Error('canvas');
-  const C = { bg: '#0E1A22', band: '#132430', ink: '#E9F0F4', muted: '#8FA3B2', accent: '#43C1DD', xp: '#E8B847', good: '#4FCB86', warn: '#E3AE4D', bad: '#F0736B', track: '#1E3140' };
-  const LG = { bronze: '#D08A4C', silver: '#AEBBC7', gold: '#E8B847', platinum: '#5FC3D6', diamond: '#9EA2FF' };
-  const D = "'Barlow Condensed','Arial Narrow',sans-serif", B = "'Barlow',system-ui,sans-serif", E = "'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+  const C = { bg: '#2D46F5', deep: '#1B2CB5', ink: '#FFFFFF', soft: 'rgba(255,255,255,.72)', pop: '#FF6B2C', popD: '#B83E0C', good: '#3DE08E', warn: '#FFC145', bad: '#FF6B85', track: 'rgba(255,255,255,.16)' };
+  const D = "'Unbounded','Arial Black',sans-serif", B = "'Onest',system-ui,sans-serif", E = "'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+  const ball = (cx, cy, r, col, deep) => { const g = x.createRadialGradient(cx - r * .34, cy - r * .4, r * .08, cx, cy, r); g.addColorStop(0, '#FFFFFF'); g.addColorStop(0.18, col); g.addColorStop(1, deep); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill(); };
   x.fillStyle = C.bg; x.fillRect(0, 0, 1080, 1350);
-  // marquage au sol : ligne discontinue centrale
-  x.fillStyle = C.band; for (let yy = -40; yy < 1350; yy += 150) x.fillRect(1010, yy, 18, 90);
-  x.textBaseline = 'alphabetic';
-  x.fillStyle = C.ink; x.font = `700 46px ${D}`; x.fillText('PIED LÉGER', 80, 110);
+  // le bol, en grand, derrière le score
+  const cx = 540, cy = 700, R = 250;
+  x.fillStyle = 'rgba(255,255,255,.07)'; x.beginPath(); x.arc(cx, cy, R + 70, 0, Math.PI * 2); x.fill();
+  x.setLineDash([14, 14]); x.strokeStyle = 'rgba(255,255,255,.25)'; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, R - 70, 0, Math.PI * 2); x.stroke(); x.setLineDash([]);
+  // logo : « bille », la bille sur le i
+  x.textBaseline = 'alphabetic'; x.textAlign = 'left'; x.fillStyle = C.ink; x.font = `800 64px ${D}`;
+  const wb = x.measureText('b').width, wi = x.measureText('ı').width; x.fillText('bılle', 80, 130); ball(80 + wb + wi / 2, 76, 15, C.pop, C.popD);
   // profil
-  x.fillStyle = C.track; x.beginPath(); x.arc(150, 250, 70, 0, 7); x.fill();
-  x.font = `80px ${E}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(d.a || '🚗', 150, 256);
+  x.fillStyle = 'rgba(255,255,255,.14)'; x.beginPath(); x.arc(150, 270, 66, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#FFFFFF'; x.font = `76px ${E}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(d.a || '🚗', 150, 276);
   x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-  x.fillStyle = C.ink; x.font = `700 76px ${D}`; x.fillText(String(d.n || 'Moi').slice(0, 20), 250, 252);
-  x.fillStyle = C.muted; x.font = `500 34px ${B}`; x.fillText(`Niveau ${d.lv} · ${PG.levelOf(d.xp || 0).title}`, 250, 300);
-  // anneau
-  const cx = 540, cy = 690, R = 240, val = kind === 'defi' ? d.target : d.s;
-  const col = kind === 'defi' ? C.xp : val >= 70 ? C.good : val >= 50 ? C.warn : C.bad;
-  x.lineWidth = 34; x.lineCap = 'round'; x.strokeStyle = C.track; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
+  x.fillStyle = C.ink; x.font = `700 58px ${D}`; x.fillText(String(d.n || 'Moi').slice(0, 16), 245, 268);
+  x.fillStyle = C.soft; x.font = `500 32px ${B}`; x.fillText(`Niveau ${d.lv} · ${PG.levelOf(d.xp || 0).title}`, 245, 316);
+  // anneau du score
+  const val = kind === 'defi' ? d.target : d.s, col = kind === 'defi' ? C.pop : val >= 70 ? C.good : val >= 50 ? C.warn : C.bad;
+  x.lineWidth = 30; x.lineCap = 'round'; x.strokeStyle = C.track; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.stroke();
   x.strokeStyle = col; x.beginPath(); x.arc(cx, cy, R, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.01, (val || 0) / 100)); x.stroke();
   x.textAlign = 'center'; x.fillStyle = C.ink;
   if (kind === 'defi') {
-    x.fillStyle = C.xp; x.font = `700 56px ${D}`; x.fillText('DÉFI', cx, cy - 120);
-    x.fillStyle = C.ink; x.font = `700 230px ${D}`; x.fillText(String(val), cx, cy + 80);
-    x.fillStyle = C.muted; x.font = `500 38px ${B}`; x.fillText(`à battre sur ${d.km} km`, cx, cy + 140);
-    x.fillStyle = C.ink; x.font = `600 44px ${B}`; x.fillText(`Avant ${dayShort(d.until)}`, cx, 1040);
+    x.fillStyle = C.pop; x.beginPath(); x.roundRect ? x.roundRect(cx - 110, cy - 190, 220, 64, 32) : x.rect(cx - 110, cy - 190, 220, 64); x.fill();
+    x.fillStyle = C.ink; x.font = `700 34px ${D}`; x.fillText('DÉFI', cx, cy - 145);
+    x.font = `700 190px ${D}`; x.fillText(String(val), cx, cy + 70);
+    x.fillStyle = C.soft; x.font = `500 36px ${B}`; x.fillText(`à battre sur ${d.km} km`, cx, cy + 135);
+    x.fillStyle = C.ink; x.font = `600 42px ${B}`; x.fillText(`avant ${dayShort(d.until)}`, cx, 1070);
   } else {
-    x.font = `700 230px ${D}`; x.fillText(has(val) ? String(val) : '—', cx, cy + 80);
-    x.fillStyle = C.muted; x.font = `500 38px ${B}`; x.fillText(d.label || 'dernier trajet', cx, cy + 150);
-    // stats
-    const lg = PG.league(d.ws), cols = [[has(d.ws) ? String(d.ws) : '—', lg ? 'SEMAINE · ' + lg.name.toUpperCase() : 'SEMAINE', lg ? LG[lg.id] : C.ink], [String(d.st || 0), 'SÉRIE ≥ 70', C.ink], [String(d.b || 0), 'BADGES', C.xp]];
-    cols.forEach(([v, l, cc], i) => { const xx = 200 + i * 340; x.fillStyle = cc; x.font = `700 84px ${D}`; x.fillText(v, xx, 1060); x.fillStyle = C.muted; x.font = `600 26px ${B}`; x.fillText(l, xx, 1102); });
-    if (d.top && d.top.length) { x.font = `56px ${E}`; x.fillText(d.top.map(id => (PG.badge(id) || {}).icon || '').join('  '), cx, 1190); }
+    x.font = `700 190px ${D}`; x.fillText(has(val) ? String(val) : '—', cx, cy + 70);
+    x.fillStyle = C.soft; x.font = `500 34px ${B}`; x.fillText(d.label || 'dernier trajet', cx, cy + 140);
+    const lg = PG.league(d.ws), cols = [[has(d.ws) ? String(d.ws) : '—', lg ? 'LIGUE ' + lg.name.toUpperCase() : 'SEMAINE'], [String(d.st || 0), 'SÉRIE ≥ 70'], [String(d.b || 0), 'BILLES RARES']];
+    cols.forEach(([v, l], i) => { const xx = 200 + i * 340; x.fillStyle = C.ink; x.font = `700 66px ${D}`; x.fillText(v, xx, 1075); x.fillStyle = C.soft; x.font = `600 24px ${B}`; x.fillText(l, xx, 1115); });
+    if (d.top && d.top.length) { x.fillStyle = '#FFFFFF'; x.font = `48px ${E}`; x.textBaseline = 'middle'; d.top.forEach((id, i) => x.fillText((PG.badge(id) || {}).icon || '', cx + (i - (d.top.length - 1) / 2) * 90, 1180)); x.textBaseline = 'alphabetic'; }
   }
-  x.textAlign = 'left'; x.fillStyle = C.accent; x.font = `600 34px ${B}`; x.fillText(kind === 'defi' ? 'Relève le défi :' : 'Bats mon score :', 80, 1280);
-  x.fillStyle = C.ink; x.font = `500 30px ${B}`; x.fillText(host, 80, 1318);
+  x.textAlign = 'left'; x.fillStyle = C.pop; x.beginPath(); x.roundRect ? x.roundRect(80, 1236, 420, 64, 32) : x.rect(80, 1236, 420, 64); x.fill();
+  x.fillStyle = C.ink; x.font = `600 30px ${B}`; x.fillText(kind === 'defi' ? 'Relève le défi sur Bille' : 'Défie-moi sur Bille', 108, 1279);
+  x.fillStyle = C.soft; x.font = `500 26px ${B}`; x.textAlign = 'right'; x.fillText(host.replace('/Conductor-app', ''), 1000, 1279);
   return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
 }
 function openShare(kind, url, text, data) {
   S.sheet = { type: 'share', kind, url, text, img: null, file: null, data }; renderSheet();
   cardImage(kind, data).then(blob => {
     if (!S.sheet || S.sheet.url !== url) return;
-    try { S.sheet.file = new File([blob], 'pied-leger.png', { type: 'image/png' }); } catch (e) {}
+    try { S.sheet.file = new File([blob], 'bille.png', { type: 'image/png' }); } catch (e) {}
     S.sheet.img = URL.createObjectURL(blob); renderSheet();
   }).catch(() => {});
 }
@@ -2071,16 +2189,16 @@ function shareCard(reply, trip) {
   const now = Date.now(), c = PG.card(me(), G, trips, now, reply);
   if (trip) Object.assign(c, { s: trip.sum.score, km: Math.round(trip.sum.km * 10) / 10 });
   const lg = PG.league(c.ws), url = APP_URL + '#' + PG.encode('c', c);
-  const text = reply ? `${c.a} J’ai relevé ton défi sur Pied Léger : ${c.s}.` : `${c.a} ${c.n} sur Pied Léger : ${has(c.s) ? c.s + ' au dernier trajet' : 'nouveau'}${has(c.ws) ? `, ${c.ws} cette semaine (ligue ${lg.name})` : ''}. Ajoute-moi et bats mon score :`;
+  const text = reply ? `${c.a} J’ai relevé ton défi sur Bille : ${c.s}.` : `${c.a} ${c.n} sur Bille : ${has(c.s) ? c.s + ' au dernier trajet' : 'nouveau'}${has(c.ws) ? `, ${c.ws} cette semaine (ligue ${lg.name})` : ''}. Ajoute-moi et bats mon score :`;
   openShare('card', url, text, { ...c, xp: G.xp, label: trip ? `trajet de ${fmt(trip.sum.km, 1)} km` : 'dernier trajet' });
 }
 function shareDefi(d) {
   const url = APP_URL + '#' + PG.encode('d', { id: d.id, from: d.from, g: { s: d.target, km: d.km }, u: d.until });
-  openShare('defi', url, `${me().a} Défi Pied Léger : fais plus de ${d.target} sur un trajet de ${d.km} km avant ${dayShort(d.until)}. Relève-le :`, { ...me(), lv: PG.levelOf(G.xp).level, xp: G.xp, target: d.target, km: d.km, until: d.until });
+  openShare('defi', url, `${me().a} Défi Bille : fais plus de ${d.target} sur un trajet de ${d.km} km avant ${dayShort(d.until)}. Relève-le :`, { ...me(), lv: PG.levelOf(G.xp).level, xp: G.xp, target: d.target, km: d.km, until: d.until });
 }
 function doShare() {
   const sh = S.sheet; if (!sh) return;
-  const data = { title: 'Pied Léger', text: sh.text, url: sh.url };
+  const data = { title: 'Bille', text: sh.text, url: sh.url };
   if (navigator.share) {
     let payload = data;
     try { if (sh.file && navigator.canShare && navigator.canShare({ files: [sh.file] })) payload = { ...data, files: [sh.file] }; } catch (e) {}
@@ -2099,8 +2217,8 @@ function snack(msg) { const el = $('#snack'); el.textContent = msg; el.hidden = 
 function sheetHTML() {
   const sh = S.sheet, now = Date.now(); if (!sh) return '';
   const x = `<button class="btn link x" data-act="sheet-close" aria-label="Fermer">Fermer</button>`;
-  if (sh.type === 'profile') return `${sh.first ? '' : x}<h2>${sh.first ? 'Bienvenue sur Pied Léger' : 'Ton profil'}</h2>
-    ${sh.first ? '<p class="note" style="margin:0">Choisis un pseudo et un avatar : ce sont les seules infos que voient tes amis.</p>' : ''}
+  if (sh.type === 'profile') return `${sh.first ? '' : x}<h2>${sh.first ? 'Bienvenue sur Bille' : 'Ton profil'}</h2>
+    ${sh.first ? `<div class="concept">${bowlSVG('wb')}<p>Imagine une bille dans un bol sur ton tableau de bord. Freine fort, elle file. Conduis en douceur, elle reste au centre. Plus elle reste au centre, plus tu gagnes de billes.</p></div><p class="note" style="margin:0">Choisis un pseudo et un avatar : c’est tout ce que voit ta bande.</p>` : ''}
     <div class="field"><label for="pf-name">Pseudo</label><input id="pf-name" maxlength="24" autocomplete="nickname" value="${esc(P.n)}" placeholder="Ton prénom"></div>
     <div class="field"><span class="lbl">Avatar</span><div class="avs">${PG.AVATARS.map(a => `<button data-act="pick-av" data-av="${a}" aria-pressed="${(sh.av || P.a) === a}" aria-label="Avatar ${a}">${a}</button>`).join('')}</div></div>
     <button class="btn" data-act="profile-save">${sh.first ? 'C’est parti' : 'Enregistrer'}</button>
@@ -2122,12 +2240,12 @@ function sheetHTML() {
   }
   if (sh.type === 'badge') {
     const b = PG.badge(sh.id), got = G.badges[sh.id];
-    return `${x}<div class="b-head">${medal(sh.id, !got, false)}<div class="b-meta"><h2>${esc(b.name)}</h2><p class="note" style="margin:4px 0 0">${esc(b.desc)}</p><p class="eyebrow" style="margin-top:6px">${got ? 'Débloqué le ' + dayShort(got) : 'À débloquer · +50 XP'}</p></div></div>`;
+    return `${x}<div class="b-head">${medal(sh.id, !got, false)}<div class="b-meta"><h2>${esc(b.name)}</h2><p class="note" style="margin:4px 0 0">${esc(b.desc)}</p><p class="eyebrow" style="margin-top:6px">${got ? 'Gagnée le ' + dayShort(got) : 'À gagner · 50 billes'}</p></div></div>`;
   }
   if (sh.type === 'friend') {
     const f = G.friends[sh.id]; if (!f) return x + '<p class="empty">Ami introuvable.</p>';
     const wk = PG.weekKey(now), lg = f.w === wk ? PG.league(f.ws) : null;
-    return `${x}<div class="hello">${avatar(f.a, 'big')}<div><b>${esc(f.n)}</b><small>Niveau ${f.lv} · ${plural(f.b || 0, 'badge')} · série ${f.st || 0}</small><div style="margin-top:6px">${lgChip(lg, f.w === wk ? f.ws : null)}</div></div></div>
+    return `${x}<div class="hello">${avatar(f.a, 'big')}<div><b>${esc(f.n)}</b><small>Niveau ${f.lv} · ${rares(f.b || 0)} · série ${f.st || 0}</small><div style="margin-top:6px">${lgChip(lg, f.w === wk ? f.ws : null)}</div></div></div>
       <p class="note" style="margin:0">Dernier trajet : <b>${has(f.s) ? f.s : '—'}</b>${f.km ? ` sur ${fmt(f.km, 1)} km` : ''}${f.ts ? ' · ' + ago(f.ts) : ''}. Carte reçue ${ago(f.got || now)}.</p>
       ${f.top && f.top.length ? `<div class="medals" style="justify-content:flex-start">${f.top.map(id => medal(id)).join('')}</div>` : ''}
       <div class="field"><span class="lbl">Envoyer un bravo</span><div class="opts">${['👏', '🔥', '💪', '🎉', '😎'].map(e => `<button data-act="kudos-send" data-id="${esc(f.id)}" data-e="${e}" aria-label="Bravo ${e}">${e}</button>`).join('')}</div></div>
@@ -2135,7 +2253,7 @@ function sheetHTML() {
   }
   if (sh.type === 'incoming') {
     const { msg, res } = sh;
-    if (!res) return x + '<h2>Lien illisible</h2><p class="note" style="margin:0">Ce lien Pied Léger est incomplet ou abîmé. Demande à ton ami de le renvoyer.</p>';
+    if (!res) return x + '<h2>Lien illisible</h2><p class="note" style="margin:0">Ce lien Bille est incomplet ou abîmé. Demande à ton ami de le renvoyer.</p>';
     if (res.self) return x + '<h2>C’est ta propre carte</h2><p class="note" style="margin:0">Envoie-la à tes amis : quand ils l’ouvrent, tu apparais dans leur classement.</p>';
     const needName = !P.set ? `<p class="note" style="margin:0">Choisis d’abord ton pseudo pour répondre.</p><button class="btn ghost" data-act="profile" style="width:100%">Choisir mon pseudo</button>` : '';
     if (msg.k === 'c') {
@@ -2151,7 +2269,7 @@ function sheetHTML() {
     if (msg.k === 'd') {
       const d = res.defi;
       return `${x}<div class="hello">${avatar(d.from.a, 'big')}<div><b>${esc(d.from.n)} te défie</b><small>avant ${dayShort(d.until)}</small></div></div>
-        <p class="lvup" style="margin:0">Fais plus de ${d.target} sur un trajet d’au moins ${d.km} km. +100 XP si tu gagnes.</p>
+        <p class="lvup" style="margin:0">Fais plus de ${d.target} sur un trajet d’au moins ${d.km} km. 100 billes si tu gagnes.</p>
         ${d.status === 'expired' ? '<p class="note" style="margin:0">Ce défi est déjà expiré.</p>' : ''}
         ${needName}
         <button class="btn" data-act="tab" data-tab="drive">Relever le défi</button>`;
@@ -2201,7 +2319,7 @@ document.addEventListener('click', ev => {
   const act = b.dataset.act, id = b.dataset.id;
   if (act === 'sheet-bg') { if (ev.target === b && !(S.sheet && S.sheet.first)) { S.sheet = null; renderSheet(); } return; }
   switch (act) {
-    case 'go': S.error = ''; say('C’est parti. Bonne route.'); startSensors(); break;
+    case 'go': S.error = ''; say('C’est parti. Garde la bille au centre.'); startSensors(); break;
     case 'stop': finishRun(); break;
     case 'recal': if (S.run) { S.run.engine.recalibrate(); updateLive(); } break;
     case 'tg': SET[b.dataset.key] = !SET[b.dataset.key]; save(K.set, SET); b.setAttribute('aria-pressed', String(SET[b.dataset.key])); if (b.dataset.key === 'voice' && SET.voice) say('Coach vocal activé.'); break;

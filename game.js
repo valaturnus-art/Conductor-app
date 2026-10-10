@@ -1,4 +1,4 @@
-/* Pied Léger — jeu et social sans serveur (pur, sans DOM) : XP, niveaux, badges, défis, ligues, amis par liens. */
+/* Bille — jeu et social sans serveur (pur, sans DOM) : billes (XP), niveaux, billes rares (badges), défis, ligues, amis par liens. */
 const PG = (() => {
   'use strict';
   const DAY = 86400000;
@@ -18,7 +18,7 @@ const PG = (() => {
   /* ---------- Niveaux ---------- */
   // XP cumulée pour atteindre le niveau L : 60 × (L−1)^1,6. Un bon trajet rapporte 40 à 80 XP.
   const need = L => Math.round(60 * Math.pow(Math.max(0, L - 1), 1.6));
-  const TITLES = [[1, 'Apprenti'], [3, 'Conducteur attentif'], [6, 'Pied léger'], [10, 'Velours'], [15, 'Maître de la fluidité'], [20, 'Légende']];
+  const TITLES = [[1, 'Petite bille'], [3, 'Joueur de cour'], [6, 'Pointeur'], [10, 'Tireur d’élite'], [15, 'Maître du calot'], [20, 'Légende de la cour']];
   function levelOf(xp) {
     let L = 1; while (need(L + 1) <= xp) L++;
     const a = need(L), b = need(L + 1);
@@ -26,7 +26,8 @@ const PG = (() => {
   }
 
   /* ---------- Ligues (score pondéré par les km de la semaine) ---------- */
-  const LEAGUES = [[90, 'Diamant', 'diamond'], [80, 'Platine', 'platinum'], [70, 'Or', 'gold'], [60, 'Argent', 'silver'], [0, 'Bronze', 'bronze']];
+  // Ligues = les billes de la cour d'école, de la plus commune à la plus rare.
+  const LEAGUES = [[90, 'Galaxie', 'galaxie'], [80, 'Œil-de-chat', 'oeil'], [70, 'Agate', 'agate'], [60, 'Verre', 'verre'], [0, 'Terre', 'terre']];
   const league = s => { if (s === null || s === undefined) return null; const l = LEAGUES.find(x => s >= x[0]); return { name: l[1], id: l[2], min: l[0] }; };
   function weekStats(trips, wk) {
     const ts = trips.filter(t => weekKey(t.ts) === wk && t.sum);
