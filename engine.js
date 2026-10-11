@@ -1,4 +1,4 @@
-/* Bille — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
+/* Legato — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
 const PL = (() => {
   'use strict';
   const G = 9.81, D2R = Math.PI / 180;

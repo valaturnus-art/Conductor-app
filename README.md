@@ -1,12 +1,13 @@
-# Bille
+# Legato
 
-**Garde la bille au centre.** Le jeu de la conduite en douceur : le téléphone note ta conduite avec ses capteurs (accéléromètre, gyroscope, GPS) et tu joues avec ta bande. Notation volontairement stricte. Quatre onglets : **Rouler**, **Progrès**, **Bande**, **Trajets**.
+**Conduis legato.** En musique, *legato* veut dire « lié, sans rupture » : c'est la conduite sans à-coups. Le jeu de la conduite en douceur : le téléphone note ta conduite avec ses capteurs (accéléromètre, gyroscope, GPS) et tu joues avec ta bande. Notation volontairement stricte. Quatre onglets : **Rouler**, **Progrès**, **Bande**, **Trajets**.
 
 ## Marque
 
-- **Idée** : une bille posée dans un bol sur le tableau de bord. Freine fort, elle file vers l'avant ; vire sec, elle part sur le côté ; conduis en douceur, elle reste au centre. C'est le vieux truc des moniteurs (« le verre d'eau sur le tableau de bord »), transformé en jeu de cour d'école.
+- **Nom** : Legato, le jeu lié et sans rupture des musiciens, appliqué à la conduite.
+- **Mécanique** : une bille posée dans un bol sur le tableau de bord. Freine fort, elle file vers l'avant ; vire sec, elle part sur le côté ; conduis en douceur, elle reste au centre. C'est le vieux truc des moniteurs (« le verre d'eau sur le tableau de bord »), transformé en jeu de cour d'école.
 - **Univers** : les points sont des **billes**. Les ligues de la semaine suivent les billes de la cour, de la plus commune à la plus rare : Terre, Verre, Agate, Œil-de-chat, Galaxie. Les badges sont des **billes rares** à collectionner. Niveaux : Petite bille, Joueur de cour, Pointeur, Tireur d'élite, Maître du calot, Légende de la cour.
-- **Logo** : « bille » en minuscules, le point du i remplacé par une bille orange. Icône : la bille au centre de son bol, sur fond bleu cobalt.
+- **Logo** : « legato » en minuscules, le o final remplacé par une bille orange. Icône : la bille au centre de son bol, sur fond bleu cobalt.
 - **Couleurs** : bleu cobalt (marque), orange bille (récompenses), vert / ambre / rouge réservés aux états de conduite. Thème clair et sombre.
 - **Typo** : Unbounded (titres, scores), Onest (texte).
 - **Ton** : tutoiement, phrases courtes, encourageant, jamais moralisateur. « Bille au centre. », « Garde-la au centre la prochaine fois. »

@@ -1,4 +1,4 @@
-/* Bille — jeu et social sans serveur (pur, sans DOM) : billes (XP), niveaux, billes rares (badges), défis, ligues, amis par liens. */
+/* Legato — jeu et social sans serveur (pur, sans DOM) : billes (XP), niveaux, billes rares (badges), défis, ligues, amis par liens. */
 const PG = (() => {
   'use strict';
   const DAY = 86400000;

@@ -1,8 +1,8 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2D46F5"><meta name="description" content="Garde la bille au centre : le jeu de la conduite en douceur."><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Bille"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="apple-touch-icon" href="apple-touch-icon.png"><title>Bille</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#2D46F5"><meta name="description" content="Conduis legato : le jeu de la conduite sans à-coups."><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Legato"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="apple-touch-icon" href="apple-touch-icon.png"><title>Legato</title><style>:root{color-scheme:light;padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700;800&display=swap">
 <style>
-/* Bille — une colonne mobile (560 px max), onglets en bas. Motif unique : le bol et la bille (cockpit, logo, ligues, billes rares). */
+/* Legato — une colonne mobile (560 px max), onglets en bas. Motif unique : le bol et la bille (cockpit, logo, ligues, billes rares). */
 :root{
   --bg:#F2F3F8; --surface:#FFFFFF; --ink:#141634; --muted:#5D6283; --line:#DDE0EC; --soft:#ECEEF6;
   --brand:#2D46F5; --brand-ink:#FFFFFF; --brand-deep:#1B2CB5; --brand-soft:#E4E8FF;
@@ -49,8 +49,7 @@ button,input{font-family:inherit}
 /* en-tête : logo, billes, profil */
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px}
 .logo{display:inline-flex;align-items:baseline;margin:0;font:800 30px/1 var(--font-display);letter-spacing:-.02em;color:var(--ink)}
-.logo .i{position:relative;display:inline-block}
-.logo .i b{position:absolute;left:50%;top:-.04em;width:.34em;height:.34em;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle at 34% 30%,#FFFFFF 0 13%,var(--pop) 17% 58%,var(--pop-deep) 100%);box-shadow:inset -1px -2px 3px rgba(0,0,0,.18)}
+.logo .o{display:inline-block;width:.54em;height:.54em;margin-left:.05em;align-self:center;transform:translateY(.12em);border-radius:50%;background:radial-gradient(circle at 34% 30%,#FFFFFF 0 13%,var(--pop) 17% 58%,var(--pop-deep) 100%);box-shadow:inset -1px -2px 3px rgba(0,0,0,.18)}
 .top-r{display:flex;align-items:center;gap:8px;min-width:0}
 .coinchip,.me-chip{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);font:700 14px var(--font-body);font-variant-numeric:tabular-nums;white-space:nowrap}
 .me-chip{padding-left:4px;cursor:pointer;min-width:0}
@@ -390,7 +389,7 @@ button.item{cursor:pointer}
 <div class="snack" id="snack" role="status" hidden></div>
 
 <script>
-/* Bille — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
+/* Legato — moteur d'analyse de conduite (pur, sans DOM). v3 : + limitations de vitesse, téléphone manipulé, éco-dynamisme (RDE). */
 const PL = (() => {
   'use strict';
   const G = 9.81, D2R = Math.PI / 180;
@@ -1135,7 +1134,7 @@ if (typeof module !== 'undefined') module.exports = PL;
 
 </script>
 <script>
-/* Bille — jeu et social sans serveur (pur, sans DOM) : billes (XP), niveaux, billes rares (badges), défis, ligues, amis par liens. */
+/* Legato — jeu et social sans serveur (pur, sans DOM) : billes (XP), niveaux, billes rares (badges), défis, ligues, amis par liens. */
 const PG = (() => {
   'use strict';
   const DAY = 86400000;
@@ -1531,7 +1530,7 @@ const gain = n => `+${fmt(n)}${COIN}`;
 const rares = n => `${n} bille${n > 1 ? 's' : ''} rare${n > 1 ? 's' : ''}`;
 const marble = id => `<i class="marble m-${id || 'none'}" aria-hidden="true"></i>`;
 const lgChip = (lg, score) => lg ? `<span class="lg">${marble(lg.id)}${lg.name}${has(score) ? ' · ' + score : ''}</span>` : `<span class="lg">${marble()}Pas encore classé</span>`;
-const LOGO = '<span class="logo" aria-label="Bille">b<span class="i">ı<b></b></span>lle</span>';
+const LOGO = '<span class="logo" aria-label="Legato">legat<b class="o"></b></span>';
 // Le bol et sa bille : le motif de la marque (accueil, bienvenue).
 const bowlSVG = (id = 'bw') => `<svg class="bowl" viewBox="0 0 120 120" aria-hidden="true"><defs>
   <radialGradient id="${id}a" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".35"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".06"/></radialGradient>
@@ -2147,7 +2146,7 @@ async function cardImage(kind, d) {
   x.setLineDash([14, 14]); x.strokeStyle = 'rgba(255,255,255,.25)'; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, R - 70, 0, Math.PI * 2); x.stroke(); x.setLineDash([]);
   // logo : « bille », la bille sur le i
   x.textBaseline = 'alphabetic'; x.textAlign = 'left'; x.fillStyle = C.ink; x.font = `800 64px ${D}`;
-  const wb = x.measureText('b').width, wi = x.measureText('ı').width; x.fillText('bılle', 80, 130); ball(80 + wb + wi / 2, 76, 15, C.pop, C.popD);
+  const wl = x.measureText('legat').width; x.fillText('legat', 80, 130); ball(80 + wl + 21, 108, 20, C.pop, C.popD);
   // profil
   x.fillStyle = 'rgba(255,255,255,.14)'; x.beginPath(); x.arc(150, 270, 66, 0, Math.PI * 2); x.fill();
   x.fillStyle = '#FFFFFF'; x.font = `76px ${E}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(d.a || '🚗', 150, 276);
@@ -2173,7 +2172,7 @@ async function cardImage(kind, d) {
     if (d.top && d.top.length) { x.fillStyle = '#FFFFFF'; x.font = `48px ${E}`; x.textBaseline = 'middle'; d.top.forEach((id, i) => x.fillText((PG.badge(id) || {}).icon || '', cx + (i - (d.top.length - 1) / 2) * 90, 1180)); x.textBaseline = 'alphabetic'; }
   }
   x.textAlign = 'left'; x.fillStyle = C.pop; x.beginPath(); x.roundRect ? x.roundRect(80, 1236, 420, 64, 32) : x.rect(80, 1236, 420, 64); x.fill();
-  x.fillStyle = C.ink; x.font = `600 30px ${B}`; x.fillText(kind === 'defi' ? 'Relève le défi sur Bille' : 'Défie-moi sur Bille', 108, 1279);
+  x.fillStyle = C.ink; x.font = `600 30px ${B}`; x.fillText(kind === 'defi' ? 'Relève le défi sur Legato' : 'Défie-moi sur Legato', 108, 1279);
   x.fillStyle = C.soft; x.font = `500 26px ${B}`; x.textAlign = 'right'; x.fillText(host.replace('/Conductor-app', ''), 1000, 1279);
   return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/png'));
 }
@@ -2181,7 +2180,7 @@ function openShare(kind, url, text, data) {
   S.sheet = { type: 'share', kind, url, text, img: null, file: null, data }; renderSheet();
   cardImage(kind, data).then(blob => {
     if (!S.sheet || S.sheet.url !== url) return;
-    try { S.sheet.file = new File([blob], 'bille.png', { type: 'image/png' }); } catch (e) {}
+    try { S.sheet.file = new File([blob], 'legato.png', { type: 'image/png' }); } catch (e) {}
     S.sheet.img = URL.createObjectURL(blob); renderSheet();
   }).catch(() => {});
 }
@@ -2189,16 +2188,16 @@ function shareCard(reply, trip) {
   const now = Date.now(), c = PG.card(me(), G, trips, now, reply);
   if (trip) Object.assign(c, { s: trip.sum.score, km: Math.round(trip.sum.km * 10) / 10 });
   const lg = PG.league(c.ws), url = APP_URL + '#' + PG.encode('c', c);
-  const text = reply ? `${c.a} J’ai relevé ton défi sur Bille : ${c.s}.` : `${c.a} ${c.n} sur Bille : ${has(c.s) ? c.s + ' au dernier trajet' : 'nouveau'}${has(c.ws) ? `, ${c.ws} cette semaine (ligue ${lg.name})` : ''}. Ajoute-moi et bats mon score :`;
+  const text = reply ? `${c.a} J’ai relevé ton défi sur Legato : ${c.s}.` : `${c.a} ${c.n} sur Legato : ${has(c.s) ? c.s + ' au dernier trajet' : 'nouveau'}${has(c.ws) ? `, ${c.ws} cette semaine (ligue ${lg.name})` : ''}. Ajoute-moi et bats mon score :`;
   openShare('card', url, text, { ...c, xp: G.xp, label: trip ? `trajet de ${fmt(trip.sum.km, 1)} km` : 'dernier trajet' });
 }
 function shareDefi(d) {
   const url = APP_URL + '#' + PG.encode('d', { id: d.id, from: d.from, g: { s: d.target, km: d.km }, u: d.until });
-  openShare('defi', url, `${me().a} Défi Bille : fais plus de ${d.target} sur un trajet de ${d.km} km avant ${dayShort(d.until)}. Relève-le :`, { ...me(), lv: PG.levelOf(G.xp).level, xp: G.xp, target: d.target, km: d.km, until: d.until });
+  openShare('defi', url, `${me().a} Défi Legato : fais plus de ${d.target} sur un trajet de ${d.km} km avant ${dayShort(d.until)}. Relève-le :`, { ...me(), lv: PG.levelOf(G.xp).level, xp: G.xp, target: d.target, km: d.km, until: d.until });
 }
 function doShare() {
   const sh = S.sheet; if (!sh) return;
-  const data = { title: 'Bille', text: sh.text, url: sh.url };
+  const data = { title: 'Legato', text: sh.text, url: sh.url };
   if (navigator.share) {
     let payload = data;
     try { if (sh.file && navigator.canShare && navigator.canShare({ files: [sh.file] })) payload = { ...data, files: [sh.file] }; } catch (e) {}
@@ -2217,7 +2216,7 @@ function snack(msg) { const el = $('#snack'); el.textContent = msg; el.hidden = 
 function sheetHTML() {
   const sh = S.sheet, now = Date.now(); if (!sh) return '';
   const x = `<button class="btn link x" data-act="sheet-close" aria-label="Fermer">Fermer</button>`;
-  if (sh.type === 'profile') return `${sh.first ? '' : x}<h2>${sh.first ? 'Bienvenue sur Bille' : 'Ton profil'}</h2>
+  if (sh.type === 'profile') return `${sh.first ? '' : x}<h2>${sh.first ? 'Bienvenue sur Legato' : 'Ton profil'}</h2>
     ${sh.first ? `<div class="concept">${bowlSVG('wb')}<p>Imagine une bille dans un bol sur ton tableau de bord. Freine fort, elle file. Conduis en douceur, elle reste au centre. Plus elle reste au centre, plus tu gagnes de billes.</p></div><p class="note" style="margin:0">Choisis un pseudo et un avatar : c’est tout ce que voit ta bande.</p>` : ''}
     <div class="field"><label for="pf-name">Pseudo</label><input id="pf-name" maxlength="24" autocomplete="nickname" value="${esc(P.n)}" placeholder="Ton prénom"></div>
     <div class="field"><span class="lbl">Avatar</span><div class="avs">${PG.AVATARS.map(a => `<button data-act="pick-av" data-av="${a}" aria-pressed="${(sh.av || P.a) === a}" aria-label="Avatar ${a}">${a}</button>`).join('')}</div></div>
@@ -2253,7 +2252,7 @@ function sheetHTML() {
   }
   if (sh.type === 'incoming') {
     const { msg, res } = sh;
-    if (!res) return x + '<h2>Lien illisible</h2><p class="note" style="margin:0">Ce lien Bille est incomplet ou abîmé. Demande à ton ami de le renvoyer.</p>';
+    if (!res) return x + '<h2>Lien illisible</h2><p class="note" style="margin:0">Ce lien Legato est incomplet ou abîmé. Demande à ton ami de le renvoyer.</p>';
     if (res.self) return x + '<h2>C’est ta propre carte</h2><p class="note" style="margin:0">Envoie-la à tes amis : quand ils l’ouvrent, tu apparais dans leur classement.</p>';
     const needName = !P.set ? `<p class="note" style="margin:0">Choisis d’abord ton pseudo pour répondre.</p><button class="btn ghost" data-act="profile" style="width:100%">Choisir mon pseudo</button>` : '';
     if (msg.k === 'c') {

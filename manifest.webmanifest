@@ -1,7 +1,7 @@
 {
-  "name": "Bille",
-  "short_name": "Bille",
-  "description": "Garde la bille au centre : le jeu de la conduite en douceur.",
+  "name": "Legato",
+  "short_name": "Legato",
+  "description": "Conduis legato, garde la bille au centre : le jeu de la conduite en douceur.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
